@@ -1,0 +1,31 @@
+{
+  "env": {
+    "node": true,
+    "es6": true,
+    "jest": true,
+    "mocha": true
+  },
+  "globals": {
+    "process": true
+  },
+  "extends": ["eslint:recommended", "prettier"],
+  "parserOptions": {
+    "ecmaFeatures": {},
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    "func-style": ["warn", "expression"],
+    "linebreak-style": ["error", "unix"],
+    "no-array-constructor": ["error"],
+    "no-eval": ["error"],
+    "no-loop-func": ["error"],
+    "no-new-object": ["error"],
+    "prettier/prettier": ["warn"],
+    "quote-props": ["error", "as-needed"],
+    "quotes": ["error", "single"],
+    "semi": ["error"],
+    "spaced-comment": ["warn"]
+  },
+  "plugins": ["prettier"]
+}

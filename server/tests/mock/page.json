@@ -1,0 +1,76 @@
+{
+  "preloadedImages": [],
+  "_id": "5e94926c028a8f1edb796551",
+  "url": "/sample/absolute-url/",
+  "title": "Awesome page",
+  "partner": "partner-name",
+  "description": "Awesome page about something real interesting",
+  "components": [
+    {
+      "_id": "1",
+      "component": {
+        "name": "Header",
+        "description": "Page header with image background"
+      },
+      "data": {
+        "title": "The best page in the world",
+        "textContent": "",
+        "extraContent": "<p>Some HTML here</p>",
+        "classExtensions": [
+          "big-image"
+        ]
+      },
+      "order": 1
+    },
+    {
+      "_id": "2",
+      "component": {
+        "name": "TableOfContent",
+        "description": "ToC component with Items components inside"
+      },
+      "order": 2
+    },
+    {
+      "_id": "3",
+      "parentComponentId": "2",
+      "component": {
+        "name": "Header",
+        "description": "Page header with image background"
+      },
+      "data": {
+        "anchorText": "Wonderful page header",
+        "label": "Wondreful section"
+      },
+      "order": 1
+    },
+    {
+      "_id": "4",
+      "parentComponentId": "2",
+      "component": {
+        "name": "Header",
+        "description": "Page header with image background"
+      },
+      "data": {
+        "anchorText": "Even more wonderful page header",
+        "label": "More wondreful section"
+      },
+      "order": 2
+    },
+    {
+      "_id": "5",
+      "parentComponentId": "4",
+      "component": {
+        "name": "Header",
+        "description": "Page header with image background"
+      },
+      "data": {
+        "anchorText": "Extremely more wonderful page header",
+        "label": "Extremely wondreful section"
+      },
+      "order": 3
+    }
+  ],
+  "createdAt": "2020-04-13T16:25:16.465Z",
+  "updatedAt": "2020-04-13T16:25:16.465Z",
+  "__v": 0
+}
