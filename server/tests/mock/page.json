@@ -34,7 +34,7 @@
       "_id": "3",
       "parentComponentId": "2",
       "component": {
-        "name": "Header",
+        "name": "TableOfContentItem",
         "description": "Page header with image background"
       },
       "data": {
@@ -47,7 +47,7 @@
       "_id": "4",
       "parentComponentId": "2",
       "component": {
-        "name": "Header",
+        "name": "TableOfContentItem",
         "description": "Page header with image background"
       },
       "data": {
@@ -60,7 +60,7 @@
       "_id": "5",
       "parentComponentId": "4",
       "component": {
-        "name": "Header",
+        "name": "TableOfContentItem",
         "description": "Page header with image background"
       },
       "data": {

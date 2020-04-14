@@ -5,11 +5,11 @@ const getFieldTypes = async (req, res) => {
 
   try {
     if (fieldTypeId) {
-      const fieldType = await Field.findById(fieldId);
+      const fieldType = await FieldType.findById(fieldTypeId);
       res.send(fieldType);
     }
 
-    const fieldTypes = await FieldType.find().exec()
+    const fieldTypes = await FieldType.find().exec();
     res.send(fieldTypes);
   } catch (err) {
     res.status(500).send(err.message);
@@ -18,7 +18,7 @@ const getFieldTypes = async (req, res) => {
 
 const createFieldType = async (req, res) => {
   try {
-    const fieldType = new FieldType(req.body)
+    const fieldType = new FieldType(req.body);
     fieldType.save();
     res.send(fieldType._id);
   } catch (err) {
@@ -28,7 +28,7 @@ const createFieldType = async (req, res) => {
 
 const updateFieldType = async (req, res) => {
   try {
-    const fieldType = Field.findOneAndUpdate({_id: req.params.fieldTypeId}, req.body)
+    const fieldType = FieldType.findOneAndUpdate({ _id: req.params.fieldTypeId }, req.body);
     res.send(fieldType);
   } catch (err) {
     res.status(500).send(err.message);

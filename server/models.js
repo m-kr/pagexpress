@@ -8,7 +8,7 @@ const fieldTypeSchema = new Schema({
 
 const fieldSchema = new Schema({
   name: String,
-  fieldTypeId: { type: Schema.Types.ObjectId, ref: 'FieldType'},
+  fieldTypeId: { type: Schema.Types.ObjectId, ref: 'FieldType' },
 });
 
 const subComponent = new Schema({
@@ -33,16 +33,19 @@ const pageComponent = new Schema({
   attributes: Object,
 });
 
-const pageSchema = new Schema({
-  url: String,
-  title: String,
-  description: String,
-  preloadedImages: Array,
-  partner: String,
-  components: [pageComponent],
-}, {
-  timestamps: true,
-});
+const pageSchema = new Schema(
+  {
+    url: String,
+    title: String,
+    description: String,
+    preloadedImages: Array,
+    partner: String,
+    components: [pageComponent],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const FieldType = model('FieldType', fieldTypeSchema);
 const Page = model('Page', pageSchema);
