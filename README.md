@@ -1,4 +1,4 @@
-## Tiny Headless CSS
+## Tiny Headless CMS
 
 ### Run
 Docker mongodb image
