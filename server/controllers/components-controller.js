@@ -4,9 +4,7 @@ const getComponents = async (req, res) => {
   const { componentId } = req.params;
 
   try {
-    const query = await componentId
-      ? Component.findById(componentId)
-      : Component.find();
+    const query = (await componentId) ? Component.findById(componentId) : Component.find();
 
     const data = await query.exec();
     res.send(data);
@@ -29,7 +27,7 @@ const updateComponent = async (req, res) => {
   const { componentId } = req.params;
 
   try {
-    const component = await Component.findOneAndUpdate({_id: componentId}, req.body);
+    const component = await Component.findOneAndUpdate({ _id: componentId }, req.body);
     res.send(component);
   } catch (err) {
     res.status(500).send(err.message);

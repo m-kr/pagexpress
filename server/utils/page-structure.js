@@ -1,15 +1,15 @@
 const prettifyComponentStructure = (component) => {
-  if (!component.component) {
+  if (!component.componentType) {
     return component;
   }
 
-  const { name, description } = component.component;
+  const { name, description } = component.componentType;
 
   return {
     ...component,
     name,
     description,
-    component: undefined,
+    componentType: undefined,
   };
 };
 

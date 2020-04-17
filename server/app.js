@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const { pages, components, fields } = require('./routes');
+const { pages, pageTypes, pageAttributeTypes, components, fields } = require('./routes');
 
 mongoose.connect('mongodb://0.0.0.0:27017/local', {
   useNewUrlParser: true,
@@ -20,6 +20,8 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(rootPath, 'client/dist')));
 
 app.use('/v1', pages);
+app.use('/v1', pageTypes);
+app.use('/v1', pageAttributeTypes);
 app.use('/v1', components);
 app.use('/v1', fields);
 

@@ -1,16 +1,16 @@
-const { Page, Component } = require('../models');
+const { Page } = require('../models');
 const { buildPageStructure } = require('../utils/page-structure');
 
 const getPageStructure = async (req, res) => {
   const { pageId } = req.params;
 
   try {
-    const page = await Page
-      .findById(pageId)
+    const page = await Page.findById(pageId)
       .populate({
         path: 'components.component',
         select: '_id name description',
       })
+      .populate('pageTypeAttributes')
       .select('_id url description components');
 
     const structure = buildPageStructure(page.toObject().components);
@@ -25,15 +25,14 @@ const getPages = async (req, res) => {
   const { pageId } = req.params;
 
   try {
-    const query = await pageId
-      ? Page.findById(pageId)
-      : Page.find();
+    const query = pageId ? Page.findById(pageId) : Page.find();
 
     const data = await query
       .populate({
-        path: 'components.component',
+        path: 'components.componentType',
         select: 'name description _id',
       })
+      .populate('pageType')
       .exec();
 
     res.send(data);
@@ -56,7 +55,7 @@ const updatePage = async (req, res) => {
   const { pageId } = req.params;
 
   try {
-    const page = await Page.findOneAndUpdate({_id: pageId}, req.body);
+    const page = await Page.findOneAndUpdate({ _id: pageId }, req.body);
     res.send(page);
   } catch (err) {
     res.status(500).send(err.message);

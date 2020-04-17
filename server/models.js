@@ -24,9 +24,24 @@ const componentSchema = new Schema({
   components: [subComponent],
 });
 
+const pageTypeAttributeTypeSchema = new Schema({
+  type: String,
+});
+
+const pageTypeAttributeSchema = new Schema({
+  name: String,
+  description: String,
+  typeId: { type: Schema.Types.ObjectId, ref: 'PageAttributeType' },
+});
+
+const pageTypeSchema = new Schema({
+  type: String,
+  attributes: [pageTypeAttributeSchema],
+});
+
 const pageComponent = new Schema({
   _id: { type: String, default: uuid.v4 },
-  component: { type: Schema.Types.ObjectId, ref: 'Component' },
+  componentType: { type: Schema.Types.ObjectId, ref: 'Component' },
   parentComponentId: String,
   data: Object,
   order: Number,
@@ -38,21 +53,25 @@ const pageSchema = new Schema(
     url: String,
     title: String,
     description: String,
-    preloadedImages: Array,
-    partner: String,
     components: [pageComponent],
+    pageType: { type: Schema.Types.ObjectId, ref: 'PageType' },
+    pageTypeAttributes: Object,
   },
   {
     timestamps: true,
   }
 );
 
+const PageAttributeType = model('PageAttributeType', pageTypeAttributeTypeSchema);
+const PageType = model('PageType', pageTypeSchema);
 const FieldType = model('FieldType', fieldTypeSchema);
 const Page = model('Page', pageSchema);
 const Component = model('Component', componentSchema);
 
 module.exports = {
   FieldType,
+  PageAttributeType,
+  PageType,
   Page,
   Component,
 };
