@@ -6,29 +6,23 @@ const cors = require('cors');
 const config = require('config');
 const { pages, pageTypes, pageAttributeTypes, components, fields } = require('./routes');
 
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-} else if (!config.get('jwtPrivateKey')) {
+if (!config.get('jwtPrivateKey')) {
   console.log('FATAL ERROR: jwtPrivateKey is not defined');
 
   process.exit();
 }
 
-const { DB_HOST, DB_PORT, DB_COLLECTION, DB_USER, DB_PASS, APP_HOST, APP_PORT } = process.env;
-
-mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}/${DB_COLLECTION}`, {
+const { host, port, collection, user, password } = config.get('mongodb');
+mongoose.connect(`mongodb://${host}:${port}/${collection}`, {
   useNewUrlParser: true,
   auth: {
     authSource: 'admin',
   },
-  user: DB_USER,
-  pass: DB_PASS,
+  user: user,
+  pass: password,
 });
 
 const app = express();
-const host = APP_HOST || '127.0.0.1';
-const port = APP_PORT || '3000';
-
 const rootPath = process.env.NODE_PATH;
 app.use(bodyParser.json());
 app.use(cors());
@@ -42,5 +36,6 @@ app.use('/v1', fields);
 
 app.get('*', (req, res) => res.sendFile('index.html'));
 
-app.listen(port, host);
+const serverConfig = config.get('server');
+app.listen(serverConfig.port, serverConfig.host);
 console.log(`Example app listening at ${host}:${port}`);

@@ -4,7 +4,8 @@
   "description": "Tiny app for creating page content",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_PATH=. nodemon ./server/app.js",
+    "dev": "NODE_PATH=. nodemon app.js",
+    "start": "NODE_PATH=. NODE_ENV=production node app.js",
     "test": "jest"
   },
   "author": "",
@@ -23,7 +24,6 @@
     "uuid": "^7.0.3"
   },
   "devDependencies": {
-    "dotenv": "^8.2.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.9.0",
     "eslint-plugin-prettier": "^3.1.2",
