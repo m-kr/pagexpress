@@ -1,0 +1,14 @@
+{
+  "jwtPrivateKey": "",
+  "mongodb": {
+    "host": "0.0.0.0",
+    "port": "27017",
+    "collection": "local",
+    "user": "root",
+    "password": "root"
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": "3000"
+  }
+}
