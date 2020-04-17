@@ -1,4 +1,7 @@
-## Tiny Headless CMS
+## Pagexpress
+### Build page in the same way as building constructions from Lego 🧱
+Application allows creating JSON with page structure which could be used the sam offline as online as a headless CMS. 
+Project built on NodeJS + VueJS tech-stack.
 
 ### Run
 Docker mongodb image
