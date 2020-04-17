@@ -16,7 +16,7 @@ describe('page-structure', () => {
   describe('prettifyComponentStructure', () => {
     test('Should flatten component structure', () => {
       const sampleComponent = components[0];
-      const { name, description } = sampleComponent.component;
+      const { name, description } = sampleComponent.componentType;
       const flatComponent = prettifyComponentStructure(sampleComponent);
 
       expect(name).toEqual(flatComponent.name);

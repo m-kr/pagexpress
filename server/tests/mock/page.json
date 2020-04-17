@@ -8,7 +8,7 @@
   "components": [
     {
       "_id": "1",
-      "component": {
+      "componentType": {
         "name": "Header",
         "description": "Page header with image background"
       },
@@ -24,7 +24,7 @@
     },
     {
       "_id": "2",
-      "component": {
+      "componentType": {
         "name": "TableOfContent",
         "description": "ToC component with Items components inside"
       },
@@ -33,7 +33,7 @@
     {
       "_id": "3",
       "parentComponentId": "2",
-      "component": {
+      "componentType": {
         "name": "TableOfContentItem",
         "description": "Page header with image background"
       },
@@ -46,7 +46,7 @@
     {
       "_id": "4",
       "parentComponentId": "2",
-      "component": {
+      "componentType": {
         "name": "TableOfContentItem",
         "description": "Page header with image background"
       },
@@ -59,7 +59,7 @@
     {
       "_id": "5",
       "parentComponentId": "4",
-      "component": {
+      "componentType": {
         "name": "TableOfContentItem",
         "description": "Page header with image background"
       },
