@@ -62,11 +62,24 @@ const pageSchema = new Schema(
   }
 );
 
+const userSchema = Schema(
+  {
+    firstName: String,
+    lastName: String,
+    email: String,
+    password: String,
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const PageAttributeType = model('PageAttributeType', pageTypeAttributeTypeSchema);
 const PageType = model('PageType', pageTypeSchema);
 const FieldType = model('FieldType', fieldTypeSchema);
 const Page = model('Page', pageSchema);
 const Component = model('Component', componentSchema);
+const User = model('User', userSchema);
 
 module.exports = {
   FieldType,
@@ -74,4 +87,5 @@ module.exports = {
   PageType,
   Page,
   Component,
+  User,
 };
