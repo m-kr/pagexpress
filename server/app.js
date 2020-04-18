@@ -26,7 +26,7 @@ const app = express();
 const rootPath = process.env.NODE_PATH;
 app.use(bodyParser.json());
 app.use(cors());
-app.use(express.static(path.join(rootPath, 'client/dist')));
+app.use(express.static(path.join(rootPath, 'public')));
 
 app.use('/v1', pages);
 app.use('/v1', pageTypes);
