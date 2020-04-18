@@ -3,6 +3,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
+const rootPath = path.join(__dirname, '../');
+
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config({ path: `${rootPath}.env` });
+}
+
 const config = require('config');
 const { pages, pageTypes, pageAttributeTypes, components, fields } = require('./routes');
 
@@ -23,7 +30,6 @@ mongoose.connect(`mongodb://${host}:${port}/${collection}`, {
 });
 
 const app = express();
-const rootPath = process.env.NODE_PATH;
 app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static(path.join(rootPath, 'public')));
@@ -34,8 +40,8 @@ app.use('/v1', pageAttributeTypes);
 app.use('/v1', components);
 app.use('/v1', fields);
 
-app.get('*', (req, res) => res.sendFile('index.html'));
+app.get('*', (req, res) => res.sendFile('/index.html'));
 
 const serverConfig = config.get('server');
 app.listen(serverConfig.port, serverConfig.host);
-console.log(`Example app listening at ${host}:${port}`);
+console.log(`App listening at ${serverConfig.host}:${serverConfig.port}`);
