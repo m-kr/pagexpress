@@ -1,4 +1,4 @@
-const { Component } = require('../models');
+const { Component } = require('../models/Component');
 
 const getComponents = async (req, res) => {
   const { componentId } = req.params;

@@ -1,4 +1,4 @@
-const { PageType } = require('../models');
+const { PageType } = require('../models/PageType');
 
 const getPageTypes = async (req, res) => {
   const { pageTypeId } = req.params;
