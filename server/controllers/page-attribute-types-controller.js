@@ -1,4 +1,4 @@
-const { PageAttributeType } = require('../models');
+const { PageAttributeType } = require('../models/PageAttributeType');
 
 const getPageAttributeTypes = async (req, res) => {
   const { pageAttributeTypeId } = req.params;

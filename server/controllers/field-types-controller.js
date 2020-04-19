@@ -1,4 +1,4 @@
-const { FieldType } = require('../models');
+const { FieldType } = require('../models/FieldType');
 
 const getFieldTypes = async (req, res) => {
   const { fieldTypeId } = req.params;

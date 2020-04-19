@@ -1,4 +1,4 @@
-const { Page } = require('../models');
+const { Page } = require('../models/Page');
 const { buildPageStructure } = require('../utils/page-structure');
 
 const getPageStructure = async (req, res) => {
