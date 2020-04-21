@@ -1,4 +1,4 @@
-const { PageAttributeType } = require('../models/PageAttributeType');
+const { PageAttributeType, pageTypeAttributeValidationSchema } = require('../models/PageAttributeType');
 
 const getPageAttributeTypes = async (req, res) => {
   const { pageAttributeTypeId } = req.params;
@@ -13,6 +13,18 @@ const getPageAttributeTypes = async (req, res) => {
 };
 
 const createPageAttributeType = async (req, res) => {
+  const { error } = pageTypeAttributeValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const existedAttributeWithName = await PageAttributeType.findOne({ name: req.body.type });
+
+  if (existedAttributeWithName) {
+    return res.status(400).send(`Attribute "${req.body.type}" already exists`);
+  }
+
   try {
     const pageAttributeType = new PageAttributeType(req.body);
     pageAttributeType.save();
@@ -23,6 +35,12 @@ const createPageAttributeType = async (req, res) => {
 };
 
 const updatePageAttributeType = async (req, res) => {
+  const { error } = pageTypeAttributeValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   const { pageAttributeTypeId } = req.params;
 
   try {

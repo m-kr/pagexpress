@@ -1,4 +1,4 @@
-const { FieldType } = require('../models/FieldType');
+const { FieldType, fieldTypeValidationSchema } = require('../models/FieldType');
 
 const getFieldTypes = async (req, res) => {
   const { fieldTypeId } = req.params;
@@ -17,6 +17,12 @@ const getFieldTypes = async (req, res) => {
 };
 
 const createFieldType = async (req, res) => {
+  const { error } = fieldTypeValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   try {
     const fieldType = new FieldType(req.body);
     fieldType.save();
@@ -27,8 +33,16 @@ const createFieldType = async (req, res) => {
 };
 
 const updateFieldType = async (req, res) => {
+  const { error } = fieldTypeValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
+  const { fieldTypeId } = req.params;
+
   try {
-    const fieldType = FieldType.findOneAndUpdate({ _id: req.params.fieldTypeId }, req.body);
+    const fieldType = FieldType.findOneAndUpdate({ _id: fieldTypeId }, req.body);
     res.send(fieldType);
   } catch (err) {
     res.status(500).send(err.message);

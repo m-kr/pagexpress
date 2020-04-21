@@ -32,7 +32,6 @@ mongoose.connect(`mongodb://${host}:${port}/${collection}`, {
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
-app.use(express.static(path.join(rootPath, 'public')));
 
 app.use('/v1', pages);
 app.use('/v1', pageTypes);
@@ -40,6 +39,7 @@ app.use('/v1', pageAttributeTypes);
 app.use('/v1', components);
 app.use('/v1', fields);
 
+app.use(express.static(path.join(rootPath, 'public')));
 app.get('*', (req, res) => res.sendFile('/index.html'));
 
 const serverConfig = config.get('server');

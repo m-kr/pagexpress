@@ -1,12 +1,18 @@
 const { Schema, model } = require('mongoose');
+const Joi = require('@hapi/joi');
 
-const pageTypeAttributeTypeSchema = new Schema({
-  type: { type: String, require: true, unique: true, min: 3, max: 30 },
+const pageTypeAttributeSchema = new Schema({
+  type: { type: String, require: true, min: 3, max: 30 },
 });
 
-const PageAttributeType = model('PageAttributeType', pageTypeAttributeTypeSchema);
+const pageTypeAttributeValidationSchema = Joi.object({
+  type: Joi.string().required().min(3).max(30),
+});
+
+const PageAttributeType = model('PageAttributeType', pageTypeAttributeSchema);
 
 module.exports = {
-  pageTypeAttributeTypeSchema,
+  pageTypeAttributeSchema,
   PageAttributeType,
+  pageTypeAttributeValidationSchema,
 };
