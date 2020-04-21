@@ -5,7 +5,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 const pageTypeAttributeSchema = new Schema({
   name: { type: String, require: true, unique: true, min: 3, max: 30 },
   description: { type: String, min: 10, max: 250 },
-  typeId: { type: Schema.Types.ObjectId, require: true, ref: 'PageAttributeType' },
+  pageTypeId: { type: Schema.Types.ObjectId, require: true, ref: 'PageAttributeType' },
 });
 
 const pageTypeSchema = new Schema({
@@ -16,7 +16,7 @@ const pageTypeSchema = new Schema({
 const pageTypeAttributeValidationSchema = Joi.object({
   name: Joi.string().required().min(3).max(30),
   description: Joi.string().min(10).max(50),
-  typeId: Joi.objectId(),
+  pageTypeId: Joi.objectId(),
 });
 
 const pageTypeValidationSchema = Joi.object({

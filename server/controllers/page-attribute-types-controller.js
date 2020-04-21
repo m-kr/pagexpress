@@ -19,11 +19,10 @@ const createPageAttributeType = async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
-  const existedAttributeWithName = await PageAttributeType.findOne({ name: req.body.name });
-  console.log(existedAttributeWithName);
+  const existedAttributeWithName = await PageAttributeType.findOne({ name: req.body.type });
 
   if (existedAttributeWithName) {
-    return res.status(400).send(`Attribute "${req.body.name}" already exists`);
+    return res.status(400).send(`Attribute "${req.body.type}" already exists`);
   }
 
   try {

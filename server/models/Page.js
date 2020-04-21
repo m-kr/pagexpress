@@ -5,7 +5,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 const pageComponentSchema = new Schema({
   _id: { type: String, unique: true, min: 36, max: 36, default: uuid.v4 },
-  componentType: { type: Schema.Types.ObjectId, required: true, ref: 'Component' },
+  componentTypeId: { type: Schema.Types.ObjectId, required: true, ref: 'Component' },
   parentComponentId: { type: String, min: 36, max: 36 },
   data: { type: Object },
   order: { type: Number, min: 0 },
@@ -18,7 +18,7 @@ const pageSchema = new Schema(
     title: { type: String, require: true, min: 10, max: 60 },
     description: { type: String, require: true, max: 160 },
     components: [pageComponentSchema],
-    pageType: { type: Schema.Types.ObjectId, require: true, ref: 'PageType' },
+    pageTypeId: { type: Schema.Types.ObjectId, require: true, ref: 'PageType' },
     pageTypeAttributes: { type: Object },
   },
   {
@@ -28,7 +28,7 @@ const pageSchema = new Schema(
 
 const pageComponentValidationSchema = Joi.object({
   _id: Joi.string().min(36).max(36),
-  componentType: Joi.objectId().required(),
+  componentTypeId: Joi.objectId().required(),
   parentComponentId: Joi.string().min(36).max(36),
   data: Joi.object(),
   order: Joi.number().min(0),
@@ -40,7 +40,7 @@ const pageValidationSchema = Joi.object({
   title: Joi.string().required().min(10).max(60),
   description: Joi.string().required().max(160),
   components: Joi.array().items(pageComponentValidationSchema),
-  pageType: Joi.objectId().required(),
+  pageTypeId: Joi.objectId().required(),
   pageTypeAttributes: Joi.object(),
 });
 
