@@ -16,21 +16,19 @@ const componentSchema = new Schema({
   components: [subComponentSchema],
 });
 
-const subComponentValidationSchema = {
+const subComponentValidationSchema = Joi.object({
   componentId: Joi.objectId().required(),
   order: Joi.number().required().min(0),
   single: Joi.boolean(),
-};
+});
 
-const componentValidationSchema = {
-  name: Joi.sctring().required().min(3).max(30),
+const componentValidationSchema = Joi.object({
+  name: Joi.string().required().min(3).max(30),
   description: Joi.string().min(10).max(250),
-  fields: Joi.array().items(Joi.object(fieldValidationSchema)),
-  components: Joi.array().items(Joi.object(subComponentValidationSchema)),
-};
+  fields: Joi.array().items(fieldValidationSchema),
+  components: Joi.array().items(subComponentValidationSchema),
+});
 
-const validateSubcomponent = subComponent => Joi.validate(subComponent, subComponentValidationSchema);
-const validateComponent = component => Joi.validate(component, componentValidationSchema);
 const Component = model('Component', componentSchema);
 
 module.exports = {
@@ -39,6 +37,4 @@ module.exports = {
   Component,
   componentValidationSchema,
   subComponentValidationSchema,
-  validateComponent,
-  validateSubcomponent,
 };

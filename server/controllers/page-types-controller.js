@@ -1,4 +1,4 @@
-const { PageType } = require('../models/PageType');
+const { PageType, pageTypeValidationSchema } = require('../models/PageType');
 
 const getPageTypes = async (req, res) => {
   const { pageTypeId } = req.params;
@@ -13,6 +13,12 @@ const getPageTypes = async (req, res) => {
 };
 
 const createPageType = async (req, res) => {
+  const { error } = pageTypeValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   try {
     const pageType = new PageType(req.body);
     pageType.save();
@@ -23,6 +29,12 @@ const createPageType = async (req, res) => {
 };
 
 const updatePageType = async (req, res) => {
+  const { error } = pageTypeValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   const { pageTypeId } = req.params;
 
   try {

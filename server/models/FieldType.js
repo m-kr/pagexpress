@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const Joi = require('@hapi/joi');
+Joi.objectId = require('joi-objectid')(Joi);
 
 const fieldSchema = new Schema({
   name: { type: String, require: true, min: 3, max: 30 },
@@ -11,18 +12,16 @@ const fieldTypeSchema = new Schema({
   description: { type: String, min: 10, max: 250 },
 });
 
-const fieldValidationSchema = {
+const fieldValidationSchema = Joi.object({
   name: Joi.string().required().min(3).max(30),
   fieldTypeId: Joi.objectId().required(),
-};
+});
 
-const fieldTypeValidationSchema = {
+const fieldTypeValidationSchema = Joi.object({
   type: Joi.string().required().min(3).max(30),
   description: Joi.string().min(10).max(250),
-};
+});
 
-const validateField = field => Joi.validate(field, fieldValidationSchema);
-const validateFieldType = fieldType => Joi.validate(fieldType, fieldTypeValidationSchema);
 const FieldType = model('FieldType', fieldTypeSchema);
 
 module.exports = {
@@ -31,6 +30,4 @@ module.exports = {
   FieldType,
   fieldTypeValidationSchema,
   fieldValidationSchema,
-  validateField,
-  validateFieldType,
 };

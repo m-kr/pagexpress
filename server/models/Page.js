@@ -26,26 +26,24 @@ const pageSchema = new Schema(
   }
 );
 
-const pageComponentValidationSchema = {
+const pageComponentValidationSchema = Joi.object({
   _id: Joi.string().min(36).max(36),
   componentType: Joi.objectId().required(),
   parentComponentId: Joi.string().min(36).max(36),
   data: Joi.object(),
   order: Joi.number().min(0),
   attributes: Joi.object(),
-};
+});
 
-const pageValidationSchema = {
+const pageValidationSchema = Joi.object({
   url: Joi.string().required(),
   title: Joi.string().required().min(10).max(60),
   description: Joi.string().required().max(160),
-  components: Joi.array().items(Joi.object(pageComponentValidationSchema)),
+  components: Joi.array().items(pageComponentValidationSchema),
   pageType: Joi.objectId().required(),
   pageTypeAttributes: Joi.object(),
-};
+});
 
-const validatePageComponent = pageComponent => Joi.validate(pageComponent, pageComponentValidationSchema);
-const validatePage = page => Joi.validate(page, pageValidationSchema);
 const Page = model('Page', pageSchema);
 
 module.exports = {
@@ -54,6 +52,4 @@ module.exports = {
   Page,
   pageComponentValidationSchema,
   pageValidationSchema,
-  validatePage,
-  validatePageComponent,
 };

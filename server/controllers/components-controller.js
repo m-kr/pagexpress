@@ -1,4 +1,4 @@
-const { Component } = require('../models/Component');
+const { Component, componentValidationSchema } = require('../models/Component');
 
 const getComponents = async (req, res) => {
   const { componentId } = req.params;
@@ -14,6 +14,12 @@ const getComponents = async (req, res) => {
 };
 
 const createComponent = async (req, res) => {
+  const { error } = componentValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   try {
     const component = new Component(req.body);
     component.save();
@@ -24,6 +30,12 @@ const createComponent = async (req, res) => {
 };
 
 const updateComponent = async (req, res) => {
+  const { error } = componentValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   const { componentId } = req.params;
 
   try {

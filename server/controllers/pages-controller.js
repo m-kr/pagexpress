@@ -1,4 +1,4 @@
-const { Page } = require('../models/Page');
+const { Page, pageValidationSchema } = require('../models/Page');
 const { buildPageStructure } = require('../utils/page-structure');
 
 const getPageStructure = async (req, res) => {
@@ -42,6 +42,12 @@ const getPages = async (req, res) => {
 };
 
 const createPage = async (req, res) => {
+  const { error } = pageValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   try {
     const page = new Page(req.body);
     page.save();
@@ -52,6 +58,12 @@ const createPage = async (req, res) => {
 };
 
 const updatePage = async (req, res) => {
+  const { error } = pageValidationSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   const { pageId } = req.params;
 
   try {

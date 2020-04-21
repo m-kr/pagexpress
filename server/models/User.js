@@ -13,19 +13,17 @@ const userSchema = new Schema(
   }
 );
 
-const userValidationSchema = {
+const userValidationSchema = Joi.object({
   firstName: Joi.string().min(5).max(50),
   lastName: Joi.string().min(5).max(50),
   email: Joi.string().min(5).max(250).required().email(),
   password: Joi.string().min(8).max(1024).required(),
-};
+});
 
-const validateUser = user => Joi.validate(user, userValidationSchema);
 const User = model('User', userSchema);
 
 module.exports = {
   userSchema,
   User,
   userValidationSchema,
-  validateUser,
 };
