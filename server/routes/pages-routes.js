@@ -1,16 +1,11 @@
-const router = require('express').Router()
-const {
-  getPages,
-  getPageStructure,
-  createPage,
-  updatePage,
-  deletePage,
-} = require('../controllers/pages-controller');
+const router = require('express').Router();
+const auth = require('../middleware/auth');
+const { getPages, getPageStructure, createPage, updatePage, deletePage } = require('../controllers/pages-controller');
 
-router.get('/pages/:pageId?', getPages);
+router.get('/pages/:pageId?', auth, getPages);
 router.get('/page-structure/:pageId', getPageStructure);
-router.post('/pages', createPage);
-router.put('/pages/:pageId', updatePage);
-router.delete('/pages/:pageId', deletePage);
+router.post('/pages', auth, createPage);
+router.put('/pages/:pageId', auth, updatePage);
+router.delete('/pages/:pageId', auth, deletePage);
 
 module.exports = router;
