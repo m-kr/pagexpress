@@ -1,6 +1,16 @@
 const { Page, pageValidationSchema } = require('../models/Page');
 const { buildPageStructure } = require('../utils/page-structure');
 
+const hasComopnentsUniqueId = async components => {
+  if (!(components && components.length)) {
+    return true;
+  }
+  const componentsIds = components.map(component => component._id);
+  const existedPageComponentWithTheSameId = await Page.find({ 'components._id': { $in: componentsIds } });
+
+  return !existedPageComponentWithTheSameId.length;
+};
+
 const getPageStructure = async (req, res) => {
   const { pageId } = req.params;
 
@@ -23,19 +33,42 @@ const getPageStructure = async (req, res) => {
 
 const getPages = async (req, res) => {
   const { pageId } = req.params;
-
   try {
-    const query = pageId ? Page.findById(pageId) : Page.find();
+    if (pageId) {
+      const singlePage = await Page.findById(pageId);
+      res.send(singlePage);
+    } else {
+      const { limit, page } = req.query;
+      let currentPage = page && page > 0 ? Number(page) : 1;
+      const resultsLimit = Number(limit) || 0;
 
-    const data = await query
-      .populate({
-        path: 'components.componentType',
-        select: 'name description _id',
-      })
-      .populate('pageType')
-      .exec();
+      const pagesQuantity = await Page.estimatedDocumentCount();
+      const totalPages = resultsLimit ? Math.ceil(pagesQuantity / resultsLimit) : 1;
+      const itemsPerPage = resultsLimit || pagesQuantity;
 
-    res.send(data);
+      if (totalPages < currentPage) {
+        currentPage = totalPages;
+      }
+
+      const skippedResultItems = resultsLimit * (currentPage - 1);
+
+      const pages = await Page.find()
+        .populate({
+          path: 'components.componentType',
+          select: 'name description _id',
+        })
+        .populate('pageType')
+        .skip(skippedResultItems)
+        .limit(resultsLimit)
+        .exec();
+
+      res.send({
+        currentPage,
+        totalPages,
+        itemsPerPage,
+        data: pages,
+      });
+    }
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -46,6 +79,12 @@ const createPage = async (req, res) => {
 
   if (error) {
     return res.status(400).send(error.details[0].message);
+  }
+
+  const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
+
+  if (!uniqueComponents) {
+    return res.status(400).send('Component Id is not unique');
   }
 
   try {
@@ -59,12 +98,17 @@ const createPage = async (req, res) => {
 
 const updatePage = async (req, res) => {
   const { error } = pageValidationSchema.validate(req.body);
+  const { pageId } = req.params;
 
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
 
-  const { pageId } = req.params;
+  const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
+
+  if (!uniqueComponents) {
+    return res.status(400).send('Component Id is not unique');
+  }
 
   try {
     const page = await Page.findOneAndUpdate({ _id: pageId }, req.body);
