@@ -38,11 +38,21 @@ const getPages = async (req, res) => {
       const singlePage = await Page.findById(pageId);
       res.send(singlePage);
     } else {
-      const { limit, page } = req.query;
+      const { limit, page, search } = req.query;
+      let searchObject = {};
+      let pagesQuantity;
       let currentPage = page && page > 0 ? Number(page) : 1;
       const resultsLimit = Number(limit) || 0;
 
-      const pagesQuantity = await Page.estimatedDocumentCount();
+      const skippedResultItems = resultsLimit * (currentPage - 1);
+
+      if (search) {
+        searchObject = { title: { $regex: search } };
+        pagesQuantity = await Page.find(searchObject).countDocuments();
+      } else {
+        pagesQuantity = await Page.estimatedDocumentCount();
+      }
+
       const totalPages = resultsLimit ? Math.ceil(pagesQuantity / resultsLimit) : 1;
       const itemsPerPage = resultsLimit || pagesQuantity;
 
@@ -50,9 +60,7 @@ const getPages = async (req, res) => {
         currentPage = totalPages;
       }
 
-      const skippedResultItems = resultsLimit * (currentPage - 1);
-
-      const pages = await Page.find()
+      const pages = await Page.find(searchObject)
         .populate({
           path: 'components.componentType',
           select: 'name description _id',
