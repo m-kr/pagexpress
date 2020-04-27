@@ -1,16 +1,20 @@
 /**
  * List module enriches request results by sort, search & pagination.
+ * @param {object} ModelDB
+ * @param {object} query - Express request query object
+ * @param {string} searchOnField - Field on which search should be done.
  */
 class ListFeatures {
-  constructor(ModelDB, query) {
+  constructor(ModelDB, query, searchOnField) {
     this.ModelDB = ModelDB;
     this.query = query;
+    this.searchOnField = searchOnField;
     this.defaultSortBy = '-createdAt';
   }
 
   /**
    *
-   * @returns {Promise<*>}
+   * @returns {Promise<number>}
    * @private
    */
   async _getPagesQuantity() {
@@ -32,7 +36,7 @@ class ListFeatures {
 
   /**
    *
-   * @param pagesQuantity
+   * @param {number} pagesQuantity
    * @returns {number}
    */
   getTotalPages(pagesQuantity) {
@@ -55,8 +59,8 @@ class ListFeatures {
 
   /**
    *
-   * @param resultsLimit
-   * @param currentPage
+   * @param {number} resultsLimit
+   * @param {number} currentPage
    * @returns {number}
    */
   getSkip(resultsLimit, currentPage) {
@@ -70,12 +74,12 @@ class ListFeatures {
   getQueryFilter() {
     const { search } = this.query;
 
-    return search ? { title: { $regex: search } } : null;
+    return search && this.searchOnField ? { [this.searchOnField]: { $regex: search } } : null;
   }
 
   /**
    *
-   * @param sortableFields
+   * @param {array} sortableFields
    * @returns {string}
    */
   getSort(sortableFields) {

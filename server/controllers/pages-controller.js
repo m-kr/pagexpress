@@ -42,7 +42,7 @@ const getPages = async (req, res) => {
       res.send(singlePage);
     } else {
       const sortableFields = ['title', 'description', 'url', 'createdAt', 'updatedAt'];
-      const listFeatures = new ListFeatures(Page, req.query);
+      const listFeatures = new ListFeatures(Page, req.query, 'title');
       const { currentPage, itemsPerPage, limit, skip, totalPages } = await listFeatures.getPaginationParameters();
       const sortBy = listFeatures.getSort(sortableFields);
       const queryFilter = listFeatures.getQueryFilter();
