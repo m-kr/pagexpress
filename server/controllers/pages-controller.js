@@ -1,5 +1,6 @@
 const { Page, pageValidationSchema } = require('../models/Page');
 const { buildPageStructure } = require('../utils/page-structure');
+const ListFeatures = require('../utils/ListFeatures');
 
 const hasComopnentsUniqueId = async components => {
   if (!(components && components.length)) {
@@ -40,51 +41,21 @@ const getPages = async (req, res) => {
 
       res.send(singlePage);
     } else {
-      const { limit, page, search, sort } = req.query;
       const sortableFields = ['title', 'description', 'url', 'createdAt', 'updatedAt'];
-      const defaultSortBy = 'createdAt';
-      let searchObject = {};
-      let pagesQuantity, sortBy;
-      let currentPage = page && Number(page) > 0 ? Number(page) : 1;
-      const resultsLimit = Number(limit) || 0;
+      const listFeatures = new ListFeatures(Page, req.query);
+      const { currentPage, itemsPerPage, limit, skip, totalPages } = await listFeatures.getPaginationParameters();
+      const sortBy = listFeatures.getSort(sortableFields);
+      const queryFilter = listFeatures.getQueryFilter();
 
-      if (search) {
-        searchObject = { title: { $regex: search } };
-        pagesQuantity = await Page.find(searchObject).countDocuments();
-      } else {
-        pagesQuantity = await Page.estimatedDocumentCount();
-      }
-
-      const totalPages = resultsLimit ? Math.ceil(pagesQuantity / resultsLimit) : 1;
-      const itemsPerPage = resultsLimit || pagesQuantity;
-
-      if (totalPages < currentPage) {
-        currentPage = totalPages;
-      }
-
-      const skippedResultItems = resultsLimit * (currentPage - 1);
-
-      if (sort) {
-        const sortByList = sort.split(',').filter(sortField => {
-          const reg = new RegExp(`^(-?)(${sortField})$`, 'i');
-          const cleanedSortField = sortField.replace(reg, '$2');
-
-          return sortableFields.includes(cleanedSortField);
-        });
-        sortBy = sortByList.length ? sortByList.join(' ') : defaultSortBy;
-      } else {
-        sortBy = defaultSortBy;
-      }
-
-      const pages = await Page.find(searchObject)
+      const pages = await Page.find(queryFilter)
         .populate({
           path: 'components.componentType',
           select: 'name description _id',
         })
         .populate('pageType')
         .sort(sortBy)
-        .skip(skippedResultItems)
-        .limit(resultsLimit)
+        .skip(skip)
+        .limit(limit)
         .exec();
 
       res.send({
