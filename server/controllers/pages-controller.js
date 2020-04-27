@@ -33,18 +33,20 @@ const getPageStructure = async (req, res) => {
 
 const getPages = async (req, res) => {
   const { pageId } = req.params;
+
   try {
     if (pageId) {
       const singlePage = await Page.findById(pageId);
+
       res.send(singlePage);
     } else {
-      const { limit, page, search } = req.query;
+      const { limit, page, search, sort } = req.query;
+      const sortableFields = ['title', 'description', 'url', 'createdAt', 'updatedAt'];
+      const defaultSortBy = 'createdAt';
       let searchObject = {};
-      let pagesQuantity;
-      let currentPage = page && page > 0 ? Number(page) : 1;
+      let pagesQuantity, sortBy;
+      let currentPage = page && Number(page) > 0 ? Number(page) : 1;
       const resultsLimit = Number(limit) || 0;
-
-      const skippedResultItems = resultsLimit * (currentPage - 1);
 
       if (search) {
         searchObject = { title: { $regex: search } };
@@ -60,12 +62,27 @@ const getPages = async (req, res) => {
         currentPage = totalPages;
       }
 
+      const skippedResultItems = resultsLimit * (currentPage - 1);
+
+      if (sort) {
+        const sortByList = sort.split(',').filter(sortField => {
+          const reg = new RegExp(`^(-?)(${sortField})$`, 'i');
+          const cleanedSortField = sortField.replace(reg, '$2');
+
+          return sortableFields.includes(cleanedSortField);
+        });
+        sortBy = sortByList.length ? sortByList.join(' ') : defaultSortBy;
+      } else {
+        sortBy = defaultSortBy;
+      }
+
       const pages = await Page.find(searchObject)
         .populate({
           path: 'components.componentType',
           select: 'name description _id',
         })
         .populate('pageType')
+        .sort(sortBy)
         .skip(skippedResultItems)
         .limit(resultsLimit)
         .exec();
