@@ -41,9 +41,6 @@ app.use('/v1', pageAttributeTypes);
 app.use('/v1', components);
 app.use('/v1', fields);
 
-app.use(express.static(path.join(rootPath, 'public')));
-app.get('*', (req, res) => res.sendFile('/index.html'));
-
 const serverConfig = config.get('server');
 app.listen(serverConfig.port, serverConfig.host);
 console.log(`App listening at ${serverConfig.host}:${serverConfig.port}`);
