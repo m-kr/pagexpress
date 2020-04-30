@@ -29,9 +29,7 @@ const actions = {
       return;
     }
 
-    commit(REQUEST_PENDING, null, {
-      root: true,
-    });
+    commit(REQUEST_PENDING, null, { root: true });
 
     restApiRequest({
       collection: 'auth',
@@ -39,9 +37,7 @@ const actions = {
       data: authData,
     })
       .then(token => {
-        commit(REQUEST_SUCCESS, null, {
-          root: true,
-        });
+        commit(REQUEST_SUCCESS, null, { root: true });
 
         commit(LOGIN_SUCCESS, {
           token,
@@ -55,9 +51,7 @@ const actions = {
         // eslint-disable-next-line
         console.error(err);
 
-        commit(REQUEST_ERROR, err, {
-          root: true,
-        });
+        commit(REQUEST_ERROR, err, { root: true });
       });
   },
   logout({ commit }) {
