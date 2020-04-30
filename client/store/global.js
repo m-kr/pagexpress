@@ -3,7 +3,7 @@ import {
   REQUEST_PENDING,
   REQUEST_SUCCESS,
   CLEAR_ERRORS,
-} from './actionTypes';
+} from './action-types';
 
 const initialState = {
   loading: false,

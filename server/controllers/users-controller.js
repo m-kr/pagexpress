@@ -1,6 +1,14 @@
 const { User, userValidationSchema } = require('../models/User');
 const bcrypt = require('bcrypt');
 
+const authUser = (req, res) => {
+  try {
+    res.send(res.user);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+};
+
 const getUsers = async (req, res) => {
   const { userId } = req.params;
 
@@ -77,6 +85,7 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
+  authUser,
   getUsers,
   createUser,
   resetPassword,
