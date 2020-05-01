@@ -85,6 +85,10 @@ class ListFeatures {
   getSort(sortableFields) {
     const { sort } = this.query;
 
+    if (!sort) {
+      return;
+    }
+
     const sortByList = sort.split(',').filter(sortField => {
       const reg = new RegExp('^(-?)(.*)$', 'i');
       const fieldName = sortField.replace(reg, '$2');
