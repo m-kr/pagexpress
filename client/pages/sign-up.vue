@@ -45,7 +45,7 @@
               </div>
             </div>
             <div class="control">
-              <button type="submit" class="button is-dark is-fullwidth">
+              <button type="submit" class="button is-link is-fullwidth">
                 Sign up
               </button>
             </div>
@@ -64,6 +64,8 @@
 import Notification from '~/components/Notification';
 
 export default {
+  auth: false,
+
   components: {
     Notification,
   },
@@ -80,7 +82,7 @@ export default {
   methods: {
     async register() {
       try {
-        await this.$axios.post('register', {
+        await this.$axios.post('users', {
           username: this.username,
           email: this.email,
           password: this.password,
@@ -95,7 +97,7 @@ export default {
 
         this.$router.push('/');
       } catch (e) {
-        this.error = e.response.data.message;
+        this.error = e.response.data.error;
       }
     },
   },

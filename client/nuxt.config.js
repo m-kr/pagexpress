@@ -1,3 +1,5 @@
+const path = require('path');
+
 export default {
   mode: 'universal',
   /*
@@ -28,6 +30,9 @@ export default {
    ** Plugins to load before mounting the App
    */
   plugins: [],
+  router: {
+    middleware: ['auth'],
+  },
   /*
    ** Nuxt.js dev-modules
    */
@@ -48,22 +53,30 @@ export default {
     '@nuxtjs/auth',
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
-    '@nuxtjs/dotenv',
+    ['@nuxtjs/dotenv', { path: path.join(__dirname, '../') }],
   ],
-  env: {},
+  env: {
+    API_URL: process.env.API_URL,
+  },
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: process.env.API_URL,
+    baseURL: process.env.API_URL || 'http://127.0.0.1:4000/v1',
   },
   auth: {
+    redirect: {
+      login: '/sign-in',
+      logout: '/sign-in',
+      home: '/',
+      callback: '/sign-in',
+    },
     strategies: {
       local: {
         endpoints: {
-          login: { url: 'auth', method: 'post', propertyName: 'data.token' },
-          user: { url: 'users/me', method: 'get', propertyName: 'data' },
+          login: { url: 'auth', method: 'post', propertyName: 'token' },
+          user: { url: 'users/me', method: 'get', propertyName: false },
           logout: false,
         },
       },

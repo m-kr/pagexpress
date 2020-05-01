@@ -10,10 +10,29 @@
         </button>
       </div>
       <div class="navbar-menu">
-        <div class="navbar-end">
+        <div v-if="isAuthenticated" class="navbar-end">
+          <a class="navbar-item" @click.prevent="logout">Logout</a>
+        </div>
+        <div v-else class="navbar-end">
           <nuxt-link class="navbar-item" to="/sign-in">Sign In</nuxt-link>
         </div>
       </div>
     </div>
   </nav>
 </template>
+
+<script>
+import { mapGetters } from 'vuex';
+
+export default {
+  computed: {
+    ...mapGetters(['isAuthenticated', 'loggedInUser']),
+  },
+
+  methods: {
+    async logout() {
+      await this.$auth.logout();
+    },
+  },
+};
+</script>

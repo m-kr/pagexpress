@@ -52,6 +52,8 @@
 import Notification from '~/components/Notification';
 
 export default {
+  auth: false,
+
   components: {
     Notification,
   },
@@ -67,16 +69,18 @@ export default {
   methods: {
     async login() {
       try {
-        await this.$auth.loginWith('local', {
-          data: {
-            email: this.email,
-            password: this.password,
-          },
-        });
+        await this.$auth
+          .loginWith('local', {
+            data: {
+              email: this.email,
+              password: this.password,
+            },
+          })
+          .then(data => console.log('data', data));
 
         this.$router.push('/');
       } catch (e) {
-        this.error = e.response.data.message;
+        this.error = e.response.data.error;
       }
     },
   },
