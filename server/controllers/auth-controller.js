@@ -1,13 +1,7 @@
-const { User, userValidationSchema } = require('../models/User');
+const { User } = require('../models/User');
 const bcrypt = require('bcrypt');
 
 const auth = async (req, res) => {
-  const { error } = userValidationSchema.validate(req.body);
-
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
@@ -22,7 +16,7 @@ const auth = async (req, res) => {
   }
 
   const token = user.generateAuthToken();
-  res.send(token);
+  res.send({ token });
 };
 
 module.exports = auth;
