@@ -6,13 +6,13 @@ const auth = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.status(400).send('Invalid email or password');
+    return res.status(400).send({ error: 'Invalid email or password' });
   }
 
   const validPassword = await bcrypt.compare(password, user.password);
 
   if (!validPassword) {
-    return res.status(400).send('Invalid email or password');
+    return res.status(400).send({ error: 'Invalid email or password' });
   }
 
   const token = user.generateAuthToken();
