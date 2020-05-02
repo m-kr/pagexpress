@@ -1,23 +1,19 @@
 <template>
-  <nav class="navbar">
+  <div class="navbar__outer">
     <div class="container">
-      <div class="navbar-brand">
-        <nuxt-link class="navbar-item" to="/">Pagexpress</nuxt-link>
+      <div class="navbar__brand">
+        <nuxt-link class="brand" to="/">PAGE<small>xpress</small></nuxt-link>
       </div>
-      <div class="navbar-menu is-active">
-        <div class="navbar-end">
-          <div v-if="isAuthenticated" class="navbar-item">
-            <a class="button is-light" @click.prevent="logout">Logout</a>
-          </div>
-          <div v-else class="navbar-item">
-            <nuxt-link class="button is-primary navbar-item" to="/sign-in"
-              ><strong>Sign In</strong></nuxt-link
-            >
-          </div>
-        </div>
+      <div class="navbar__action">
+        <button v-if="isAuthenticated" class="button is-light" @click="logout">
+          <strong>Logout</strong>
+        </button>
+        <nuxt-link v-else class="button is-primary" to="/sign-in"
+          ><strong>Sign In</strong></nuxt-link
+        >
       </div>
     </div>
-  </nav>
+  </div>
 </template>
 
 <script>
@@ -35,3 +31,32 @@ export default {
   },
 };
 </script>
+
+<style>
+.navbar__outer {
+  padding: 0.5rem 1.5rem;
+
+  .container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+  }
+}
+
+.navbar__brand {
+  font-size: 2.4rem;
+
+  a {
+    color: var(--body-color);
+  }
+
+  small {
+    font-size: 0.7em;
+    line-height: 0.3em;
+  }
+}
+
+.navbar__action {
+  display: flex;
+  align-items: center;
+}
+</style>
