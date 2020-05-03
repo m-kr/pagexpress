@@ -7,13 +7,32 @@
           <li class="is-active"><a href="#" aria-current="page">Pages</a></li>
         </ul>
       </nav>
-      <div class="field is-grouped is-grouped-right">
-        <div class="control">
-          <nuxt-link class="button is-success is-small" to="pages/add">
-            <strong>+ Add page</strong>
-          </nuxt-link>
+      <nav class="level">
+        <!-- Left side -->
+        <div class="level-left">
+          <div class="level-item">
+            <div class="field has-addons">
+              <p class="control">
+                <input class="input" type="text" placeholder="Find a post" />
+              </p>
+              <p class="control">
+                <button class="button">
+                  Search
+                </button>
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <!-- Right side -->
+        <div class="level-right">
+          <p class="level-item"><strong>All</strong></p>
+          <p class="level-item"><a>Published</a></p>
+          <p class="level-item"><a>Drafts</a></p>
+          <p class="level-item"><a>Deleted</a></p>
+          <p class="level-item"><a class="button is-success">New</a></p>
+        </div>
+      </nav>
       <Table :headers="headers" :data="pagesList" :actions="pageActions" />
       <nav class="pagination" role="navigation" aria-label="pagination">
         <a class="pagination-previous" title="This is the first page"
