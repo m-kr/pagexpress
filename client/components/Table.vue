@@ -2,46 +2,68 @@
   <table class="table is-fullwidth is-striped">
     <thead>
       <tr>
-        <th>Title</th>
-        <th>URL</th>
-        <th>Description</th>
+        <th v-for="(header, index) in headers" :key="index">{{ header }}</th>
         <th>Action</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Awesome page name</td>
-        <td>/some-url/</td>
-        <td>Another awesome page</td>
-        <td>
-          <div class="buttons are-small">
-            <button class="button is-info is-light">Edit</button>
-            <button class="button is-danger is-light">Delete</button>
-          </div>
+      <tr v-for="(rowData, rowId) in data" :key="rowId">
+        <td v-for="(cellContent, index) in rowData" :key="index">
+          {{ cellContent }}
         </td>
-      </tr>
-      <tr>
-        <td>Awesome page name</td>
-        <td>/some-url/</td>
-        <td>Another awesome page</td>
         <td>
           <div class="buttons are-small">
-            <button class="button is-info is-light">Edit</button>
-            <button class="button is-danger is-light">Delete</button>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td>Awesome page name</td>
-        <td>/some-url/</td>
-        <td>Another awesome page</td>
-        <td>
-          <div class="buttons are-small">
-            <button class="button is-info is-light">Edit</button>
-            <button class="button is-danger is-light">Delete</button>
+            <span
+              v-for="(action, index) in actions"
+              :key="index"
+              class="action-button-wrapper"
+            >
+              <nuxt-link
+                v-if="action.type === 'link'"
+                :class="`is-${action.styleClass}`"
+                class="button is-light"
+                :to="action.action(rowId)"
+                >{{ action.label }}</nuxt-link
+              >
+              <button
+                v-if="action.type === 'button'"
+                :class="`is-${action.styleClass}`"
+                class="button is-danger is-light"
+                @click="action.action(rowId)"
+              >
+                {{ action.label }}
+              </button>
+            </span>
           </div>
         </td>
       </tr>
     </tbody>
   </table>
 </template>
+
+<script>
+export default {
+  props: {
+    data: {
+      type: Object,
+      default: () => {},
+    },
+    headers: {
+      type: Array,
+      required: true,
+    },
+    actions: {
+      type: Object,
+      default: () => {},
+    },
+  },
+};
+</script>
+
+<style>
+.action-button-wrapper {
+  &:not(:last-of-type) {
+    margin-right: 0.5rem;
+  }
+}
+</style>
