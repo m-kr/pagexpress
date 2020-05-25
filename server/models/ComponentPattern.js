@@ -9,7 +9,7 @@ const subComponentSchema = new Schema({
   single: { type: Boolean, default: false },
 });
 
-const componentSchema = new Schema({
+const componentPatternSchema = new Schema({
   name: { type: String, require: true, unique: true, min: 3, max: 30 },
   description: { type: String, min: 10, max: 250 },
   fields: [fieldSchema],
@@ -22,19 +22,19 @@ const subComponentValidationSchema = Joi.object({
   single: Joi.boolean(),
 });
 
-const componentValidationSchema = Joi.object({
+const componentPatternValidationSchema = Joi.object({
   name: Joi.string().required().min(3).max(30),
   description: Joi.string().min(10).max(250),
   fields: Joi.array().items(fieldValidationSchema),
   components: Joi.array().items(subComponentValidationSchema),
 });
 
-const Component = model('Component', componentSchema);
+const ComponentPattern = model('ComponentPattern', componentPatternSchema);
 
 module.exports = {
   subComponentSchema,
-  componentSchema,
-  Component,
-  componentValidationSchema,
+  componentPatternSchema,
+  ComponentPattern,
+  componentPatternValidationSchema,
   subComponentValidationSchema,
 };

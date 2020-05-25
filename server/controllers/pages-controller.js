@@ -1,58 +1,43 @@
 const { Page, pageValidationSchema } = require('../models/Page');
-const { buildPageStructure } = require('../utils/page-structure');
+const { PageType } = require('../models/PageType');
 const ListFeatures = require('../utils/ListFeatures');
-
-const hasComopnentsUniqueId = async components => {
-  if (!(components && components.length)) {
-    return true;
-  }
-  const componentsIds = components.map(component => component._id);
-  const existedPageComponentWithTheSameId = await Page.find({ 'components._id': { $in: componentsIds } });
-
-  return !existedPageComponentWithTheSameId.length;
-};
-
-const getPageStructure = async (req, res) => {
-  const { pageId } = req.params;
-
-  try {
-    const page = await Page.findById(pageId)
-      .populate({
-        path: 'components.component',
-        select: '_id name description',
-      })
-      .populate('pageTypeAttributes')
-      .select('_id url description components');
-
-    const structure = buildPageStructure(page.toObject().components);
-
-    res.send(structure);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-};
 
 const getPages = async (req, res) => {
   const { pageId } = req.params;
 
   try {
     if (pageId) {
-      const singlePage = await Page.findById(pageId);
+      const singlePage = await Page.findById(pageId).populate('pageDetails').exec();
 
-      res.send(singlePage);
+      if (!singlePage) {
+        throw new Error('Page not exist');
+      }
+
+      const { pageTypeId } = singlePage.toObject();
+      const pageType = await PageType.findById(pageTypeId).populate('attributes.type').exec();
+      const pageTypeData = pageType.toObject();
+      const pageTypeAttributesSchema = pageTypeData.attributes.map(attribute => ({
+        ...attribute,
+        type: attribute.type.name,
+      }));
+
+      res.send({
+        pageType: pageTypeData.name,
+        attributesSchema: pageTypeAttributesSchema,
+        data: singlePage,
+      });
     } else {
-      const sortableFields = ['title', 'description', 'url', 'createdAt', 'updatedAt'];
-      const listFeatures = new ListFeatures(Page, req.query, 'title');
+      const sortableFields = ['name', 'type', 'url', 'createdAt', 'updatedAt'];
+      const listFeatures = new ListFeatures(Page, req.query, 'name');
       const { currentPage, itemsPerPage, limit, skip, totalPages } = await listFeatures.getPaginationParameters();
       const sortBy = listFeatures.getSort(sortableFields);
       const queryFilter = listFeatures.getQueryFilter();
 
       const pages = await Page.find(queryFilter)
         .populate({
-          path: 'components.componentType',
-          select: 'name description _id',
+          select: 'name url type _id',
         })
-        .populate('pageType')
+        .populate('type')
         .sort(sortBy)
         .skip(skip)
         .limit(limit)
@@ -77,15 +62,9 @@ const createPage = async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
-  const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
-
-  if (!uniqueComponents) {
-    return res.status(400).send('Component Id is not unique');
-  }
-
   try {
     const page = new Page(req.body);
-    page.save();
+    await page.save();
     res.send(page._id);
   } catch (err) {
     res.status(500).send(err.message);
@@ -98,12 +77,6 @@ const updatePage = async (req, res) => {
 
   if (error) {
     return res.status(400).send(error.details[0].message);
-  }
-
-  const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
-
-  if (!uniqueComponents) {
-    return res.status(400).send('Component Id is not unique');
   }
 
   try {
@@ -127,7 +100,6 @@ const deletePage = async (req, res) => {
 
 module.exports = {
   getPages,
-  getPageStructure,
   createPage,
   updatePage,
   deletePage,
