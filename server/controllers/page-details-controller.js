@@ -1,5 +1,6 @@
-const { PageDetails, pageDetailsValidationSchema } = require('../models/PageDetailsDetails');
-const { buildPageDetailsStructure } = require('../utils/pageDetails-structure');
+const { PageDetails, pageDetailsValidationSchema } = require('../models/PageDetails');
+const { Page } = require('../models/Page');
+const { buildPageDetailsStructure } = require('../utils/page-structure');
 
 const hasComopnentsUniqueId = async components => {
   if (!(components && components.length)) {
@@ -7,9 +8,9 @@ const hasComopnentsUniqueId = async components => {
   }
 
   const componentsIds = components.map(component => component._id);
-  const existedPageDetailsComponentWithTheSameId = await PageDetails.find({ 'components._id': { $in: componentsIds } });
+  const existedComponentWithTheSameId = await PageDetails.find({ 'components._id': { $in: componentsIds } });
 
-  return !existedPageDetailsComponentWithTheSameId.length;
+  return !existedComponentWithTheSameId.length;
 };
 
 const getPageDetailsStructure = async (req, res) => {
@@ -21,8 +22,8 @@ const getPageDetailsStructure = async (req, res) => {
         path: 'components.component',
         select: '_id name description',
       })
-      .populate('pageDetailsTypeAttributes')
-      .select('_id url description components');
+      .populate('pageDetails type attributes')
+      .select('url description components');
 
     const structure = buildPageDetailsStructure(pageDetails.toObject().components);
 
@@ -37,16 +38,26 @@ const getPageDetails = async (req, res) => {
 
   try {
     if (pageDetailsId) {
-      const singlePageDetails = await PageDetails.findById(pageDetailsId).populate('country').exec();
+      const singlePageDetails = await PageDetails.findById(pageDetailsId)
+        .populate({
+          path: 'country',
+          select: 'name code',
+        })
+        .exec();
 
       if (!singlePageDetails) {
-        throw new Error('Page details not exist');
+        return res.status(400).send(`There is no page details with id: ${pageDetailsId}`);
       }
 
       res.send(singlePageDetails);
     } else {
       const query = req.body.pageId ? { pageId: req.body.pageId } : {};
-      const pageDetails = await PageDetails.find(query).populate('country').exec();
+      const pageDetails = await PageDetails.find(query)
+        .populate({
+          path: 'country',
+          select: 'name code',
+        })
+        .exec();
 
       res.send(pageDetails);
     }
@@ -62,6 +73,12 @@ const createPageDetails = async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
+  const page = await Page.findById(req.body.pageId);
+
+  if (!page) {
+    return res.status(400).send('Page not exist');
+  }
+
   const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
 
   if (!uniqueComponents) {
@@ -70,7 +87,9 @@ const createPageDetails = async (req, res) => {
 
   try {
     const pageDetails = new PageDetails(req.body);
-    pageDetails.save();
+    page.pageDetails.push(pageDetails);
+    await pageDetails.save();
+    await Page.findOneAndUpdate({ _id: pageDetails.pageId }, { $push: { pageDetails: pageDetails } });
     res.send(pageDetails._id);
   } catch (err) {
     res.status(500).send(err.message);

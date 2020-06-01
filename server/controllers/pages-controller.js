@@ -7,14 +7,30 @@ const getPages = async (req, res) => {
 
   try {
     if (pageId) {
-      const singlePage = await Page.findById(pageId).populate('pageDetails').exec();
+      const singlePage = await Page.findById(pageId)
+        .populate({
+          path: 'pageDetails',
+          model: 'PageDetails',
+          select: 'name country',
+          populate: {
+            path: 'country',
+            select: 'name code',
+          },
+        })
+        .populate({
+          path: 'type',
+          select: 'name',
+        })
+        .exec();
 
       if (!singlePage) {
         throw new Error('Page not exist');
       }
 
-      const { pageTypeId } = singlePage.toObject();
-      const pageType = await PageType.findById(pageTypeId).populate('attributes.type').exec();
+      const { type } = singlePage.toObject();
+      const pageType = await PageType.findById(type)
+        .populate('attributes.type')
+        .exec();
       const pageTypeData = pageType.toObject();
       const pageTypeAttributesSchema = pageTypeData.attributes.map(attribute => ({
         ...attribute,
@@ -35,9 +51,18 @@ const getPages = async (req, res) => {
 
       const pages = await Page.find(queryFilter)
         .populate({
-          select: 'name url type _id',
+          path: 'pageDetails',
+          model: 'PageDetails',
+          populate: {
+            path: 'country',
+            select: 'name code',
+          },
         })
-        .populate('type')
+        .populate({
+          path: 'type',
+          select: 'name',
+        })
+        .select('name url type pageDetails')
         .sort(sortBy)
         .skip(skip)
         .limit(limit)

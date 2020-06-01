@@ -14,6 +14,7 @@ const pageComponentSchema = new Schema({
 
 const pageDetailsSchema = new Schema(
   {
+    name: { type: String, require: true, min: 3, max: 50, default: 'default' },
     pageId: { type: Schema.Types.ObjectId, require: true, ref: 'Page' },
     country: { type: Schema.Types.ObjectId, require: true, ref: 'Country' },
     title: { type: String, require: true, min: 10, max: 60 },
@@ -35,12 +36,13 @@ const pageComponentValidationSchema = Joi.object({
 });
 
 const pageDetailsValidationSchema = Joi.object({
+  name: Joi.string().min(3).max(50).required(),
   pageId: Joi.objectId().required(),
   country: Joi.objectId().required(),
   title: Joi.string().required().min(10).max(60),
   description: Joi.string().required().max(160),
   components: Joi.array().items(pageComponentValidationSchema),
-  pageTypeAttributes: Joi.object(),
+  attributes: Joi.object(),
 });
 
 const PageDetails = model('PageDetails', pageDetailsSchema);

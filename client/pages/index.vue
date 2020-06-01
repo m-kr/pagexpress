@@ -1,59 +1,55 @@
 <template>
-  <section class="section">
-    <div class="container">
-      <nav class="breadcrumb" aria-label="breadcrumbs">
-        <ul>
-          <li><a href="#">Home</a></li>
-          <li class="is-active"><a href="#" aria-current="page">Pages</a></li>
-        </ul>
-      </nav>
-      <nav class="level">
-        <!-- Left side -->
-        <div class="level-left">
-          <div class="level-item">
-            <div class="field has-addons">
-              <p class="control">
-                <input class="input" type="text" placeholder="Find title" />
-              </p>
-              <p class="control">
-                <button class="button">
-                  Search
-                </button>
-              </p>
-            </div>
+  <div class="app-view">
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li class="is-active"><a href="#" aria-current="page">Pages</a></li>
+      </ul>
+    </nav>
+    <nav class="level">
+      <!-- Left side -->
+      <div class="level-left">
+        <div class="level-item">
+          <div class="field has-addons">
+            <p class="control">
+              <input class="input" type="text" placeholder="Find title" />
+            </p>
+            <p class="control">
+              <button class="button">
+                Search
+              </button>
+            </p>
           </div>
         </div>
+      </div>
 
-        <!-- Right side -->
-        <div class="level-right">
-          <p class="level-item"><a class="button is-success">New</a></p>
-        </div>
-      </nav>
-      <Table :headers="headers" :data="pagesList" :actions="pageActions" />
-      <nav class="pagination" role="navigation" aria-label="pagination">
-        <a class="pagination-previous" title="This is the first page"
-          >Previous</a
-        >
-        <a class="pagination-next">Next page</a>
-        <ul class="pagination-list">
-          <li>
-            <a
-              class="pagination-link is-current"
-              aria-label="Page 1"
-              aria-current="page"
-              >1</a
-            >
-          </li>
-          <li>
-            <a class="pagination-link" aria-label="Goto page 2">2</a>
-          </li>
-          <li>
-            <a class="pagination-link" aria-label="Goto page 3">3</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </section>
+      <!-- Right side -->
+      <div class="level-right">
+        <p class="level-item"><a class="button is-success">New</a></p>
+      </div>
+    </nav>
+    <Table :headers="headers" :data="pagesList" :actions="pageActions" />
+    <nav class="pagination" role="navigation" aria-label="pagination">
+      <a class="pagination-previous" title="This is the first page">Previous</a>
+      <a class="pagination-next">Next page</a>
+      <ul class="pagination-list">
+        <li>
+          <a
+            class="pagination-link is-current"
+            aria-label="Page 1"
+            aria-current="page"
+            >1</a
+          >
+        </li>
+        <li>
+          <a class="pagination-link" aria-label="Goto page 2">2</a>
+        </li>
+        <li>
+          <a class="pagination-link" aria-label="Goto page 3">3</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </template>
 
 <script>
@@ -65,10 +61,14 @@ export default {
     Table,
   },
 
+  asyncData({ store }) {
+    store.dispatch('pages/loadPages');
+  },
+
   data() {
     return {
       errorMessage: [],
-      headers: ['Title', 'Description', 'Url'],
+      headers: ['Name', 'Url'],
     };
   },
 
@@ -76,8 +76,8 @@ export default {
     ...mapState({
       pagesList: state => {
         const pagesListData = {};
-        state.pages.pagesList.map(({ _id, title, description, url }) => {
-          pagesListData[_id] = [title, description, url];
+        state.pages.pagesList.map(({ _id, name, url }) => {
+          pagesListData[_id] = [name, url];
         });
 
         return pagesListData;
@@ -92,7 +92,7 @@ export default {
           type: 'link',
           styleClass: 'info',
           label: 'Edit',
-          action: pageId => `pages/${pageId}`,
+          action: pageId => `pages/${pageId}/edit`,
         },
         delete: {
           type: 'button',

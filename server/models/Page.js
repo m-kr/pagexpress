@@ -6,7 +6,7 @@ const pageSchema = new Schema(
   {
     name: { type: String, require: true },
     url: { type: String, require: true },
-    pageDetails: [{ type: Schema.Types.ObjectId, require: true }],
+    pageDetails: [{ type: Schema.Types.ObjectId }],
     type: { type: Schema.Types.ObjectId, require: true, ref: 'PageType' },
     attributes: { type: Object },
   },
@@ -18,7 +18,7 @@ const pageSchema = new Schema(
 const pageValidationSchema = Joi.object({
   name: Joi.string().required(),
   url: Joi.string().required(),
-  pageDetails: Joi.array().items(Joi.objectId().required()),
+  pageDetails: Joi.array().items(Joi.objectId()),
   type: Joi.objectId().required(),
   attributes: Joi.object(),
 });
