@@ -68,8 +68,9 @@ export const actions = {
     }
   },
 
-  async removePageDetails({ commit, state }) {
-    const { data } = await this.$axios.delete(`page-details`, state.details);
-    return commit('REMOVE_PAGE_DETAILS', data);
+  async removePageDetails({ commit, state }, pageDetailsId) {
+    await this.$axios.delete(`page-details/${pageDetailsId}`);
+    commit('page/REMOVE_VARIANT', pageDetailsId, { root: true });
+    commit('REMOVE_PAGE_DETAILS');
   },
 };

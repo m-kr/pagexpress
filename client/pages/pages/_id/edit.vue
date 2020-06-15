@@ -131,7 +131,7 @@
           <div class="tabs">
             <ul>
               <li
-                v-if="mainData.pageDetails && mainData.pageDetails.length"
+                v-if="pageVariants && pageVariants.length"
                 :class="activeDetailsTab === 'edit' ? 'is-active' : ''"
                 @click.prevent="switchDetailsTab('edit')"
               >
@@ -244,7 +244,10 @@
         </div>
       </div>
 
-      <div v-if="activeDetailsTab === 'edit'" class="panel-block">
+      <div
+        v-if="pageVariants && activeDetailsTab === 'edit'"
+        class="panel-block"
+      >
         <div class="columns">
           <div class="column">
             <div class="field is-horizontal has-addons">
@@ -362,6 +365,9 @@
             >
               Save changes
             </button>
+            <button class="button is-danger" @click="removePageVariant">
+              Remove page variant
+            </button>
           </div>
         </div>
       </div>
@@ -418,15 +424,35 @@ export default {
         pageId: pageId || this.$route.params.id,
       });
 
-      this.activeDetailsTab = this.$store.state.page.pageVariants
-        ? 'edit'
-        : 'add';
-      this.swichPageDetailsData(this.$store.state.page.pageVariants[0]._id);
+      const { pageVariants } = this.$store.state.page;
+
+      if (pageVariants && pageVariants.length) {
+        this.activeDetailsTab = 'edit';
+        this.swichPageDetailsData(pageVariants[0]._id);
+      } else {
+        this.activeDetailsTab = 'add';
+      }
     },
 
     async addPageVariant() {
+      const pageVariantsQtty = this.pageVariants.length;
       await this.$store.dispatch('pageDetails/addPageDetails', this.pageId);
-      this.activeDetailsTab = 'edit';
+
+      if (this.$store.state.page.pageVariants.length > pageVariantsQtty) {
+        this.activeDetailsTab = 'edit';
+      }
+    },
+
+    async removePageVariant() {
+      const lastVariant = this.pageVariants.length === 1;
+      await this.$store.dispatch(
+        'pageDetails/removePageDetails',
+        this.pageDetails._id
+      );
+
+      if (lastVariant) {
+        this.activeDetailsTab = 'add';
+      }
     },
 
     async updatePage() {

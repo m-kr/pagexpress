@@ -44,6 +44,18 @@ export const mutations = {
     state.pageDetails = variant;
   },
 
+  REMOVE_VARIANT(state, variantId) {
+    state.pageVariants = state.pageVariants.filter(
+      variant => variant._id !== variantId
+    );
+
+    if (state.pageVariants.length) {
+      state.pageDetails = state.pageVariants[0];
+    } else {
+      state.pageDetails = {};
+    }
+  },
+
   RESET_UNSAVE_DATA(state) {
     state.unsaveData = [];
   },
