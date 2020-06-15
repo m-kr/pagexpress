@@ -8,14 +8,11 @@ const getPages = async (req, res) => {
   try {
     if (pageId) {
       const singlePage = await Page.findById(pageId)
+        .select('name url pageDetails attributes')
         .populate({
           path: 'pageDetails',
           model: 'PageDetails',
-          select: 'name country',
-          populate: {
-            path: 'country',
-            select: 'name code',
-          },
+          select: 'name country title description',
         })
         .populate({
           path: 'type',
@@ -28,9 +25,7 @@ const getPages = async (req, res) => {
       }
 
       const { type } = singlePage.toObject();
-      const pageType = await PageType.findById(type)
-        .populate('attributes.type')
-        .exec();
+      const pageType = await PageType.findById(type).populate('attributes.type').exec();
       const pageTypeData = pageType.toObject();
       const pageTypeAttributesSchema = pageTypeData.attributes.map(attribute => ({
         ...attribute,

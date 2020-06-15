@@ -3,8 +3,8 @@ export const state = () => ({
   attributesSchema: null,
   pageAttributes: null,
   unsaveData: [],
-  pageDetails: null,
   pageVariants: null,
+  pageDetails: {},
 });
 
 export const mutations = {
@@ -32,11 +32,16 @@ export const mutations = {
   },
 
   UPDATE_DETAILS(state, pageDetails) {
-    state.pageData = { ...state.pageDetails, ...pageDetails };
+    state.pageDetails = { ...state.pageDetails, ...pageDetails };
 
     if (!state.unsaveData.includes('pageDetails')) {
       state.unsaveData = [...state.unsaveData, 'pageDetails'];
     }
+  },
+
+  ADD_VARIANT(state, variant) {
+    state.pageVariants = [variant, ...state.pageVariants];
+    state.pageDetails = variant;
   },
 
   RESET_UNSAVE_DATA(state) {
@@ -56,29 +61,38 @@ export const actions = {
       return commit('FETCH_PAGE_DATA', data);
     } catch (error) {
       // eslint-disable-next-line
-      console.error(error);
+      console.error(`Error code ${error.response.status}: ${error.response.data}`);
     }
   },
 
-  async savePage({ commit, state }) {
+  async updatePage({ commit, state }) {
     try {
+      const { type, url, name } = state.mainData;
+
       await this.$axios.put(`pages/${state.mainData._id}`, {
-        ...state.mainData,
         attributes: state.pageAttributes,
+        name,
         pageDetails: state.pageVariants.map(variant => variant._id),
+        type: type._id,
+        url,
       });
 
       if (state.unsaveData.includes('pageDetails')) {
-        await this.$axios.put(
-          `page-details/${state.mainData._id}`,
-          state.pageDetails
-        );
+        const { _id, title, name, description, country } = state.pageDetails;
+
+        await this.$axios.put(`page-details/${_id}`, {
+          country,
+          description,
+          name,
+          pageId: state.mainData._id,
+          title,
+        });
       }
 
       return commit('RESET_UNSAVE_DATA');
     } catch (error) {
       // eslint-disable-next-line
-      console.error(error);
+      console.error(`Error code ${error.response.status}: ${error.response.data}`);
     }
   },
 

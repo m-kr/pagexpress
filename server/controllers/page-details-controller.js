@@ -79,10 +79,12 @@ const createPageDetails = async (req, res) => {
     return res.status(400).send('Page not exist');
   }
 
-  const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
+  if (req.body.components) {
+    const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
 
-  if (!uniqueComponents) {
-    return res.status(400).send('Component Id is not unique');
+    if (!uniqueComponents) {
+      return res.status(400).send('Component Id is not unique');
+    }
   }
 
   try {

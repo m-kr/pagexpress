@@ -4,7 +4,7 @@ const Joi = require('@hapi/joi');
 Joi.objectId = require('joi-objectid')(Joi);
 
 const pageComponentSchema = new Schema({
-  _id: { type: String, unique: true, min: 36, max: 36, default: uuid.v4 },
+  _id: { type: String, min: 36, max: 36, default: uuid.v4 },
   componentPatternId: { type: Schema.Types.ObjectId, required: true, ref: 'ComponentPattern' },
   parentComponentId: { type: String, min: 36, max: 36 },
   data: { type: Object },

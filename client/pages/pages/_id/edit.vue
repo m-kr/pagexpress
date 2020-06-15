@@ -1,6 +1,6 @@
 <template>
   <div class="page-edit">
-    <div v-if="mainData" class="panel is-link">
+    <div v-if="mainData" class="panel">
       <p class="panel-heading">Main parameters</p>
 
       <div class="panel-block">
@@ -32,6 +32,7 @@
                   type="text"
                   name="url"
                   placeholder="URL"
+                  @input="updateMainData('url', $event.target.value)"
                 />
               </div>
             </div>
@@ -40,24 +41,40 @@
         <div class="columns">
           <div class="column">
             <div class="field is-fullwidth">
-              <label for="type" class="label">Type</label>
+              <label for="pageType" class="label">Type</label>
               <div class="control">
-                <input
-                  id="type"
-                  :value="mainData.type.name"
-                  class="input"
-                  type="text"
-                  name="type"
-                  placeholder="Page type"
-                />
+                <div class="select is-fullwidth">
+                  <select id="pageType">
+                    <option
+                      v-for="type of pageTypes"
+                      :key="type._id"
+                      :value="mainData.type.id"
+                      @change="updateMainData('url', $event.target.value)"
+                      >{{ type.name }}</option
+                    >
+                  </select>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="panel-block">
+        <div class="columns">
+          <div class="column">
+            <button
+              v-if="unsaveData.includes('mainData')"
+              class="button is-success"
+              @click="updatePage"
+            >
+              Save changes
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div v-if="attributesSchema" class="panel is-link">
+    <div v-if="pageAttributes && attributesSchema" class="panel">
       <p class="panel-heading">Page attributes</p>
 
       <div
@@ -67,27 +84,46 @@
       >
         <div class="columns">
           <div class="column">
-            <div class="field is-fullwidth">
-              <label :for="attributeSchema.name" class="label">{{
-                attributeSchema.name
-              }}</label>
-              <div class="control">
-                <input
-                  :id="attributeSchema.name"
-                  :value="pageAttributes[attributeSchema.name]"
-                  class="input"
-                  type="text"
-                  name="description"
-                  :placeholder="attributeSchema.description"
-                />
-              </div>
-            </div>
+            <FieldList
+              v-if="attributeSchema.type === 'list'"
+              :label="attributeSchema.description"
+              :values="pageAttributes[attributeSchema.name]"
+              @update="value => updateAttribute(attributeSchema.name, value)"
+            />
+
+            <FieldText
+              v-if="attributeSchema.type === 'text'"
+              :label="attributeSchema.description"
+              :value="pageAttributes[attributeSchema.name]"
+              @update="value => updateAttribute(attributeSchema.name, value)"
+            />
+
+            <FieldHtml
+              v-if="attributeSchema.type === 'html'"
+              :label="attributeSchema.description"
+              :value="pageAttributes[attributeSchema.name]"
+              @update="value => updateAttribute(attributeSchema.name, value)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="columns">
+          <div class="column">
+            <button
+              v-if="unsaveData.includes('attributes')"
+              class="button is-success"
+              @click="updatePage"
+            >
+              Save changes
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <div v-if="mainData" class="panel is-primary">
+    <div v-if="mainData" class="panel">
       <p class="panel-heading">Page variants details</p>
 
       <div class="columns">
@@ -96,38 +132,236 @@
             <ul>
               <li
                 v-if="mainData.pageDetails && mainData.pageDetails.length"
-                class="is-active"
+                :class="activeDetailsTab === 'edit' ? 'is-active' : ''"
+                @click.prevent="switchDetailsTab('edit')"
               >
                 <a>Edit</a>
               </li>
-              <li><a>Add new +</a></li>
+              <li :class="activeDetailsTab === 'add' ? 'is-active' : ''">
+                <a @click.prevent="switchDetailsTab('add')">Add new +</a>
+              </li>
             </ul>
           </div>
         </div>
       </div>
 
-      <div class="panel-block">
+      <div v-if="activeDetailsTab === 'add'" class="panel-block">
+        <div class="columns">
+          <div class="column">
+            <div class="field is-fullwidth">
+              <label for="new-page-details-name" class="label">
+                Page variant name
+              </label>
+              <div class="control">
+                <input
+                  id="new-page-details-name"
+                  :value="newPageDetails.name"
+                  class="input"
+                  type="text"
+                  name="page-variant-name"
+                  placeholder="Page variant name"
+                  @input="updateNewPageVariant('name', $event.target.value)"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="control is-expanded">
+              <label for="new-page-details-country" class="label">
+                Country
+              </label>
+              <div class="select is-fullwidth">
+                <select
+                  id="new-page-details-country"
+                  :value="newPageDetails.country"
+                  @change="updateNewPageVariant('country', $event.target.value)"
+                >
+                  <option value="" selected disabled hidden>
+                    -- Choose country --
+                  </option>
+                  <option
+                    v-for="country of countries"
+                    :key="country._id"
+                    :value="country._id"
+                  >
+                    {{ country.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="field is-fullwidth">
+              <label for="new-page-details-title" class="label">
+                Title
+              </label>
+              <div class="control">
+                <input
+                  id="new-page-details-title"
+                  :value="newPageDetails.title"
+                  class="input"
+                  type="text"
+                  name="page-title"
+                  placeholder="Page title"
+                  @input="updateNewPageVariant('title', $event.target.value)"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field is-fullwidth">
+              <label for="new-page-details-description" class="label">
+                Description
+              </label>
+              <div class="control">
+                <input
+                  id="new-page-details-description"
+                  :value="newPageDetails.description"
+                  class="input"
+                  type="text"
+                  name="page-description"
+                  placeholder="Page description"
+                  @input="
+                    updateNewPageVariant('description', $event.target.value)
+                  "
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button
+              type="submit"
+              class="button is-success"
+              @click="addPageVariant"
+            >
+              Add page variant
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="activeDetailsTab === 'edit'" class="panel-block">
         <div class="columns">
           <div class="column">
             <div class="field is-horizontal has-addons">
               <div class="field-label is-normal">
-                <label class="label" for="details">Page variants</label>
+                <label class="label" for="details">Page variant</label>
               </div>
               <div class="field-body">
                 <div class="control is-expanded">
                   <div class="select is-fullwidth">
-                    <select id="details">
+                    <select
+                      id="details"
+                      @change="swichPageDetailsData($event.target.value)"
+                    >
                       <option
                         v-for="variant of pageVariants"
                         :key="variant._id"
                         :value="variant._id"
-                        >{{ variant.name }}</option
                       >
+                        {{ variant.name }}
+                      </option>
                     </select>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="field is-fullwidth">
+              <label for="page-details-name" class="label">
+                Page variant name
+              </label>
+              <div class="control">
+                <input
+                  id="page-details-name"
+                  :value="pageDetails.name"
+                  class="input"
+                  type="text"
+                  name="page-variant-name"
+                  placeholder="Page variant name"
+                  @input="updatePageDetails('title', $event.target.value)"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="control is-expanded">
+              <label for="page-details-country" class="label">
+                Country
+              </label>
+              <div class="select is-fullwidth">
+                <select
+                  id="page-details-country"
+                  :value="pageDetails.country"
+                  @change="updatePageDetails('country', $event.target.value)"
+                >
+                  <option
+                    v-for="country of countries"
+                    :key="country._id"
+                    :value="country._id"
+                  >
+                    {{ country.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="field is-fullwidth">
+              <label for="page-details-title" class="label">
+                Title
+              </label>
+              <div class="control">
+                <input
+                  id="page-details-title"
+                  :value="pageDetails.title"
+                  class="input"
+                  type="text"
+                  name="page-title"
+                  placeholder="Page title"
+                  @input="updatePageDetails('title', $event.target.value)"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field is-fullwidth">
+              <label for="new-page-details-description" class="label">
+                Description
+              </label>
+              <div class="control">
+                <input
+                  id="page-details-description"
+                  :value="pageDetails.description"
+                  class="input"
+                  type="text"
+                  name="page-description"
+                  placeholder="Page description"
+                  @input="updatePageDetails('description', $event.target.value)"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <button
+              v-if="unsaveData.includes('pageDetails')"
+              type="submit"
+              class="button is-success"
+              @click="updatePage"
+            >
+              Save changes
+            </button>
           </div>
         </div>
       </div>
@@ -137,11 +371,19 @@
 
 <script>
 import { mapState } from 'vuex';
+import { FieldText, FieldHtml, FieldList } from '@/components';
 
 export default {
-  // asyncData({ params, store }) {
-  //   store.dispatch('page/', { pageId: params.id });
-  // },
+  components: {
+    FieldHtml,
+    FieldText,
+    FieldList,
+  },
+  data() {
+    return {
+      activeDetailsTab: null,
+    };
+  },
 
   computed: {
     ...mapState({
@@ -153,7 +395,9 @@ export default {
       unsaveData: state => state.page.unsaveData,
       fieldTypes: state => state.fieldTypes.types,
       pageTypes: state => state.pageTypes.types,
+      countries: state => state.countries.countries,
       pageAttributeTypes: state => state.pageAttributeTypes.types,
+      newPageDetails: state => state.pageDetails.details,
     }),
 
     pageId() {
@@ -169,13 +413,51 @@ export default {
     async initPageData(pageId) {
       await this.$store.dispatch('pageTypes/fetchPageTypes');
       await this.$store.dispatch('fieldTypes/fetchFieldTypes');
+      await this.$store.dispatch('countries/fetchCountries');
       await this.$store.dispatch('page/fetchPageData', {
         pageId: pageId || this.$route.params.id,
       });
+
+      this.activeDetailsTab = this.$store.state.page.pageVariants
+        ? 'edit'
+        : 'add';
+      this.swichPageDetailsData(this.$store.state.page.pageVariants[0]._id);
+    },
+
+    async addPageVariant() {
+      await this.$store.dispatch('pageDetails/addPageDetails', this.pageId);
+      this.activeDetailsTab = 'edit';
+    },
+
+    async updatePage() {
+      await this.$store.dispatch('page/updatePage');
     },
 
     updateMainData(field, value) {
       this.$store.commit('page/UPDATE_MAIN_DATA', { [field]: value });
+    },
+
+    updateAttribute(field, value) {
+      this.$store.commit('page/UPDATE_ATTRIBUTES', { [field]: value });
+    },
+
+    updatePageDetails(field, value) {
+      this.$store.commit('page/UPDATE_DETAILS', { [field]: value });
+    },
+
+    updateNewPageVariant(field, value) {
+      this.$store.commit('pageDetails/UPDATE_PAGE_DETAILS', { [field]: value });
+    },
+
+    swichPageDetailsData(pageDetailsId) {
+      const pageDetails = this.pageVariants.find(
+        variant => variant._id === pageDetailsId
+      );
+      this.$store.commit('page/UPDATE_DETAILS', pageDetails);
+    },
+
+    switchDetailsTab(tab) {
+      this.activeDetailsTab = tab;
     },
   },
 };
