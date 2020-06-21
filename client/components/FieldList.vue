@@ -45,6 +45,7 @@ export default {
   },
   methods: {
     addItem() {
+      this.$emit('add', this.newItem);
       this.$emit('update', [...this.values, this.newItem]);
       this.newItem = '';
     },

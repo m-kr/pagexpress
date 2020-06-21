@@ -1,4 +1,5 @@
 export const state = () => ({
+  newPageId: null,
   mainData: null,
   attributesSchema: null,
   pageAttributes: null,
@@ -37,6 +38,10 @@ export const mutations = {
     if (!state.unsaveData.includes('pageDetails')) {
       state.unsaveData = [...state.unsaveData, 'pageDetails'];
     }
+  },
+
+  ADD_PAGE(state, newPageId) {
+    state.newPageId = newPageId;
   },
 
   ADD_VARIANT(state, variant) {
@@ -108,11 +113,10 @@ export const actions = {
     }
   },
 
-  async addPage({ commit, state }) {
-    const { _id, ...pageData } = state;
-    await this.$axios.post(`pages`, pageData);
+  async addPage({ commit, state }, pageData) {
+    const { data } = await this.$axios.post(`pages`, pageData);
 
-    return commit('RESET_UNSAVE_DATA');
+    return commit('ADD_PAGE', data);
   },
 
   async removePage({ commit, state }, pageId) {
