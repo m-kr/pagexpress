@@ -11,7 +11,17 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const config = require('config');
-const { auth, users, pages, pageTypes, pageAttributeTypes, components, fields } = require('./routes');
+const {
+  auth,
+  componentPatterns,
+  countries,
+  fields,
+  pageAttributeTypes,
+  pageDetails,
+  pageTypes,
+  pages,
+  users,
+} = require('./routes');
 
 if (!config.get('jwtPrivateKey')) {
   console.log('FATAL ERROR: jwtPrivateKey is not defined');
@@ -33,13 +43,15 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use('/v1', users);
 app.use('/v1', auth);
-app.use('/v1', pages);
-app.use('/v1', pageTypes);
-app.use('/v1', pageAttributeTypes);
-app.use('/v1', components);
+app.use('/v1', componentPatterns);
+app.use('/v1', countries);
 app.use('/v1', fields);
+app.use('/v1', pageAttributeTypes);
+app.use('/v1', pageDetails);
+app.use('/v1', pageTypes);
+app.use('/v1', pages);
+app.use('/v1', users);
 
 const serverConfig = config.get('server');
 app.listen(serverConfig.port, serverConfig.host);

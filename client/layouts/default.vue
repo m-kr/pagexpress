@@ -1,7 +1,11 @@
 <template>
-  <div>
+  <div class="app">
     <Navbar />
-    <nuxt />
+    <section class="section">
+      <div class="container">
+        <nuxt />
+      </div>
+    </section>
   </div>
 </template>
 

@@ -76,6 +76,7 @@ export default {
               password: this.password,
             },
           })
+          // eslint-disable-next-line
           .then(data => console.log('data', data));
 
         this.$router.push('/');
