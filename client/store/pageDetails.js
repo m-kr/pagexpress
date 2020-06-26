@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 const detailsStructure = {
   name: '',
   country: '',
@@ -22,6 +24,20 @@ export const mutations = {
 
   RESET_DETAILS(state) {
     state.details = { ...detailsStructure };
+  },
+
+  ADD_COMPONENT(state, component) {
+    state.components = [...state.components, component];
+  },
+
+  UPDATE_COMPONENT(state, newComponentData) {
+    state.components = state.components.map(component => {
+      if (component._id === newComponentData._id) {
+        component = { ...component, ...newComponentData };
+      }
+
+      return component;
+    });
   },
 
   REMOVE_PAGE_DETAILS(state) {
@@ -72,5 +88,13 @@ export const actions = {
     await this.$axios.delete(`page-details/${pageDetailsId}`);
     commit('page/REMOVE_VARIANT', pageDetailsId, { root: true });
     commit('REMOVE_PAGE_DETAILS');
+  },
+
+  addComponent({ commit, state }, newComponentData) {
+    commit('ADD_COMPONENT', {
+      _id: uuidv4(),
+      ...newComponentData,
+      data: {},
+    });
   },
 };

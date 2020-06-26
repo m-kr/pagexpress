@@ -1,5 +1,15 @@
 <template>
   <div class="page-edit">
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li><nuxt-link to="/">Home</nuxt-link></li>
+        <li class="is-active">
+          <nuxt-link :to="`/pages/${$route.params.pageId}`" aria-current="page">
+            Page edit
+          </nuxt-link>
+        </li>
+      </ul>
+    </nav>
     <div v-if="mainData" class="panel">
       <p class="panel-heading">Main parameters</p>
 
@@ -357,6 +367,12 @@
         </div>
         <div class="columns">
           <div class="column">
+            <nuxt-link
+              class="button is-link"
+              :to="`/pages/${pageId}/structure/${pageDetails._id}`"
+            >
+              Components structure
+            </nuxt-link>
             <button
               v-if="unsaveData.includes('pageDetails')"
               type="submit"
@@ -407,7 +423,7 @@ export default {
     }),
 
     pageId() {
-      return this.$route.params.id;
+      return this.$route.params.pageId;
     },
   },
 
@@ -421,7 +437,7 @@ export default {
       await this.$store.dispatch('fieldTypes/fetchFieldTypes');
       await this.$store.dispatch('countries/fetchCountries');
       await this.$store.dispatch('page/fetchPageData', {
-        pageId: pageId || this.$route.params.id,
+        pageId: pageId || this.$route.params.pageId,
       });
 
       const { pageVariants } = this.$store.state.page;

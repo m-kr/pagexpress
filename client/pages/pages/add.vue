@@ -1,5 +1,16 @@
 <template>
   <div class="page-add">
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li><nuxt-link to="/">Home</nuxt-link></li>
+        <li class="is-active">
+          <nuxt-link to="/pages/add" aria-current="page">
+            Add new page
+          </nuxt-link>
+        </li>
+      </ul>
+    </nav>
+
     <div class="panel">
       <p class="panel-heading">Main parameters</p>
 
