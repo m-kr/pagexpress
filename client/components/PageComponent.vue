@@ -21,11 +21,6 @@
       />
       <slot></slot>
     </div>
-    <footer class="card-footer">
-      <a href="#" class="card-footer-item">Save</a>
-      <a href="#" class="card-footer-item">Edit</a>
-      <a href="#" class="card-footer-item">Delete</a>
-    </footer>
   </div>
 </template>
 
@@ -40,6 +35,10 @@ export default {
   },
 
   props: {
+    parentComponentId: {
+      type: String,
+      default: null,
+    },
     componentPattern: {
       type: Object,
       required: true,
@@ -75,6 +74,7 @@ export default {
       this.updateComponent({
         data: {
           ...this.data,
+          parentComponentId: this.parentComponentId,
           [fieldName]: value,
         },
       });
@@ -83,7 +83,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .card-header-title {
   flex-direction: column;
   align-items: flex-start;

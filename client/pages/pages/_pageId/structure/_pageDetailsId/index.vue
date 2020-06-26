@@ -26,7 +26,7 @@
 
     <div v-if="componentPatterns" class="components-wrapper">
       <PageComponent
-        v-for="component in components"
+        v-for="component in getRootComponents(components)"
         :key="component._id"
         :component-pattern="getComponentPattern(component.componentPatternId)"
         :field-types="fieldTypes"
@@ -35,18 +35,37 @@
         :attributes="component.attributes"
         :update-component="updateComponent.bind(null, component._id)"
       >
-        <SelectWithAction
-          label="Add component"
-          :options="componentPatternsOptions"
-          :action="addComponent"
+        <PageComponent
+          v-for="subComponent in getChildComponents(component._id)"
+          :key="subComponent._id"
+          :component-pattern="
+            getComponentPattern(subComponent.componentPatternId)
+          "
+          :field-types="fieldTypes"
+          :data="subComponent.data"
+          :order="subComponent.order"
+          :attributes="subComponent.attributes"
+          :update-component="updateComponent.bind(null, subComponent._id)"
         />
+
+        <div class="add-component">
+          <SelectWithAction
+            placeholder="Pick component"
+            button-label="Add component"
+            :options="componentPatternsOptions"
+            :action="patternId => addComponent(patternId, component._id)"
+          />
+        </div>
       </PageComponent>
 
-      <SelectWithAction
-        label="Add component"
-        :options="componentPatternsOptions"
-        :action="addComponent"
-      />
+      <div class="add-component">
+        <SelectWithAction
+          placeholder="Pick component"
+          button-label="Add component"
+          :options="componentPatternsOptions"
+          :action="patternId => addComponent(patternId)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -98,8 +117,11 @@ export default {
       await this.$store.dispatch('fieldTypes/fetchFieldTypes');
     },
 
-    addComponent(componentPatternId) {
-      this.$store.dispatch('pageDetails/addComponent', { componentPatternId });
+    addComponent(componentPatternId, parentComponentId) {
+      this.$store.dispatch('pageDetails/addComponent', {
+        componentPatternId,
+        parentComponentId,
+      });
     },
 
     updateComponent(componentId, componentData) {
@@ -109,6 +131,7 @@ export default {
       });
     },
 
+    // Move them to getters
     getComponentPattern(patternId) {
       if (!this.componentPatterns || !patternId) {
         return;
@@ -116,6 +139,30 @@ export default {
 
       return this.componentPatterns.find(pattern => pattern._id === patternId);
     },
+
+    getChildComponents(parentId) {
+      return this.components.filter(
+        component => component.parentComponentId === parentId
+      );
+    },
+
+    getRootComponents() {
+      return this.components.filter(component => !component.parentComponentId);
+    },
   },
 };
 </script>
+
+<style scoped>
+.add-component {
+  display: flex;
+  margin-top: var(--spacing);
+  padding-left: 50%;
+}
+
+.components-wrapper {
+  & > *:not(:last-of-type) {
+    margin-bottom: var(--spacing-2);
+  }
+}
+</style>

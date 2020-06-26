@@ -50,3 +50,11 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.field-wrapper {
+  &:not(:first-of-type) {
+    margin-top: var(--spacing);
+  }
+}
+</style>

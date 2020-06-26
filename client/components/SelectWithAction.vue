@@ -1,24 +1,27 @@
 <template>
-  <div class="field-list">
-    <div class="field has-addons">
-      <div class="control is-expanded">
-        <div class="select is-fullwidth">
-          <select v-model="picketItem" name="country">
-            <option
-              v-for="option in options"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.name }}
-            </option>
-          </select>
-        </div>
+  <div class="field has-addons">
+    <div class="control is-expanded">
+      <div class="select is-fullwidth">
+        <select v-model="picketItem" name="country">
+          <option value="">-- {{ placeholder }} --</option>
+          <option
+            v-for="option in options"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.name }}
+          </option>
+        </select>
       </div>
-      <div class="control">
-        <button class="button is-primary" @click="triggerAction">
-          Add component +
-        </button>
-      </div>
+    </div>
+    <div class="control">
+      <button
+        :disabled="!picketItem.length"
+        class="button is-primary"
+        @click="triggerAction"
+      >
+        {{ buttonLabel }}
+      </button>
     </div>
   </div>
 </template>
@@ -27,7 +30,11 @@
 export default {
   name: 'SelectWithAction',
   props: {
-    label: {
+    placeholder: {
+      type: String,
+      required: true,
+    },
+    buttonLabel: {
       type: String,
       required: true,
     },
@@ -46,14 +53,17 @@ export default {
     };
   },
 
-  mounted() {
-    this.picketItem = this.options[0].value;
-  },
-
   methods: {
     triggerAction() {
       this.action(this.picketItem);
+      this.picketItem = '';
     },
   },
 };
 </script>
+
+<style scoped>
+.field {
+  width: 100%;
+}
+</style>

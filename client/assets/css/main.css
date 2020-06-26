@@ -1,6 +1,10 @@
 :root {
- --body-color: #363636;
- --gray: #fdfdfd;
+  --body-color: #363636;
+  --gray: #fdfdfd;
+  --spacing-05: 0.5em;
+  --spacing: 1em;
+  --spacing-15: 1.5em;
+  --spacing-2: 2em;
 }
 
 html {

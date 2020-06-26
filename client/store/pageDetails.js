@@ -95,6 +95,7 @@ export const actions = {
       _id: uuidv4(),
       ...newComponentData,
       data: {},
+      components: [],
     });
   },
 };
