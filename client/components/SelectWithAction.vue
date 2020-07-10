@@ -1,27 +1,29 @@
 <template>
-  <div class="field has-addons">
-    <div class="control is-expanded">
-      <div class="select is-fullwidth">
-        <select v-model="picketItem" name="country">
-          <option value="">-- {{ placeholder }} --</option>
-          <option
-            v-for="option in options"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.name }}
-          </option>
-        </select>
+  <div class="select-with-action">
+    <div class="field is-grouped">
+      <div class="control is-expanded">
+        <div class="select is-fullwidth">
+          <select v-model="picketItem" name="country">
+            <option value="">-- {{ placeholder }} --</option>
+            <option
+              v-for="option in options"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.name }}
+            </option>
+          </select>
+        </div>
       </div>
-    </div>
-    <div class="control">
-      <button
-        :disabled="!picketItem.length"
-        class="button is-primary"
-        @click="triggerAction"
-      >
-        {{ buttonLabel }}
-      </button>
+      <div class="control">
+        <button
+          :disabled="!picketItem.length"
+          class="button is-link"
+          @click="triggerAction"
+        >
+          {{ buttonLabel }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -62,8 +64,8 @@ export default {
 };
 </script>
 
-<style scoped>
-.field {
-  width: 100%;
+<style lang="postcss" scoped>
+.select-with-action {
+  display: flex;
 }
 </style>

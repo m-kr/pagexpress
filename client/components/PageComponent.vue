@@ -16,10 +16,23 @@
         v-if="componentPattern"
         :fields="componentPattern.fields"
         :field-types="fieldTypes"
-        :data="data"
+        :data="component.data"
         :on-update-data="updateData"
       />
-      <slot></slot>
+
+      <div v-if="childComponents.length" class="inner-components">
+        <h2 class="title is-3">Inner components</h2>
+
+        <PageComponent
+          v-for="childComponent in childComponents"
+          :key="childComponent._id"
+          :component="childComponent"
+          :component-patterns="componentPatterns"
+          :field-types="fieldTypes"
+          :update-component="updateComponent"
+        />
+      </div>
+      <slot />
     </div>
   </div>
 </template>
@@ -35,33 +48,21 @@ export default {
   },
 
   props: {
-    parentComponentId: {
-      type: String,
-      default: null,
-    },
-    componentPattern: {
-      type: Object,
+    componentPatterns: {
+      type: Array,
       required: true,
     },
     fieldTypes: {
       type: Array,
       default: () => [],
     },
-    data: {
+    component: {
       type: Object,
-      default: () => {},
+      required: true,
     },
-    order: {
-      type: Number,
-      default: 0,
-    },
-    components: {
+    childComponents: {
       type: Array,
       default: () => [],
-    },
-    attributes: {
-      type: Object,
-      default: () => {},
     },
     updateComponent: {
       type: Function,
@@ -69,27 +70,48 @@ export default {
     },
   },
 
+  computed: {
+    componentPattern() {
+      return this.getComponentPattern(this.component.componentPatternId);
+    },
+  },
+
   methods: {
     updateData(fieldName, value) {
-      this.updateComponent({
+      this.updateComponent(this.component._id, {
         data: {
-          ...this.data,
-          parentComponentId: this.parentComponentId,
+          ...this.component.data,
           [fieldName]: value,
         },
       });
+    },
+    getComponentPattern(patternId) {
+      return this.componentPatterns.find(pattern => pattern._id === patternId);
     },
   },
 };
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .card-header-title {
   flex-direction: column;
   align-items: flex-start;
 
   & > * {
     display: block;
+  }
+}
+
+.inner-components {
+  margin-top: var(--spacing-2);
+  padding: var(--spacing);
+  border: 1px solid var(--border-color);
+  background-color: var(--gray-dark);
+
+  .card {
+    &:not(:last-of-type) {
+      margin-bottom: var(--spacing);
+    }
   }
 }
 </style>

@@ -28,39 +28,29 @@
       <PageComponent
         v-for="component in getRootComponents(components)"
         :key="component._id"
-        :component-pattern="getComponentPattern(component.componentPatternId)"
+        :child-components="getChildComponents(component._id)"
+        :component-patterns="componentPatterns"
+        :component="component"
         :field-types="fieldTypes"
-        :data="component.data"
-        :order="component.order"
-        :attributes="component.attributes"
-        :update-component="updateComponent.bind(null, component._id)"
+        :update-component="updateComponent"
       >
-        <PageComponent
-          v-for="subComponent in getChildComponents(component._id)"
-          :key="subComponent._id"
-          :component-pattern="
-            getComponentPattern(subComponent.componentPatternId)
-          "
-          :field-types="fieldTypes"
-          :data="subComponent.data"
-          :order="subComponent.order"
-          :attributes="subComponent.attributes"
-          :update-component="updateComponent.bind(null, subComponent._id)"
-        />
-
-        <div class="add-component">
+        <div class="field is-grouped add-component">
           <SelectWithAction
-            placeholder="Pick component"
-            button-label="Add component"
+            placeholder="Choose component"
+            button-label="Add inner component"
             :options="componentPatternsOptions"
             :action="patternId => addComponent(patternId, component._id)"
           />
         </div>
       </PageComponent>
 
-      <div class="add-component">
+      <div class="field is-grouped add-component">
+        <button class="button is-primary">
+          Save changes
+        </button>
+
         <SelectWithAction
-          placeholder="Pick component"
+          placeholder="Choose component"
           button-label="Add component"
           :options="componentPatternsOptions"
           :action="patternId => addComponent(patternId)"
@@ -132,14 +122,6 @@ export default {
     },
 
     // Move them to getters
-    getComponentPattern(patternId) {
-      if (!this.componentPatterns || !patternId) {
-        return;
-      }
-
-      return this.componentPatterns.find(pattern => pattern._id === patternId);
-    },
-
     getChildComponents(parentId) {
       return this.components.filter(
         component => component.parentComponentId === parentId
@@ -153,11 +135,15 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .add-component {
-  display: flex;
   margin-top: var(--spacing);
-  padding-left: 50%;
+}
+
+.field {
+  &.add-component {
+    justify-content: space-between;
+  }
 }
 
 .components-wrapper {
