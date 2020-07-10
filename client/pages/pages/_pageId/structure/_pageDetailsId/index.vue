@@ -45,7 +45,7 @@
       </PageComponent>
 
       <div class="field is-grouped add-component">
-        <button class="button is-primary">
+        <button class="button is-primary" @click="saveChanges">
           Save changes
         </button>
 
@@ -105,6 +105,10 @@ export default {
 
       await this.$store.dispatch('componentPatterns/fetchPatterns');
       await this.$store.dispatch('fieldTypes/fetchFieldTypes');
+    },
+
+    async saveChanges() {
+      await this.$store.dispatch('pageDetails/savePageDetails');
     },
 
     addComponent(componentPatternId, parentComponentId) {
