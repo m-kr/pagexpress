@@ -5,11 +5,9 @@
         <span>{{ componentPattern.name }}</span>
         <small>{{ componentPattern.description }}</small>
       </p>
-      <a href="#" class="card-header-icon" aria-label="more options">
-        <span class="icon">
-          <i class="fas fa-angle-down" aria-hidden="true"></i>
-        </span>
-      </a>
+      <button class="button is-danger is-small" @click="selfDestruction">
+        Remove
+      </button>
     </header>
     <div class="card-content">
       <PageComponentData
@@ -30,6 +28,7 @@
           :component-patterns="componentPatterns"
           :field-types="fieldTypes"
           :update-component="updateComponent"
+          :remove-component="removeComponent"
         />
       </div>
       <slot />
@@ -68,6 +67,10 @@ export default {
       type: Function,
       required: true,
     },
+    removeComponent: {
+      type: Function,
+      required: true,
+    },
   },
 
   computed: {
@@ -85,8 +88,13 @@ export default {
         },
       });
     },
+
     getComponentPattern(patternId) {
       return this.componentPatterns.find(pattern => pattern._id === patternId);
+    },
+
+    selfDestruction() {
+      this.removeComponent(this.component._id);
     },
   },
 };
@@ -99,6 +107,13 @@ export default {
 
   & > * {
     display: block;
+  }
+}
+
+.card-header {
+  .button {
+    align-self: center;
+    margin-right: var(--spacing);
   }
 }
 

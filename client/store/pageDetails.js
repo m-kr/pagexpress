@@ -49,6 +49,12 @@ export const mutations = {
     });
   },
 
+  REMOVE_COMPONENT(state, componentId) {
+    state.components = state.components.filter(
+      component => component._id !== componentId
+    );
+  },
+
   REMOVE_PAGE_DETAILS(state) {
     state.details = { ...detailsStructure };
     state.components = null;

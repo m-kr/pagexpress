@@ -33,6 +33,7 @@
         :component="component"
         :field-types="fieldTypes"
         :update-component="updateComponent"
+        :remove-component="removeComponent"
       >
         <div class="field is-grouped add-component">
           <SelectWithAction
@@ -123,6 +124,10 @@ export default {
         _id: componentId,
         ...componentData,
       });
+    },
+
+    removeComponent(componentId) {
+      this.$store.commit('pageDetails/REMOVE_COMPONENT', componentId);
     },
 
     // Move them to getters
