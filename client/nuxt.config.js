@@ -16,9 +16,7 @@ export default {
         content: process.env.npm_package_description || '',
       },
     ],
-    link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-    ],
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
   /*
    ** Customize the progress-bar color
@@ -27,11 +25,15 @@ export default {
   /*
    ** Global CSS
    */
-  css: ['~/assets/css/main.css'],
+  css: [
+    '~/assets/css/main.css',
+    'quill/dist/quill.core.css',
+    'quill/dist/quill.snow.css',
+  ],
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: [{ src: '~plugins/quill-plugin', ssr: false }],
   router: {
     middleware: ['auth'],
   },
