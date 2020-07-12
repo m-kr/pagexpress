@@ -1,0 +1,39 @@
+{
+  "name": "content-app",
+  "version": "1.0.0",
+  "description": "Tiny app for creating page content",
+  "main": "index.js",
+  "scripts": {
+    "dev": "NODE_PATH=. nodemon app.js",
+    "start": "NODE_PATH=. NODE_ENV=production node app.js",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "MIT",
+  "jest": {
+    "bail": true,
+    "verbose": true
+  },
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "config": "^3.3.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "joi-objectid": "^3.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.5.5",
+    "mongoose": "^5.9.7",
+    "uuid": "^7.0.3"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "jest": "^25.3.0",
+    "nodemon": "^2.0.2",
+    "prettier": "^2.0.4"
+  }
+}
