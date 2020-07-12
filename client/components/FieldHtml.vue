@@ -2,13 +2,14 @@
   <div class="field is-fullwidth">
     <label :for="label" class="label">{{ label }}</label>
     <div class="control">
-      <textarea
-        :id="label"
-        :value="value"
-        class="textarea"
-        :placeholder="placeholder"
-        @input="onInput($event.target.value)"
-      />
+      <client-only>
+        <quill-editor
+          ref="editor"
+          :content="value"
+          :options="editorOption"
+          @change="onChange($event)"
+        />
+      </client-only>
     </div>
   </div>
 </template>
@@ -30,9 +31,25 @@ export default {
       default: '',
     },
   },
+  data() {
+    return {
+      editorOption: {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [2, 3, 4, 5, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['blockquote'],
+            ['clean'],
+          ],
+        },
+      },
+    };
+  },
   methods: {
-    onInput(value) {
-      this.$emit('update', value);
+    onChange({ html }) {
+      this.$emit('update', html);
     },
   },
 };

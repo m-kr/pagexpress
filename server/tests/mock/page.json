@@ -1,76 +1,60 @@
 {
-  "preloadedImages": [],
-  "_id": "5e94926c028a8f1edb796551",
-  "url": "/sample/absolute-url/",
-  "title": "Awesome page",
-  "partner": "partner-name",
-  "description": "Awesome page about something real interesting",
-  "components": [
+  "pageType": "default",
+  "attributesSchema": [
     {
-      "_id": "1",
-      "componentType": {
-        "name": "Header",
-        "description": "Page header with image background"
-      },
-      "data": {
-        "title": "The best page in the world",
-        "textContent": "",
-        "extraContent": "<p>Some HTML here</p>",
-        "classExtensions": [
-          "big-image"
-        ]
-      },
-      "order": 1
+      "_id": "5e9f4e61aaafe3204524d886",
+      "name": "partner",
+      "description": "Partner site name",
+      "type": "text"
     },
     {
-      "_id": "2",
-      "componentType": {
-        "name": "TableOfContent",
-        "description": "ToC component with Items components inside"
-      },
-      "order": 2
+      "_id": "5e9f4e61aaafe3204524d887",
+      "name": "preloadedImages",
+      "description": "Images that will be preloaded before all others",
+      "type": "list"
     },
     {
-      "_id": "3",
-      "parentComponentId": "2",
-      "componentType": {
-        "name": "TableOfContentItem",
-        "description": "Page header with image background"
-      },
-      "data": {
-        "anchorText": "Wonderful page header",
-        "label": "Wondreful section"
-      },
-      "order": 1
+      "_id": "5e9f4e61aaafe3204524d888",
+      "name": "cssFiles",
+      "description": "Array css files paths",
+      "type": "list"
     },
     {
-      "_id": "4",
-      "parentComponentId": "2",
-      "componentType": {
-        "name": "TableOfContentItem",
-        "description": "Page header with image background"
-      },
-      "data": {
-        "anchorText": "Even more wonderful page header",
-        "label": "More wondreful section"
-      },
-      "order": 2
-    },
-    {
-      "_id": "5",
-      "parentComponentId": "4",
-      "componentType": {
-        "name": "TableOfContentItem",
-        "description": "Page header with image background"
-      },
-      "data": {
-        "anchorText": "Extremely more wonderful page header",
-        "label": "Extremely wondreful section"
-      },
-      "order": 3
+      "_id": "5e9f4e61aaafe3204524d889",
+      "name": "jsModules",
+      "description": "Array JS files paths",
+      "type": "list"
     }
   ],
-  "createdAt": "2020-04-13T16:25:16.465Z",
-  "updatedAt": "2020-04-13T16:25:16.465Z",
-  "__v": 0
+  "data": {
+    "pageDetails": [
+      {
+        "name": "US default",
+        "_id": "5ef5a829e5c98f9207dcc409",
+        "country": "5ecd6d0fb7bed40d875d9ca4",
+        "title": "New awesome page 2 in USA",
+        "description": "New awesome page 2 in USA"
+      }
+    ],
+    "_id": "5ecd664cd513932f96b96fc2",
+    "url": "/sample/new-awesome-page/",
+    "name": "New awesome page 2",
+    "type": {
+      "_id": "5e9f4dab8337b214ed144be0",
+      "name": "default"
+    },
+    "attributes": {
+      "partner": "QQQ company org",
+      "cssFiles": [
+        "/css/main.css"
+      ],
+      "jsModules": [
+        "/js/main.js"
+      ],
+      "preloadedImages": [
+        "/images/hero.jpg",
+        "/images/asdf.png"
+      ]
+    }
+  }
 }
