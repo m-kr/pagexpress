@@ -1,16 +1,14 @@
+const _ = require('lodash');
 const { PageDetails, pageDetailsValidationSchema } = require('../models/PageDetails');
 const { Page } = require('../models/Page');
 const { buildPageDetailsStructure } = require('../utils/page-structure');
 
-const hasComopnentsUniqueId = async components => {
+const hasComponentsUniqueIds = components => {
   if (!(components && components.length)) {
     return true;
   }
 
-  const componentsIds = components.map(component => component._id);
-  const existedComponentWithTheSameId = await PageDetails.find({ 'components._id': { $in: componentsIds } });
-
-  return !existedComponentWithTheSameId.length;
+  return _.uniqBy(components, component => component._id);
 };
 
 const getPageDetailsStructure = async (req, res) => {
@@ -38,12 +36,7 @@ const getPageDetails = async (req, res) => {
 
   try {
     if (pageDetailsId) {
-      const singlePageDetails = await PageDetails.findById(pageDetailsId)
-        .populate({
-          path: 'country',
-          select: 'name code',
-        })
-        .exec();
+      const singlePageDetails = await PageDetails.findById(pageDetailsId);
 
       if (!singlePageDetails) {
         return res.status(400).send(`There is no page details with id: ${pageDetailsId}`);
@@ -80,7 +73,7 @@ const createPageDetails = async (req, res) => {
   }
 
   if (req.body.components) {
-    const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
+    const uniqueComponents = hasComponentsUniqueIds(req.body.components);
 
     if (!uniqueComponents) {
       return res.status(400).send('Component Id is not unique');
@@ -106,7 +99,7 @@ const updatePageDetails = async (req, res) => {
     return res.status(400).send(error.details[0].message);
   }
 
-  const uniqueComponents = await hasComopnentsUniqueId(req.body.components);
+  const uniqueComponents = hasComponentsUniqueIds(req.body.components);
 
   if (!uniqueComponents) {
     return res.status(400).send('Component Id is not unique');

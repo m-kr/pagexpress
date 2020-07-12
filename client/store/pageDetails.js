@@ -1,4 +1,8 @@
+import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
+
 const detailsStructure = {
+  _id: '',
   name: '',
   country: '',
   title: '',
@@ -11,9 +15,16 @@ export const state = () => ({
 });
 
 export const mutations = {
-  FETCH_PAGE_DETAILS(state, { components, ...restDetails }) {
+  FETCH_PAGE_DETAILS(state, { components, ...details }) {
     state.components = components;
-    state.details = restDetails;
+    state.details = _.pick(details, [
+      '_id',
+      'name',
+      'country',
+      'title',
+      'description',
+      'pageId',
+    ]);
   },
 
   UPDATE_PAGE_DETAILS(state, newDetails) {
@@ -22,6 +33,26 @@ export const mutations = {
 
   RESET_DETAILS(state) {
     state.details = { ...detailsStructure };
+  },
+
+  ADD_COMPONENT(state, component) {
+    state.components = [...state.components, component];
+  },
+
+  UPDATE_COMPONENT(state, newComponentData) {
+    state.components = state.components.map(component => {
+      if (component._id === newComponentData._id) {
+        component = { ...component, ...newComponentData };
+      }
+
+      return component;
+    });
+  },
+
+  REMOVE_COMPONENT(state, componentId) {
+    state.components = state.components.filter(
+      component => component._id !== componentId
+    );
   },
 
   REMOVE_PAGE_DETAILS(state) {
@@ -59,7 +90,10 @@ export const actions = {
 
   async savePageDetails({ commit, state }) {
     try {
-      await this.$axios.put(`page-details/${state.details._id}`, state.details);
+      await this.$axios.put(`page-details/${state.details._id}`, {
+        ..._.pickBy(state.details, (value, key) => key !== '_id'),
+        components: state.components,
+      });
 
       commit('RESET_DETAILS');
     } catch (error) {
@@ -72,5 +106,13 @@ export const actions = {
     await this.$axios.delete(`page-details/${pageDetailsId}`);
     commit('page/REMOVE_VARIANT', pageDetailsId, { root: true });
     commit('REMOVE_PAGE_DETAILS');
+  },
+
+  addComponent({ commit, state }, newComponentData) {
+    commit('ADD_COMPONENT', {
+      _id: uuidv4(),
+      ...newComponentData,
+      data: {},
+    });
   },
 };

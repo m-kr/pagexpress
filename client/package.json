@@ -18,6 +18,7 @@
     "@nuxtjs/bulma": "^1.2.1",
     "@nuxtjs/dotenv": "^1.4.0",
     "@nuxtjs/pwa": "^3.0.0-0",
+    "lodash": "^4.17.19",
     "nuxt": "^2.0.0"
   },
   "devDependencies": {
@@ -35,6 +36,7 @@
     "postcss-nested": "^4.2.1",
     "prettier": "^1.19.1",
     "stylelint": "^10.1.0",
+    "uuid": "^8.2.0",
     "vue-jest": "^4.0.0-0"
   }
 }

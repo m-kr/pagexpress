@@ -1,4 +1,4 @@
-const prettifyComponentStructure = (component) => {
+const prettifyComponentStructure = component => {
   if (!component.componentType) {
     return component;
   }
@@ -18,11 +18,11 @@ const prettifyComponentStructure = (component) => {
  * @param {Object[]} components
  * @returns {Object[]}
  */
-const getRootComponents = (components) => components.filter((component) => !!component.parentComponentId === false);
+const getRootComponents = components => components.filter(component => !!component.parentComponentId === false);
 
 const findNestedComponents = (parentComponentId, pageComponents) =>
   pageComponents
-    .filter((component) => component.parentComponentId === parentComponentId)
+    .filter(component => component.parentComponentId === parentComponentId)
     .sort((a, b) => parseInt(a.order) - parseInt(b.order));
 
 const fillAllNestedLevels = (parentComponent, pageComponents) => {
@@ -55,9 +55,9 @@ const fillAllNestedLevels = (parentComponent, pageComponents) => {
  * @param {Object[]} pageComponents
  * returns {Object}
  */
-const buildPageStructure = (pageComponents) => {
+const buildPageStructure = pageComponents => {
   const rootComponents = getRootComponents(pageComponents);
-  return rootComponents.map((rootComponent) => fillAllNestedLevels(rootComponent, pageComponents));
+  return rootComponents.map(rootComponent => fillAllNestedLevels(rootComponent, pageComponents));
 };
 
 module.exports = {
