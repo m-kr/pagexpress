@@ -71,7 +71,7 @@ export const actions = {
     try {
       const { data } = await this.$axios.post(`page-details`, {
         pageId,
-        ...state.details,
+        ..._.pickBy(state.details, (value, key) => key !== '_id'),
       });
       commit(
         'page/ADD_VARIANT',
@@ -89,10 +89,12 @@ export const actions = {
   },
 
   async savePageDetails({ commit, state }) {
+    const components = [...state.components];
+
     try {
       await this.$axios.put(`page-details/${state.details._id}`, {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
-        components: state.components,
+        components: components.reverse(),
       });
 
       commit('RESET_DETAILS');

@@ -8,21 +8,21 @@
       <FieldText
         v-if="isFieldType(field.fieldTypeId, 'text')"
         :label="field.name"
-        :value="data[field.name]"
+        :value="data ? data[field.name] : null"
         @update="value => updateData(field.name, value)"
       />
 
       <FieldHtml
         v-if="isFieldType(field.fieldTypeId, 'html')"
         :label="field.name"
-        :value="data[field.name]"
+        :value="data ? data[field.name] : null"
         @update="value => updateData(field.name, value)"
       />
 
       <FieldList
         v-if="isFieldType(field.fieldTypeId, 'list')"
         :label="field.name"
-        :values="data[field.name]"
+        :values="data ? data[field.name] : null"
         @update="value => updateData(field.name, value)"
       />
     </div>
