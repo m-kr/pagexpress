@@ -11,12 +11,26 @@
     </header>
     <div class="card-content">
       <PageComponentData
-        v-if="componentPattern"
+        v-if="componentPattern && componentPattern.fields"
         :fields="componentPattern.fields"
         :field-types="fieldTypes"
         :data="component.data"
         :on-update-data="updateData"
       />
+
+      <div
+        v-if="componentPattern && componentPattern.fieldset"
+        class="fieldset-container"
+      >
+        <PageComponentDataset
+          v-for="singleFieldset in componentPattern.fieldset"
+          :key="singleFieldset._id"
+          :fields="singleFieldset.fields"
+          :field-types="fieldTypes"
+          :data="component.data[componentPattern.name]"
+          :on-update-data="value => updateData(componentPattern.name, value)"
+        />
+      </div>
 
       <div v-if="childComponents.length" class="inner-components">
         <h2 class="title is-3">Inner components</h2>
@@ -38,12 +52,14 @@
 
 <script>
 import PageComponentData from './PageComponentData';
+import PageComponentDataset from './PageComponentDataset';
 
 export default {
   name: 'PageComponent',
 
   components: {
     PageComponentData,
+    PageComponentDataset,
   },
 
   props: {

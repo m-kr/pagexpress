@@ -24,7 +24,7 @@ const componentPatternValidationSchema = Joi.object({
   name: Joi.string().required().min(3).max(30),
   description: Joi.string().min(10).max(250),
   fields: Joi.array().items(fieldValidationSchema),
-  fieldset: Joi.array().items(fieldValidationSchema),
+  fieldset: Joi.array().items(fieldsetValidationSchema),
 });
 
 const ComponentPattern = model('ComponentPattern', componentPatternSchema);
