@@ -2,11 +2,13 @@
   --body-color: #363636;
   --gray: #fdfdfd;
   --gray-dark: #ededed;
+  --gray-darken: #666666;
   --border-color: #e0e0e0;
   --spacing-05: 0.5em;
   --spacing: 1em;
   --spacing-15: 1.5em;
   --spacing-2: 2em;
+  --font-small: 0.8em;
 }
 
 html {

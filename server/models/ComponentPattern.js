@@ -3,38 +3,35 @@ const { fieldSchema, fieldValidationSchema } = require('./FieldType');
 const Joi = require('@hapi/joi');
 Joi.objectId = require('joi-objectid')(Joi);
 
-const subComponentSchema = new Schema({
-  componentId: { type: Schema.Types.ObjectId, require: true, ref: 'Component' },
-  order: { type: Number, require: true, unique: true, min: 0 },
-  single: { type: Boolean, default: false },
+const fieldsetSchema = new Schema({
+  name: { type: String, require: true, unique: true, min: 3, max: 30 },
+  fields: [fieldSchema],
 });
 
 const componentPatternSchema = new Schema({
   name: { type: String, require: true, unique: true, min: 3, max: 30 },
   description: { type: String, min: 10, max: 250 },
   fields: [fieldSchema],
-  components: [subComponentSchema],
+  fieldset: [fieldsetSchema],
 });
 
-const subComponentValidationSchema = Joi.object({
-  componentId: Joi.objectId().required(),
-  order: Joi.number().required().min(0),
-  single: Joi.boolean(),
+const fieldsetValidationSchema = Joi.object({
+  name: Joi.string().required().min(3).max(30),
+  fields: Joi.array().items(fieldValidationSchema),
 });
 
 const componentPatternValidationSchema = Joi.object({
   name: Joi.string().required().min(3).max(30),
   description: Joi.string().min(10).max(250),
   fields: Joi.array().items(fieldValidationSchema),
-  components: Joi.array().items(subComponentValidationSchema),
+  fieldset: Joi.array().items(fieldsetValidationSchema),
 });
 
 const ComponentPattern = model('ComponentPattern', componentPatternSchema);
 
 module.exports = {
-  subComponentSchema,
   componentPatternSchema,
   ComponentPattern,
+  fieldsetValidationSchema,
   componentPatternValidationSchema,
-  subComponentValidationSchema,
 };
