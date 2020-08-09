@@ -1,6 +1,46 @@
 const { Page, pageValidationSchema } = require('../models/Page');
+const { ComponentPattern } = require('../models/ComponentPattern');
 const { PageType } = require('../models/PageType');
 const ListFeatures = require('../utils/ListFeatures');
+const { buildPageStructure } = require('../utils/page-structure');
+const R = require('ramda');
+
+const getPageStructure = async (req, res) => {
+  const { pageId } = req.params;
+
+  try {
+    const pageData = await Page.findById(pageId)
+      .select('name url pageDetails attributes')
+      .populate({
+        path: 'pageDetails',
+        model: 'PageDetails',
+        select: 'name country title description components',
+      })
+      .populate({
+        path: 'type',
+        select: 'name',
+      })
+      .exec();
+
+    const componentPatterns = await ComponentPattern.find().exec();
+    const fullPageData = pageData.toObject();
+
+    const pageStructure = fullPageData.pageDetails.map(details => {
+      return {
+        ...details,
+        components: buildPageStructure(details.components, componentPatterns),
+      };
+    });
+
+    res.send({
+      ...R.pick(['name', 'url', 'attributes'], fullPageData),
+      structure: pageStructure,
+    });
+    // res.send(fullPageData);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+};
 
 const getPages = async (req, res) => {
   const { pageId } = req.params;
@@ -119,6 +159,7 @@ const deletePage = async (req, res) => {
 };
 
 module.exports = {
+  getPageStructure,
   getPages,
   createPage,
   updatePage,

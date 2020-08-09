@@ -28,7 +28,7 @@
           :fields="singleFieldset.fields"
           :field-types="fieldTypes"
           :data="component.data[componentPattern.name]"
-          :on-update-data="value => updateData(componentPattern.name, value)"
+          :on-update-data="value => updateData(singleFieldset.name, value)"
         />
       </div>
 

@@ -25,6 +25,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.5.5",
     "mongoose": "^5.9.7",
+    "ramda": "^0.27.1",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
