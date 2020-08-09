@@ -22,10 +22,14 @@ const getPageStructure = async (req, res) => {
       })
       .exec();
 
+    if (!pageData) {
+      throw new Error(`Page with ID ${pageId} doesn't exist`);
+    }
+
     const componentPatterns = await ComponentPattern.find().exec();
     const fullPageData = pageData.toObject();
 
-    const pageStructure = fullPageData.pageDetails.map(details => {
+    const pageVariants = fullPageData.pageDetails.map(details => {
       return {
         ...details,
         components: buildPageStructure(details.components, componentPatterns),
@@ -34,7 +38,7 @@ const getPageStructure = async (req, res) => {
 
     res.send({
       ...R.pick(['name', 'url', 'attributes'], fullPageData),
-      structure: pageStructure,
+      variants: pageVariants,
     });
     // res.send(fullPageData);
   } catch (err) {
