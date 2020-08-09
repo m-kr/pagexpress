@@ -27,7 +27,7 @@
           :key="singleFieldset._id"
           :fields="singleFieldset.fields"
           :field-types="fieldTypes"
-          :data="component.data[componentPattern.name]"
+          :data="component.data[singleFieldset.name]"
           :on-update-data="value => updateData(singleFieldset.name, value)"
         />
       </div>

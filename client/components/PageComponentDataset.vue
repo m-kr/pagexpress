@@ -79,16 +79,11 @@ export default {
 
   computed: {
     dataset() {
-      return this.data.map(singleData => {
-        this.fields.forEach(field => {
-          if (!singleData[field.name]) {
-            singleData[field.name] = this.isFieldType(field.fieldTypeId, 'list')
-              ? []
-              : '';
-          }
-        });
-        return singleData;
-      });
+      if (this.data.length) {
+        return this.data;
+      }
+
+      return [{}];
     },
   },
 
@@ -125,7 +120,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .component-dataset {
   counter-reset: row-number;
   padding: var(--spacing-05);
