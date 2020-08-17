@@ -1,7 +1,7 @@
 <template>
   <div v-if="fieldTypes && fieldTypes.length" class="component-dataset">
     <div
-      v-for="(data, dataIndex) in dataset"
+      v-for="(singleData, dataIndex) in dataset"
       :key="dataIndex"
       class="component-dataset__row columns is-multiline is-mobile"
     >
@@ -12,22 +12,22 @@
       >
         <FieldText
           v-if="isFieldType(field.fieldTypeId, 'text')"
-          :label="field.name"
-          :value="data ? data[field.name] : ''"
+          :label="field.label"
+          :value="singleData ? singleData[field.name] : ''"
           @update="value => updateData(dataIndex, field.name, value)"
         />
 
         <FieldHtml
           v-if="isFieldType(field.fieldTypeId, 'html')"
-          :label="field.name"
-          :value="data ? data[field.name] : ''"
+          :label="field.label"
+          :value="singleData ? singleData[field.name] : ''"
           @update="value => updateData(dataIndex, field.name, value)"
         />
 
         <FieldList
           v-if="isFieldType(field.fieldTypeId, 'list')"
-          :label="field.name"
-          :values="data ? data[field.name] : []"
+          :label="field.label"
+          :values="singleData ? singleData[field.name] : []"
           @update="value => updateData(dataIndex, field.name, value)"
         />
       </div>

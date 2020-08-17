@@ -2,7 +2,7 @@
   <div class="card">
     <header class="card-header">
       <p class="card-header-title">
-        <span>{{ componentPattern.name }}</span>
+        <span>{{ componentPattern.label }}</span>
         <small>{{ componentPattern.description }}</small>
       </p>
       <button class="button is-danger is-small" @click="selfDestruction">
@@ -33,7 +33,7 @@
       </div>
 
       <div v-if="childComponents.length" class="inner-components">
-        <h2 class="title is-3">Inner components</h2>
+        <h4 class="title is-4">Inner components</h4>
 
         <PageComponent
           v-for="childComponent in childComponents"
@@ -123,6 +123,10 @@ export default {
 
   & > * {
     display: block;
+  }
+
+  small {
+    font-weight: var(--font-weight-normal);
   }
 }
 

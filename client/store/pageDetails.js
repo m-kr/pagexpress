@@ -95,7 +95,7 @@ export const actions = {
     try {
       await this.$axios.put(`page-details/${state.details._id}`, {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
-        components: components.reverse(),
+        components,
       });
     } catch (error) {
       // eslint-disable-next-line

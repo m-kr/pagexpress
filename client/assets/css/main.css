@@ -9,6 +9,9 @@
   --spacing-15: 1.5em;
   --spacing-2: 2em;
   --font-small: 0.8em;
+
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
 }
 
 html {
