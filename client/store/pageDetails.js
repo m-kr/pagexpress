@@ -73,11 +73,12 @@ export const actions = {
         pageId,
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
       });
+
       commit(
         'page/ADD_VARIANT',
         {
-          _id: data,
           ...state.details,
+          _id: data,
         },
         { root: true }
       );
