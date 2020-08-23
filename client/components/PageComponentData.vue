@@ -7,21 +7,21 @@
     >
       <FieldText
         v-if="isFieldType(field.fieldTypeId, 'text')"
-        :label="field.name"
+        :label="field.label"
         :value="data ? data[field.name] : null"
         @update="value => updateData(field.name, value)"
       />
 
       <FieldHtml
         v-if="isFieldType(field.fieldTypeId, 'html')"
-        :label="field.name"
+        :label="field.label"
         :value="data ? data[field.name] : null"
         @update="value => updateData(field.name, value)"
       />
 
       <FieldList
         v-if="isFieldType(field.fieldTypeId, 'list')"
-        :label="field.name"
+        :label="field.label"
         :values="data ? data[field.name] : null"
         @update="value => updateData(field.name, value)"
       />

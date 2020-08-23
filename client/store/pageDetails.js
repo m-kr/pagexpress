@@ -77,6 +77,7 @@ export const actions = {
         pageId,
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
       });
+
       commit(
         'page/ADD_VARIANT',
         {
@@ -92,7 +93,7 @@ export const actions = {
     }
   },
 
-  async savePageDetails({ commit, state }) {
+  async savePageDetails({ state }) {
     const components = [...state.components];
 
     try {
@@ -100,8 +101,6 @@ export const actions = {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
         components,
       });
-
-      commit('RESET_DETAILS');
     } catch (error) {
       // eslint-disable-next-line
       console.error(`Error code ${error.response.status}: ${error.response.data}`);
