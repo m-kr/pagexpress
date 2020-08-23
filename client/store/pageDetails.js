@@ -49,6 +49,10 @@ export const mutations = {
     });
   },
 
+  UPDATE_ALL_COMPONENTS(state, components) {
+    state.components = components;
+  },
+
   REMOVE_COMPONENT(state, componentId) {
     state.components = state.components.filter(
       component => component._id !== componentId
@@ -115,5 +119,14 @@ export const actions = {
       ...newComponentData,
       data: {},
     });
+  },
+
+  reorderComponents({ commit, state }, { oldIndex, newIndex }) {
+    const reorderedComponents = [...state.components];
+    const movedElement = reorderedComponents[oldIndex];
+    reorderedComponents.splice(oldIndex, 1);
+    reorderedComponents.splice(newIndex, 0, movedElement);
+
+    commit('UPDATE_ALL_COMPONENTS', reorderedComponents);
   },
 };

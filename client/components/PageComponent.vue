@@ -8,8 +8,11 @@
       <button class="button is-danger is-small" @click="selfDestruction">
         Remove
       </button>
+      <button class="button is-info is-small" @click="toggleCollapseState">
+        {{ collapsed ? 'Collapse Component' : 'Show Component' }}
+      </button>
     </header>
-    <div class="card-content">
+    <div class="card-content" v-if="!collapsed">
       <PageComponentData
         v-if="componentPattern && componentPattern.fields"
         :fields="componentPattern.fields"
@@ -89,6 +92,12 @@ export default {
     },
   },
 
+  data() {
+    return {
+      collapsed: false,
+    };
+  },
+
   computed: {
     componentPattern() {
       return this.getComponentPattern(this.component.componentPatternId);
@@ -112,6 +121,10 @@ export default {
     selfDestruction() {
       this.removeComponent(this.component._id);
     },
+
+    toggleCollapseState() {
+      this.collapsed = !this.collapsed;
+    },
   },
 };
 </script>
@@ -131,6 +144,10 @@ export default {
 }
 
 .card-header {
+  &:hover {
+    cursor: move;
+  }
+
   .button {
     align-self: center;
     margin-right: var(--spacing);

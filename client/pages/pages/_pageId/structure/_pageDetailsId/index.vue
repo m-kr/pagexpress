@@ -24,45 +24,53 @@
       </ul>
     </nav>
 
-    <div v-if="componentPatterns" class="components-wrapper">
-      <PageComponent
+    <Container
+      v-if="componentPatterns"
+      class="components-wrapper"
+      drag-handle-selector=".card-header"
+      @drop="onDrop"
+    >
+      <Draggable
         v-for="component in getRootComponents(components)"
         :key="component._id"
-        :child-components="getChildComponents(component._id)"
-        :component-patterns="componentPatterns"
-        :component="component"
-        :field-types="fieldTypes"
-        :update-component="updateComponent"
-        :remove-component="removeComponent"
       >
-        <div class="field is-grouped add-component">
-          <SelectWithAction
-            placeholder="Choose component"
-            button-label="Add inner component"
-            :options="componentPatternsOptions"
-            :action="patternId => addComponent(patternId, component._id)"
-          />
-        </div>
-      </PageComponent>
+        <PageComponent
+          :child-components="getChildComponents(component._id)"
+          :component-patterns="componentPatterns"
+          :component="component"
+          :field-types="fieldTypes"
+          :update-component="updateComponent"
+          :remove-component="removeComponent"
+        >
+          <div class="field is-grouped add-component">
+            <SelectWithAction
+              placeholder="Choose component"
+              button-label="Add inner component"
+              :options="componentPatternsOptions"
+              :action="patternId => addComponent(patternId, component._id)"
+            />
+          </div>
+        </PageComponent>
+      </Draggable>
+    </Container>
+    <div class="field is-grouped add-component">
+      <button class="button is-primary" @click="saveChanges">
+        Save changes
+      </button>
 
-      <div class="field is-grouped add-component">
-        <button class="button is-primary" @click="saveChanges">
-          Save changes
-        </button>
-
-        <SelectWithAction
-          placeholder="Choose component"
-          button-label="Add component"
-          :options="componentPatternsOptions"
-          :action="patternId => addComponent(patternId)"
-        />
-      </div>
+      <SelectWithAction
+        placeholder="Choose component"
+        button-label="Add component"
+        :options="componentPatternsOptions"
+        :action="patternId => addComponent(patternId)"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+import { Container, Draggable } from 'vue-smooth-dnd';
 import PageComponent from '@/components/PageComponent';
 import SelectWithAction from '@/components/SelectWithAction';
 
@@ -70,6 +78,8 @@ export default {
   components: {
     PageComponent,
     SelectWithAction,
+    Draggable,
+    Container,
   },
 
   computed: {
@@ -126,6 +136,13 @@ export default {
       });
     },
 
+    onDrop({ removedIndex, addedIndex }) {
+      this.$store.dispatch('pageDetails/reorderComponents', {
+        oldIndex: removedIndex,
+        newIndex: addedIndex,
+      });
+    },
+
     removeComponent(componentId) {
       this.$store.commit('pageDetails/REMOVE_COMPONENT', componentId);
     },
@@ -158,6 +175,10 @@ export default {
 .components-wrapper {
   & > *:not(:last-of-type) {
     margin-bottom: var(--spacing-2);
+  }
+
+  & > .smooth-dnd-draggable-wrapper {
+    overflow: visible;
   }
 }
 </style>
