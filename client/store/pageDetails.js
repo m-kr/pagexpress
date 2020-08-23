@@ -49,6 +49,10 @@ export const mutations = {
     });
   },
 
+  UPDATE_ALL_COMPONENTS(state, components) {
+    state.components = components;
+  },
+
   REMOVE_COMPONENT(state, componentId) {
     state.components = state.components.filter(
       component => component._id !== componentId
@@ -76,8 +80,8 @@ export const actions = {
       commit(
         'page/ADD_VARIANT',
         {
-          _id: data,
           ...state.details,
+          _id: data,
         },
         { root: true }
       );
@@ -94,7 +98,7 @@ export const actions = {
     try {
       await this.$axios.put(`page-details/${state.details._id}`, {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
-        components: components.reverse(),
+        components,
       });
 
       commit('RESET_DETAILS');
@@ -116,5 +120,14 @@ export const actions = {
       ...newComponentData,
       data: {},
     });
+  },
+
+  reorderComponents({ commit, state }, { oldIndex, newIndex }) {
+    const reorderedComponents = [...state.components];
+    const movedElement = reorderedComponents[oldIndex];
+    reorderedComponents.splice(oldIndex, 1);
+    reorderedComponents.splice(newIndex, 0, movedElement);
+
+    commit('UPDATE_ALL_COMPONENTS', reorderedComponents);
   },
 };

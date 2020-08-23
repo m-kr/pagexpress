@@ -127,6 +127,10 @@ export default {
 }
 
 .card-header {
+  &:hover {
+    cursor: move;
+  }
+
   .button {
     align-self: center;
     margin-right: var(--spacing);
