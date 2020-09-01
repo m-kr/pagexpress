@@ -42,9 +42,10 @@ export const actions = {
       targetPage < 1 ||
       targetPage > state.totalPages
     ) {
+      // eslint-disable-next-line
       return console.error('Wrong page number');
     }
 
-    await dispatch('loadPages', targetPage);
+    await dispatch('loadPages', { nextPage: targetPage });
   },
 };

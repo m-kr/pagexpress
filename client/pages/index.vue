@@ -32,22 +32,23 @@
     </nav>
     <Table :headers="headers" :data="pagesList" :actions="pageActions" />
     <nav class="pagination" role="navigation" aria-label="pagination">
-      <a class="pagination-previous" title="This is the first page">Previous</a>
-      <a class="pagination-next">Next page</a>
       <ul class="pagination-list">
         <li>
           <a
-            class="pagination-link is-current"
-            aria-label="Page 1"
-            aria-current="page"
-            >1</a
+            class="pagination-link"
+            title="This is the first page"
+            @click.prevent="changePage(currentPage - 1)"
           >
+            Prev
+          </a>
         </li>
         <li>
-          <a class="pagination-link" aria-label="Goto page 2">2</a>
-        </li>
-        <li>
-          <a class="pagination-link" aria-label="Goto page 3">3</a>
+          <a
+            class="pagination-link"
+            @click.prevent="changePage(currentPage + 1)"
+          >
+            Next
+          </a>
         </li>
       </ul>
     </nav>
@@ -114,6 +115,7 @@ export default {
     ...mapActions({
       loadPages: 'pages/loadPages',
       removePage: 'pages/removePage',
+      changePage: 'pages/changePage',
     }),
   },
 };
