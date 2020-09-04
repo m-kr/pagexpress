@@ -9,17 +9,30 @@
     <nav class="level">
       <!-- Left side -->
       <div class="level-left">
-        <div class="level-item">
-          <div class="field has-addons">
-            <p class="control">
-              <input
-                v-model="searchKeyword"
-                class="input"
-                type="search"
-                placeholder="Search"
-                @input="search"
-              />
-            </p>
+        <div class="level-item list-toolbar">
+          <div class="list-toolbar__item">
+            <input
+              v-model="searchKeyword"
+              class="input"
+              type="search"
+              placeholder="Search"
+              @input="search"
+            />
+          </div>
+
+          <div class="list-toolbar__item select">
+            <select
+              v-model="sortBy"
+              name="sortBy"
+              :value="sortBy"
+              @change="sort"
+            >
+              <option value="-createdAt">Newest first</option>
+              <option value="-updatedAt">Last updated</option>
+              <option value="name">Page name</option>
+              <option value="type">Page type</option>
+              <option value="url">URL</option>
+            </select>
           </div>
         </div>
       </div>
@@ -27,7 +40,9 @@
       <!-- Right side -->
       <div class="level-right">
         <p class="level-item">
-          <nuxt-link to="/pages/add" class="button is-success">New</nuxt-link>
+          <nuxt-link to="/pages/add" class="button is-success">
+            Add new +
+          </nuxt-link>
         </p>
       </div>
     </nav>
@@ -87,6 +102,7 @@ export default {
       headers: ['Name', 'Url'],
       timeout: null,
       searchKeyword: '',
+      sortBy: '',
     };
   },
 
@@ -124,6 +140,7 @@ export default {
 
   mounted() {
     this.loadPages();
+    this.sortBy = this.$store.state.pages.sort;
   },
 
   methods: {
@@ -140,11 +157,22 @@ export default {
         this.$store.dispatch('pages/searchPage', evt.target.value);
       }, 200);
     },
+
+    sort() {
+      this.$store.dispatch('pages/sortBy', this.sortBy);
+    },
   },
 };
 </script>
 
 <style scoped lang="postcss">
+.list-toolbar {
+  &__item {
+    &:not(:last-of-type) {
+      margin-right: var(--spacing-05);
+    }
+  }
+}
 .pagination {
   .is-disabled {
     pointer-events: none;

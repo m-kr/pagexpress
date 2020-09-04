@@ -4,6 +4,7 @@ export const state = () => ({
   itemsPerPage: 10,
   pagesList: [],
   search: null,
+  sort: '-createdAt',
 });
 
 export const mutations = {
@@ -20,6 +21,10 @@ export const mutations = {
   SEARCH_PAGE(state, search) {
     state.search = search;
   },
+
+  SORT_BY(state, sortBy) {
+    state.sort = sortBy;
+  },
 };
 
 export const actions = {
@@ -29,6 +34,7 @@ export const actions = {
         page: nextPage || state.currentPage,
         limit: state.itemsPerPage,
         search: state.search,
+        sort: state.sort,
       },
     });
     return commit('LOAD_PAGES', data);
@@ -57,5 +63,10 @@ export const actions = {
   async searchPage({ commit, dispatch }, search) {
     commit('SEARCH_PAGE', search);
     await dispatch('loadPages', { nextPage: 1 });
+  },
+
+  async sortBy({ commit, dispatch }, sortBy) {
+    commit('SORT_BY', sortBy);
+    await dispatch('loadPages');
   },
 };
