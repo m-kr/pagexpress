@@ -101,7 +101,7 @@ const getPages = async (req, res) => {
           path: 'type',
           select: 'name',
         })
-        .select('name url type pageDetails')
+        .select('-attributes')
         .sort(sortBy)
         .skip(skip)
         .limit(limit)
