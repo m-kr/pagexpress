@@ -27,8 +27,8 @@
               :value="sortBy"
               @change="sort"
             >
-              <option value="-createdAt">Newest first</option>
               <option value="-updatedAt">Last updated</option>
+              <option value="-createdAt">Newest first</option>
               <option value="name">Page name</option>
               <option value="type">Page type</option>
               <option value="url">URL</option>
@@ -86,6 +86,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import Table from '~/components/Table';
+import { formatDate } from '~/utils';
 
 export default {
   components: {
@@ -99,7 +100,7 @@ export default {
   data() {
     return {
       errorMessage: [],
-      headers: ['Name', 'Url'],
+      headers: ['Name', 'Url', 'Type', 'Last update', 'Created'],
       timeout: null,
       searchKeyword: '',
       sortBy: '',
@@ -110,9 +111,17 @@ export default {
     ...mapState({
       pagesList: state => {
         const pagesListData = {};
-        state.pages.pagesList.map(({ _id, name, url }) => {
-          pagesListData[_id] = [name, url];
-        });
+        state.pages.pagesList.map(
+          ({ _id, name, url, type, updatedAt, createdAt }) => {
+            pagesListData[_id] = [
+              name,
+              url,
+              type.name,
+              formatDate(new Date(updatedAt)),
+              formatDate(new Date(createdAt)),
+            ];
+          }
+        );
 
         return pagesListData;
       },

@@ -4,7 +4,7 @@ export const state = () => ({
   itemsPerPage: 10,
   pagesList: [],
   search: null,
-  sort: '-createdAt',
+  sort: '-updatedAt',
 });
 
 export const mutations = {
