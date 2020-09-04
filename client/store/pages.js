@@ -1,8 +1,9 @@
 export const state = () => ({
   currentPage: 1,
   totalPages: 1,
-  itemsPerPage: 1,
+  itemsPerPage: 10,
   pagesList: [],
+  search: null,
 });
 
 export const mutations = {
@@ -15,6 +16,10 @@ export const mutations = {
   REMOVE_PAGE(state, pageId) {
     state.pagesList = state.pagesList.filter(page => page._id !== pageId);
   },
+
+  SEARCH_PAGE(state, search) {
+    state.search = search;
+  },
 };
 
 export const actions = {
@@ -23,6 +28,7 @@ export const actions = {
       params: {
         page: nextPage || state.currentPage,
         limit: state.itemsPerPage,
+        search: state.search,
       },
     });
     return commit('LOAD_PAGES', data);
@@ -42,10 +48,14 @@ export const actions = {
       targetPage < 1 ||
       targetPage > state.totalPages
     ) {
-      // eslint-disable-next-line
-      return console.error('Wrong page number');
+      return;
     }
 
     await dispatch('loadPages', { nextPage: targetPage });
+  },
+
+  async searchPage({ commit, dispatch }, search) {
+    commit('SEARCH_PAGE', search);
+    await dispatch('loadPages', { nextPage: 1 });
   },
 };

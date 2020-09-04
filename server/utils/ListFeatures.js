@@ -54,7 +54,7 @@ class ListFeatures {
     const { page } = this.query;
     const currentPage = page && Number(page) > 0 ? Number(page) : 1;
 
-    return totalPages > currentPage ? currentPage : totalPages;
+    return totalPages > 0 && totalPages > currentPage ? currentPage : totalPages;
   }
 
   /**
@@ -64,7 +64,7 @@ class ListFeatures {
    * @returns {number}
    */
   getSkip(resultsLimit, currentPage) {
-    return resultsLimit * (currentPage - 1);
+    return currentPage === 0 ? 0 : resultsLimit * (currentPage - 1);
   }
 
   /**
@@ -80,7 +80,7 @@ class ListFeatures {
   /**
    *
    * @param {array} sortableFields
-   * @returns {string}
+   * @returns {string|undefined}
    */
   getSort(sortableFields) {
     const { sort } = this.query;
