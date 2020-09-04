@@ -9,7 +9,7 @@
         Remove
       </button>
       <button class="button is-info is-small" @click="toggleCollapseState">
-        {{ collapsed ? 'Collapse Component' : 'Show Component' }}
+        {{ collapsed ? 'Show Component' : 'Collapse Component' }}
       </button>
     </header>
     <div class="card-content" v-if="!collapsed">
