@@ -1,18 +1,26 @@
 <template>
   <div class="card">
     <header class="card-header">
+      <span class="card-header__grab-handler">
+        <fa icon="grip-vertical" />
+      </span>
       <p class="card-header-title">
         <span>{{ componentPattern.label }}</span>
         <small>{{ componentPattern.description }}</small>
       </p>
-      <button class="button is-danger is-small" @click="selfDestruction">
-        Remove
+      <button class="button is-small" @click="toggleCollapseState">
+        <span class="icon is-small">
+          <fa v-if="!collapsed" :icon="['fa', 'minus']" />
+          <fa v-if="collapsed" :icon="['fa', 'plus']" />
+        </span>
       </button>
-      <button class="button is-info is-small" @click="toggleCollapseState">
-        {{ collapsed ? 'Show Component' : 'Collapse Component' }}
+      <button class="button is-danger is-small" @click="selfDestruction">
+        <span class="icon is-small">
+          <fa :icon="['fa', 'times']" />
+        </span>
       </button>
     </header>
-    <div class="card-content" v-if="!collapsed">
+    <div v-if="!collapsed" class="card-content">
       <PageComponentData
         v-if="componentPattern && componentPattern.fields"
         :fields="componentPattern.fields"
@@ -48,7 +56,9 @@
           :remove-component="removeComponent"
         />
       </div>
-      <slot />
+      <div class="card-footer">
+        <slot />
+      </div>
     </div>
   </div>
 </template>
@@ -144,14 +154,31 @@ export default {
 }
 
 .card-header {
-  &:hover {
+  &__grab-handler {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing);
+    opacity: 0.4;
+    transition: 0.2s ease-in-out;
     cursor: move;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &-title {
+    padding-left: 0;
   }
 
   .button {
     align-self: center;
     margin-right: var(--spacing);
   }
+}
+
+.card-footer {
+  flex-direction: row-reverse;
 }
 
 .inner-components {

@@ -27,13 +27,10 @@
     <Container
       v-if="componentPatterns"
       class="components-wrapper"
-      drag-handle-selector=".card-header"
+      drag-handle-selector=".card-header__grab-handler"
       @drop="onDrop"
     >
-      <Draggable
-        v-for="component in getRootComponents(components)"
-        :key="component._id"
-      >
+      <Draggable v-for="component in rootComponents" :key="component._id">
         <PageComponent
           :child-components="getChildComponents(component._id)"
           :component-patterns="componentPatterns"
@@ -101,6 +98,10 @@ export default {
         };
       });
     },
+
+    rootComponents() {
+      return this.components.filter(component => !component.parentComponentId);
+    },
   },
 
   mounted() {
@@ -152,10 +153,6 @@ export default {
       return this.components.filter(
         component => component.parentComponentId === parentId
       );
-    },
-
-    getRootComponents() {
-      return this.components.filter(component => !component.parentComponentId);
     },
   },
 };

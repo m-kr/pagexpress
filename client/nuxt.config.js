@@ -45,6 +45,18 @@ export default {
     '@nuxtjs/eslint-module',
     // Doc: https://github.com/nuxt-community/stylelint-module
     '@nuxtjs/stylelint-module',
+    [
+      'nuxt-fontawesome',
+      {
+        component: 'fa', // customize component name
+        imports: [
+          {
+            set: '@fortawesome/free-solid-svg-icons',
+            icons: ['faMinus', 'faPlus', 'faTimes', 'faGripVertical'],
+          },
+        ],
+      },
+    ],
   ],
   /*
    ** Nuxt.js modules
