@@ -7,7 +7,10 @@
       </div>
       <div class="control">
         <a class="button is-info" @click.prevent="addItem">
-          Add +
+          <span>Add</span>
+          <span class="icon">
+            <fa icon="plus" />
+          </span>
         </a>
       </div>
     </div>
@@ -17,7 +20,9 @@
           class="button is-light is-danger is-small"
           @click.prevent="removeItem(value)"
         >
-          &times;
+          <span class="icon is-small">
+            <fa :icon="['fas', 'times']" />
+          </span>
         </a>
         {{ value }}
       </li>
