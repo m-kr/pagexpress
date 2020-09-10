@@ -1,3 +1,5 @@
+import { formatRequestError } from '@/utils';
+
 export const state = () => ({
   currentPage: 1,
   totalPages: 1,
@@ -28,23 +30,35 @@ export const mutations = {
 };
 
 export const actions = {
-  async loadPages({ commit, state }, { nextPage } = {}) {
-    const { data } = await this.$axios.get('pages', {
-      params: {
-        page: nextPage || state.currentPage,
-        limit: state.itemsPerPage,
-        search: state.search,
-        sort: state.sort,
-      },
-    });
+  async loadPages({ commit, dispatch, state }, { nextPage } = {}) {
+    const { data } = await this.$axios
+      .get('pages', {
+        params: {
+          page: nextPage || state.currentPage,
+          limit: state.itemsPerPage,
+          search: state.search,
+          sort: state.sort,
+        },
+      })
+      .catch(
+        error => dispatch('notifications/error', formatRequestError(error)),
+        { root: true }
+      );
+
     return commit('LOAD_PAGES', data);
   },
 
-  async removePage({ commit }, pageId) {
-    const { data } = await this.$axios.delete(`pages/${pageId}`);
-
-    if (data) {
-      return commit('REMOVE_PAGE', pageId);
+  async removePage({ commit, dispatch }, pageId) {
+    try {
+      await dispatch('page/removePage', pageId, { root: true });
+    } catch (error) {
+      dispatch(
+        'notifications/error',
+        'Unknown error: Page can not be removed',
+        {
+          root: true,
+        }
+      );
     }
   },
 

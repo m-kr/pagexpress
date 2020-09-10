@@ -9,8 +9,10 @@
   --spacing-15: 1.5em;
   --spacing-2: 2em;
   --font-small: 0.8em;
+  --font-md: 0.9em;
 
   --font-weight-normal: 400;
+  --font-weight-medium: 500;
   --font-weight-bold: 700;
 }
 
@@ -38,5 +40,15 @@ html {
 }
 .page-enter,
 .page-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
+}
+
+.fade-enter,
+.fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }

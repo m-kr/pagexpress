@@ -1,3 +1,5 @@
+import { formatRequestError } from '@/utils';
+
 export const state = () => ({
   newPageId: null,
   mainData: null,
@@ -67,63 +69,92 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchPageData({ commit, state }, { pageId, reload }) {
+  async fetchPageData({ commit, dispatch, state }, { pageId, reload }) {
     if (state.pageData && !reload) {
       return;
     }
 
-    try {
-      const { data } = await this.$axios.get(`pages/${pageId}`);
+    const { data } = await this.$axios.get(`pages/${pageId}`).catch(
+      error =>
+        dispatch('notifications/error', formatRequestError(error), {
+          root: true,
+        }),
+      { root: true }
+    );
 
-      return commit('FETCH_PAGE_DATA', data);
-    } catch (error) {
-      // eslint-disable-next-line
-      console.error(`Error code ${error.response.status}: ${error.response.data}`);
-    }
+    commit('FETCH_PAGE_DATA', data);
   },
 
-  async updatePage({ commit, state }) {
-    try {
-      const { type, url, name } = state.mainData;
+  async updatePage({ commit, dispatch, state }) {
+    const { type, url, name } = state.mainData;
 
-      await this.$axios.put(`pages/${state.mainData._id}`, {
+    await this.$axios
+      .put(`pages/${state.mainData._id}`, {
         attributes: state.pageAttributes,
         name,
         pageDetails: state.pageVariants.map(variant => variant._id),
         type: type._id,
         url,
+      })
+      .catch(
+        error =>
+          dispatch('notifications/error', formatRequestError(error), {
+            root: true,
+          }),
+        { root: true }
+      );
+
+    if (state.unsaveData.includes('pageDetails')) {
+      const { _id, title, name, description, country } = state.pageDetails;
+
+      await this.$axios.put(`page-details/${_id}`, {
+        country,
+        description,
+        name,
+        pageId: state.mainData._id,
+        title,
       });
+    }
 
-      if (state.unsaveData.includes('pageDetails')) {
-        const { _id, title, name, description, country } = state.pageDetails;
+    dispatch('notifications/success', 'Saved', { root: true });
+    commit('RESET_UNSAVE_DATA');
+  },
 
-        await this.$axios.put(`page-details/${_id}`, {
-          country,
-          description,
-          name,
-          pageId: state.mainData._id,
-          title,
-        });
-      }
+  async addPage({ commit, dispatch, state }, pageData) {
+    const { data } = await this.$axios.post(`pages`, pageData).catch(
+      error =>
+        dispatch('notifications/error', formatRequestError(error), {
+          root: true,
+        }),
+      { root: true }
+    );
 
-      return commit('RESET_UNSAVE_DATA');
-    } catch (error) {
-      // eslint-disable-next-line
-      console.error(`Error code ${error.response.status}: ${error.response.data}`);
+    if (data) {
+      dispatch('notifications/success', 'Created page', { root: true });
+      commit('ADD_PAGE', data);
     }
   },
 
-  async addPage({ commit, state }, pageData) {
-    const { data } = await this.$axios.post(`pages`, pageData);
-
-    return commit('ADD_PAGE', data);
-  },
-
-  async removePage({ commit, state }, pageId) {
-    const { data } = await this.$axios.delete(`pages/${pageId}`);
+  async removePage({ commit, dispatch, state }, pageId) {
+    const { data } = await this.$axios.delete(`pages/${pageId}`).catch(
+      error =>
+        dispatch('notifications/error', formatRequestError(error), {
+          root: true,
+        }),
+      { root: true }
+    );
 
     if (data) {
-      return commit('REMOVE_PAGE', pageId);
+      commit('REMOVE_PAGE', pageId);
+      dispatch('notifications/success', 'Removed page', { root: true });
+    } else {
+      dispatch(
+        'notifications/error',
+        'Unknown error: Page can not be removed',
+        {
+          root: true,
+        }
+      );
     }
   },
 };
