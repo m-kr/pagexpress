@@ -49,17 +49,11 @@ export const actions = {
   },
 
   async removePage({ commit, dispatch }, pageId) {
-    try {
-      await dispatch('page/removePage', pageId, { root: true });
-    } catch (error) {
-      dispatch(
-        'notifications/error',
-        'Unknown error: Page can not be removed',
-        {
-          root: true,
-        }
-      );
-    }
+    const removingPageSuccess = await dispatch('page/removePage', pageId, {
+      root: true,
+    });
+
+    if (removingPageSuccess) commit('REMOVE_PAGE', pageId);
   },
 
   async changePage({ state, dispatch }, targetPage) {

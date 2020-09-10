@@ -120,6 +120,10 @@ export const actions = {
   },
 
   async removePageDetails({ commit, dispatch, state }, pageDetailsId) {
+    if (!confirm('Please, confirm removing page variant')) {
+      return;
+    }
+
     const { data } = await this.$axios
       .delete(`page-details/${pageDetailsId}`)
       .catch(

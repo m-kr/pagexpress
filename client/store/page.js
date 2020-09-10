@@ -136,6 +136,10 @@ export const actions = {
   },
 
   async removePage({ commit, dispatch, state }, pageId) {
+    if (!confirm('Please, confirm removing page')) {
+      return;
+    }
+
     const { data } = await this.$axios.delete(`pages/${pageId}`).catch(
       error =>
         dispatch('notifications/error', formatRequestError(error), {
@@ -147,6 +151,8 @@ export const actions = {
     if (data) {
       commit('REMOVE_PAGE', pageId);
       dispatch('notifications/success', 'Removed page', { root: true });
+
+      return true;
     } else {
       dispatch(
         'notifications/error',
