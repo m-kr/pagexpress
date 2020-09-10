@@ -38,7 +38,9 @@
           :key="singleFieldset._id"
           :fields="singleFieldset.fields"
           :field-types="fieldTypes"
-          :data="component.data[singleFieldset.name]"
+          :data="
+            component.data ? component.data[singleFieldset.name] : undefined
+          "
           :on-update-data="value => updateData(singleFieldset.name, value)"
         />
       </div>
