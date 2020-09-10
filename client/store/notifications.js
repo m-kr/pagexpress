@@ -3,14 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 const initialState = {
   notifications: [
     {
-      id: '123',
-      type: 'error',
-      message: 'Unexpected error',
-    },
-    {
-      id: '124',
+      id: '1233',
       type: 'success',
-      message: 'Saved page',
+      message: 'asdfasdfa sdfas dfasdf',
     },
   ],
 };
@@ -38,8 +33,29 @@ const mutations = {
 };
 
 const actions = {
-  notify({ commit }, notificationData) {
-    commit('NOTIFY', notificationData);
+  notify({ commit }, message) {
+    commit('NOTIFY', { message });
+  },
+
+  success({ commit }, message) {
+    commit('NOTIFY', {
+      type: 'success',
+      message,
+    });
+  },
+
+  info({ commit }, message) {
+    commit('NOTIFY', {
+      type: 'info',
+      message,
+    });
+  },
+
+  error({ commit }, message) {
+    commit('NOTIFY', {
+      type: 'error',
+      message,
+    });
   },
 
   expire({ commit }, notificationId) {

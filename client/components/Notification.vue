@@ -21,7 +21,7 @@ export default {
     },
     destroyTimeout: {
       type: Number,
-      default: 3000,
+      default: 2000,
     },
     notificationTypeClass: {
       type: String,
@@ -55,6 +55,7 @@ export default {
 .notification {
   font-size: var(--font-md);
   font-weight: var(--font-weight-medium);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 
   &:not(:last-of-type) {
     margin-bottom: var(--spacing);
