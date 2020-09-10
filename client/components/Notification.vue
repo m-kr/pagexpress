@@ -1,18 +1,63 @@
 <template>
-  <div class="notification is-danger">
-    {{ message }}
+  <div
+    :class="notificationTypeClass"
+    class="notification"
+    @mouseenter="holdDestroyTimeout"
+    @mouseleave="setSelfDestroyTimeout"
+  >
+    <button class="delete" @click="destroy"></button>
+    <slot />
   </div>
 </template>
 
 <script>
 export default {
   name: 'Notification',
+
   props: {
-    message: {
+    destroy: {
+      type: Function,
+      required: true,
+    },
+    destroyTimeout: {
+      type: Number,
+      default: 3000,
+    },
+    notificationTypeClass: {
       type: String,
-      required: false,
-      default: null,
+      default: '',
+    },
+  },
+
+  data() {
+    return {
+      selfDestroyTimeout: null,
+    };
+  },
+
+  mounted() {
+    this.setSelfDestroyTimeout();
+  },
+
+  methods: {
+    holdDestroyTimeout() {
+      clearTimeout(this.selfDestroyTimeout);
+    },
+
+    setSelfDestroyTimeout() {
+      this.selfDestroyTimeout = setTimeout(this.destroy, this.destroyTimeout);
     },
   },
 };
 </script>
+
+<style lang="postcss" scoped>
+.notification {
+  font-size: var(--font-md);
+  font-weight: var(--font-weight-medium);
+
+  &:not(:last-of-type) {
+    margin-bottom: var(--spacing);
+  }
+}
+</style>
