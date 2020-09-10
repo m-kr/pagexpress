@@ -1,16 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 
-const initialState = {
-  notifications: [
-    {
-      id: '1233',
-      type: 'success',
-      message: 'asdfasdfa sdfas dfasdf',
-    },
-  ],
-};
+export const state = () => ({
+  notifications: [],
+});
 
-const mutations = {
+export const mutations = {
   NOTIFY(state, notificationData) {
     state.notifications = [
       ...state.notifications,
@@ -32,7 +26,7 @@ const mutations = {
   },
 };
 
-const actions = {
+export const actions = {
   notify({ commit }, message) {
     commit('NOTIFY', { message });
   },
@@ -65,10 +59,4 @@ const actions = {
   clear({ commit }) {
     commit('CLEAR_NOTIFICATIONS');
   },
-};
-
-export default {
-  state: initialState,
-  mutations,
-  actions,
 };
