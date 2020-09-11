@@ -4,6 +4,7 @@ const countries = require('./countries-routes');
 const pageDetails = require('./page-details-routes');
 const fields = require('./fields-routes');
 const pageAttributeTypes = require('./page-attribute-types-routes');
+const pageTemplates = require('./page-templates-routes');
 const pageTypes = require('./page-types-routes');
 const pages = require('./pages-routes');
 const users = require('./users-routes');
@@ -15,6 +16,7 @@ module.exports = {
   pageDetails,
   fields,
   pageAttributeTypes,
+  pageTemplates,
   pageTypes,
   pages,
   users,
