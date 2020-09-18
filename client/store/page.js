@@ -5,7 +5,7 @@ export const state = () => ({
   mainData: null,
   attributesSchema: null,
   pageAttributes: null,
-  unsaveData: [],
+  unsavedData: [],
   pageVariants: null,
   pageDetails: {},
 });
@@ -21,24 +21,24 @@ export const mutations = {
   UPDATE_MAIN_DATA(state, data) {
     state.mainData = { ...state.mainData, ...data };
 
-    if (!state.unsaveData.includes('mainData')) {
-      state.unsaveData = [...state.unsaveData, 'mainData'];
+    if (!state.unsavedData.includes('mainData')) {
+      state.unsavedData = [...state.unsavedData, 'mainData'];
     }
   },
 
   UPDATE_ATTRIBUTES(state, pageAttributes) {
     state.pageAttributes = { ...state.pageAttributes, ...pageAttributes };
 
-    if (!state.unsaveData.includes('attributes')) {
-      state.unsaveData = [...state.unsaveData, 'attributes'];
+    if (!state.unsavedData.includes('attributes')) {
+      state.unsavedData = [...state.unsavedData, 'attributes'];
     }
   },
 
   UPDATE_DETAILS(state, pageDetails) {
     state.pageDetails = { ...state.pageDetails, ...pageDetails };
 
-    if (!state.unsaveData.includes('pageDetails')) {
-      state.unsaveData = [...state.unsaveData, 'pageDetails'];
+    if (!state.unsavedData.includes('pageDetails')) {
+      state.unsavedData = [...state.unsavedData, 'pageDetails'];
     }
   },
 
@@ -64,7 +64,7 @@ export const mutations = {
   },
 
   RESET_UNSAVE_DATA(state) {
-    state.unsaveData = [];
+    state.unsavedData = [];
   },
 };
 
@@ -104,7 +104,7 @@ export const actions = {
         { root: true }
       );
 
-    if (state.unsaveData.includes('pageDetails')) {
+    if (state.unsavedData.includes('pageDetails')) {
       const { _id, title, name, description, country } = state.pageDetails;
 
       await this.$axios.put(`page-details/${_id}`, {

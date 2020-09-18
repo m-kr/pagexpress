@@ -22,7 +22,7 @@
       <FieldList
         v-if="isFieldType(field.fieldTypeId, 'list')"
         :label="field.label"
-        :values="data ? data[field.name] : null"
+        :values="data ? data[field.name] : []"
         @update="value => updateData(field.name, value)"
       />
     </div>

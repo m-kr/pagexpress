@@ -73,7 +73,7 @@
         <div class="columns">
           <div class="column">
             <button
-              v-if="unsaveData.includes('mainData')"
+              v-if="unsavedData.includes('mainData')"
               class="button is-success"
               @click="updatePage"
             >
@@ -122,7 +122,7 @@
         <div class="columns">
           <div class="column">
             <button
-              v-if="unsaveData.includes('attributes')"
+              v-if="unsavedData.includes('attributes')"
               class="button is-success"
               @click="updatePage"
             >
@@ -237,6 +237,27 @@
                     updateNewPageVariant('description', $event.target.value)
                   "
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label for="page-template" class="label">
+                Build page structure draft from template
+              </label>
+              <div class="select is-fullwidth">
+                <select id="page-template" v-model="pageTemplateId">
+                  <option value="">Build without template</option>
+                  <option
+                    v-for="template of pageTemplates"
+                    :key="template._id"
+                    :value="template._id"
+                  >
+                    {{ template.name }}
+                  </option>
+                </select>
               </div>
             </div>
           </div>
@@ -374,7 +395,7 @@
               Components structure
             </nuxt-link>
             <button
-              v-if="unsaveData.includes('pageDetails')"
+              v-if="unsavedData.includes('pageDetails')"
               type="submit"
               class="button is-success"
               @click="updatePage"
@@ -404,6 +425,7 @@ export default {
   data() {
     return {
       activeDetailsTab: null,
+      pageTemplateId: '',
     };
   },
 
@@ -414,12 +436,13 @@ export default {
       pageAttributes: state => state.page.pageAttributes,
       pageVariants: state => state.page.pageVariants,
       pageDetails: state => state.page.pageDetails,
-      unsaveData: state => state.page.unsaveData,
+      unsavedData: state => state.page.unsavedData,
       fieldTypes: state => state.fieldTypes.types,
       pageTypes: state => state.pageTypes.types,
       countries: state => state.countries.countries,
       pageAttributeTypes: state => state.pageAttributeTypes.types,
       newPageDetails: state => state.pageDetails.details,
+      pageTemplates: state => state.pageTemplates.templates,
     }),
 
     pageId() {
@@ -436,6 +459,7 @@ export default {
       await this.$store.dispatch('pageTypes/fetchPageTypes');
       await this.$store.dispatch('fieldTypes/fetchFieldTypes');
       await this.$store.dispatch('countries/fetchCountries');
+      await this.$store.dispatch('pageTemplates/fetchTemplates');
       await this.$store.dispatch('page/fetchPageData', {
         pageId: pageId || this.$route.params.pageId,
       });
@@ -452,7 +476,10 @@ export default {
 
     async addPageVariant() {
       const pageVariantsQtty = this.pageVariants.length;
-      await this.$store.dispatch('pageDetails/addPageDetails', this.pageId);
+      await this.$store.dispatch('pageDetails/addPageDetails', {
+        pageId: this.pageId,
+        templateComponents: this.getActivePageTemplateComponents(),
+      });
 
       if (this.$store.state.page.pageVariants.length > pageVariantsQtty) {
         this.activeDetailsTab = 'edit';
@@ -500,6 +527,14 @@ export default {
 
     switchDetailsTab(tab) {
       this.activeDetailsTab = tab;
+    },
+
+    getActivePageTemplateComponents() {
+      const templateData = this.pageTemplates.find(
+        template => template._id === this.pageTemplateId
+      );
+
+      return templateData ? templateData.components : null;
     },
   },
 };
