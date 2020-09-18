@@ -24,6 +24,14 @@
       </ul>
     </nav>
 
+    <div class="columns">
+      <div class="column">
+        <button class="button is-primary" @click="saveChanges">
+          Save changes
+        </button>
+      </div>
+    </div>
+
     <Container
       v-if="componentPatterns"
       class="components-wrapper"

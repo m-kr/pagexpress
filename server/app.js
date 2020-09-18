@@ -18,6 +18,7 @@ const {
   fields,
   pageAttributeTypes,
   pageDetails,
+  pageTemplates,
   pageTypes,
   pages,
   users,
@@ -49,6 +50,7 @@ app.use('/v1', countries);
 app.use('/v1', fields);
 app.use('/v1', pageAttributeTypes);
 app.use('/v1', pageDetails);
+app.use('/v1', pageTemplates);
 app.use('/v1', pageTypes);
 app.use('/v1', pages);
 app.use('/v1', users);

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
-import { formatRequestError } from '@/utils';
+import { formatRequestError, getPageStructureFromTemplate } from '@/utils';
 
 const detailsStructure = {
   _id: '',
@@ -78,10 +78,14 @@ export const actions = {
     commit('FETCH_PAGE_DETAILS', data);
   },
 
-  async addPageDetails({ commit, dispatch, state }, pageId) {
+  async addPageDetails(
+    { commit, dispatch, state },
+    { pageId, templateComponents }
+  ) {
     const { data } = await this.$axios
       .post(`page-details`, {
         pageId,
+        components: getPageStructureFromTemplate(templateComponents),
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
       })
       .catch(
