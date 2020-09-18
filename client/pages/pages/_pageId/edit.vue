@@ -394,6 +394,9 @@
             >
               Components structure
             </nuxt-link>
+            <button class="button is-info" @click="downloadPageStructure">
+              Download JSON schema
+            </button>
             <button
               v-if="unsavedData.includes('pageDetails')"
               type="submit"
@@ -415,6 +418,7 @@
 <script>
 import { mapState } from 'vuex';
 import { FieldText, FieldHtml, FieldList } from '@/components';
+import { downloadJsonFile, getSlug } from '@/utils';
 
 export default {
   components: {
@@ -447,6 +451,10 @@ export default {
 
     pageId() {
       return this.$route.params.pageId;
+    },
+
+    pageStructureJsonFilePath() {
+      return `${process.env.API_URL}/page-structure/${this.$route.params.pageId}`;
     },
   },
 
@@ -536,11 +544,18 @@ export default {
 
       return templateData ? templateData.components : null;
     },
+
+    downloadPageStructure() {
+      downloadJsonFile(
+        this.pageStructureJsonFilePath,
+        getSlug(this.mainData.name)
+      );
+    },
   },
 };
 </script>
 
-<style>
+<style lang="postcss" scroped>
 .panel-block {
   flex-direction: column;
   justify-content: space-around;
