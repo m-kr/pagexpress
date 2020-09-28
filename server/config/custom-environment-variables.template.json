@@ -1,0 +1,15 @@
+{
+  "jwtPrivateKey": "PAGEXPRESS_JWT_PRIVATE_KEY",
+  "mongodb": {
+    "host": "DB_HOST",
+    "port": "DB_PORT",
+    "collection": "DB_COLLECTION",
+    "user": "DB_USER",
+    "password": "DB_PASS"
+  },
+  "server": {
+    "host": "DB_HOST",
+    "port": "DB_PORT"
+  }
+}
+
