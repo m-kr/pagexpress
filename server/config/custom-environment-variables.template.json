@@ -8,8 +8,7 @@
     "password": "DB_PASS"
   },
   "server": {
-    "host": "DB_HOST",
-    "port": "DB_PORT"
+    "host": "APP_HOST",
+    "port": "APP_PORT"
   }
 }
-
