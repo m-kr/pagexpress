@@ -1,12 +1,6 @@
-import axios from 'axios';
+import axios from '../plugins/axios';
 
-const http = axios.create({
-  baseURL: process.env.api_url,
-  timeout: 1000,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-http.interceptors.request.use(
+const http = axios.interceptors.request.use(
   function(config) {
     const token = localStorage.getItem('token');
 

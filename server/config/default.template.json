@@ -1,0 +1,14 @@
+{
+  "jwtPrivateKey": "",
+  "mongodb": {
+    "host": "",
+    "port": "",
+    "collection": "",
+    "user": "",
+    "password": ""
+  },
+  "server": {
+    "host": "",
+    "port": ""
+  }
+}
