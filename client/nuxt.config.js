@@ -3,7 +3,7 @@ const DOTENV_CONFIG = {
   only: ['API_URL'],
   path: path.join(__dirname, '../.env'),
 };
-require('dotenv').config();
+require('dotenv').config(DOTENV_CONFIG);
 
 export default {
   mode: 'universal',
