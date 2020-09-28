@@ -1,4 +1,9 @@
 const path = require('path');
+const DOTENV_CONFIG = {
+  only: ['API_URL'],
+  path: path.join(__dirname, '../.env'),
+};
+require('dotenv').config();
 
 export default {
   mode: 'universal',
@@ -69,17 +74,10 @@ export default {
     '@nuxtjs/auth',
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
-    ['@nuxtjs/dotenv', { path: path.join(__dirname, '../') }],
+    ['@nuxtjs/dotenv', { ...DOTENV_CONFIG, path: path.join(__dirname, '../') }],
   ],
-  env: {
-    API_URL: process.env.API_URL,
-  },
-  /*
-   ** Axios module configuration
-   ** See https://axios.nuxtjs.org/options
-   */
   axios: {
-    baseURL: process.env.API_URL || 'http://127.0.0.1:4000/v1',
+    baseURL: process.env.API_URL,
   },
   auth: {
     redirect: {
