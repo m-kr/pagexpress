@@ -27,5 +27,5 @@ node_modules/
 .idea
 .vscode
 
-Mac OS specific files
+# Mac OS specific files
 .DS_Store
