@@ -9,10 +9,10 @@ export const updateItemChildren = (items, parentItemId, callback) => {
   return items.map(item => {
     let updatedItem = { ...item };
 
-    if (item.id === parentItemId && item.children) {
+    if (item.id === parentItemId) {
       updatedItem = {
         ...item,
-        children: callback(item.children),
+        children: callback(item.children || []),
       };
     }
 
