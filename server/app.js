@@ -16,6 +16,7 @@ const {
   componentPatterns,
   countries,
   fields,
+  menu,
   pageAttributeTypes,
   pageDetails,
   pageTemplates,
@@ -48,6 +49,7 @@ app.use('/v1', auth);
 app.use('/v1', componentPatterns);
 app.use('/v1', countries);
 app.use('/v1', fields);
+app.use('/v1', menu);
 app.use('/v1', pageAttributeTypes);
 app.use('/v1', pageDetails);
 app.use('/v1', pageTemplates);

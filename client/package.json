@@ -23,7 +23,8 @@
     "nuxt": "^2.0.0",
     "nuxt-fontawesome": "^0.4.0",
     "vue-quill-editor": "^3.0.6",
-    "vue-smooth-dnd": "^0.8.1"
+    "vue-smooth-dnd": "^0.8.1",
+    "vuedraggable": "^2.24.2"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^2.0.0",
