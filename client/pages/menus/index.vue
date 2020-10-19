@@ -100,12 +100,13 @@
                   <div class="control">
                     <div class="select select--full-width">
                       <select id="new-menu-parent-item">
+                        <option value="">No parent</option>
                         <option
-                          v-for="menu in menus"
-                          :key="menu._id"
-                          :value="menu._id"
+                          v-for="item in activeMenuItems"
+                          :key="item.id"
+                          :value="item.id"
                         >
-                          {{ menu.name }}
+                          {{ item.label }}
                         </option>
                       </select>
                     </div>
@@ -122,7 +123,7 @@
         </div>
         <div class="column">
           <div v-if="activeMenu" class="menu-structure">
-            <MenuItems :chunk="activeMenu.items" :update="updateMenuItems" />
+            <MenuItems :chunk="activeMenu.items" :reorder="reorderMenu" />
           </div>
         </div>
       </div>
@@ -134,6 +135,7 @@
 import { mapState, mapActions } from 'vuex';
 import { VueAutosuggest } from 'vue-autosuggest';
 import MenuItems from '@/components/MenuItems';
+import { getNestedThingsByKey } from '@/utils';
 
 export default {
   components: {
@@ -165,6 +167,12 @@ export default {
     activeMenu() {
       return this.menus.find(menu => menu._id === this.activeMenuId);
     },
+
+    activeMenuItems() {
+      if (!this.activeMenu || !this.activeMenu.items) return [];
+
+      return getNestedThingsByKey(this.activeMenu.items, 'children');
+    },
   },
 
   async mounted() {
@@ -185,7 +193,7 @@ export default {
       }
     },
 
-    updateMenuItems(dragResults, parentItemId) {
+    reorderMenu(dragResults, parentItemId) {
       this.$store.commit('menus/REORDER_MENU', {
         menuId: this.activeMenuId,
         dragResults,

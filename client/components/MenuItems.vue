@@ -14,25 +14,82 @@
         <span class="menu-item__grab-handler">
           <fa icon="grip-vertical" />
         </span>
-        <div class="menu-item__info">
+        <div v-if="!editingItems.includes(item.id)" class="menu-item__info">
           <span class="menu-item__name">{{ item.label }}</span>
           <span class="menu-item__url">{{ item.url }}</span>
         </div>
+        <div v-if="editingItems.includes(item.id)" class="menu-item__edit-form">
+          <div class="field is-horizontal">
+            <div class="field-label is-small">
+              <label :for="`menu-item-label-${item.id}`" class="label">
+                Label
+              </label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input
+                    id="`menu-item-label-${item.id}`"
+                    type="text"
+                    class="input is-small"
+                    :value="item.label"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field is-horizontal">
+            <div class="field-label is-small">
+              <label :for="`menu-item-url-${item.id}`" class="label">URL</label>
+            </div>
+            <div class="field-body">
+              <div class="field">
+                <div class="control">
+                  <input
+                    id="`menu-item-url-${item.id}`"
+                    type="text"
+                    class="input is-small"
+                    :value="item.url"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="buttons is-right">
+              <button class="button is-small is-success">Save</button>
+              <button
+                class="button is-small is-black"
+                @click="switchEditState(item.id)"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="menu-item__action buttons">
           <button
+            v-if="item.children && item.children.length"
             class="button is-small"
-            :disabled="!item.children || !item.children.length"
+            @click="switchCollapsedState(item.id)"
           >
             <span class="icon is-small">
-              <fa :icon="['fa', 'minus']" />
+              <fa
+                v-if="!collapsedItems.includes(item.id)"
+                :icon="['fa', 'minus']"
+              />
+              <fa v-else :icon="['fa', 'plus']" />
             </span>
           </button>
-          <button class="button is-info is-small">
+          <button
+            class="button is-info is-small"
+            @click="switchEditState(item.id)"
+          >
             <span class="icon is-small">
               <fa :icon="['fa', 'edit']" />
             </span>
           </button>
-          <button class="button is-danger is-small">
+          <button class="button is-danger is-small" @click="removeItem(item)">
             <span class="icon is-small">
               <fa :icon="['fa', 'times']" />
             </span>
@@ -41,8 +98,9 @@
       </div>
 
       <MenuItems
+        v-if="!collapsedItems.includes(item.id)"
         :chunk="item.children"
-        :update="update"
+        :reorder="reorder"
         :parent-item-id="item.id"
       />
     </Draggable>
@@ -66,7 +124,7 @@ export default {
       default: () => [],
     },
 
-    update: {
+    reorder: {
       type: Function,
       default: () => null,
     },
@@ -84,16 +142,44 @@ export default {
         animationDuration: '150',
         showOnTop: true,
       },
+      editingItems: [],
+      collapsedItems: [],
     };
   },
 
   methods: {
     onDrop(dragResult) {
-      this.update(dragResult, this.parentItemId);
+      this.reorder(dragResult, this.parentItemId);
     },
 
     getItemPayload(index) {
       return this.chunk[index];
+    },
+
+    switchEditState(itemId) {
+      if (!this.editingItems.includes(itemId)) {
+        this.editingItems.push(itemId);
+      } else {
+        this.editingItems = this.editingItems.filter(
+          editingItem => editingItem !== itemId
+        );
+      }
+    },
+
+    switchCollapsedState(itemId) {
+      if (!this.collapsedItems.includes(itemId)) {
+        this.collapsedItems.push(itemId);
+      } else {
+        this.collapsedItems = this.collapsedItems.filter(
+          collapsedItem => collapsedItem !== itemId
+        );
+      }
+    },
+
+    removeItem(item) {
+      if (confirm('Please confirm removing menu item')) {
+        console.log(`${item.label} has been removed`);
+      }
     },
   },
 };
@@ -147,6 +233,12 @@ export default {
 
   &__action {
     display: flex;
+    align-items: flex-start;
+  }
+
+  &__edit-form {
+    flex-grow: 1;
+    padding-right: var(--spacing-2);
   }
 
   &__ghost {
