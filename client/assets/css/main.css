@@ -78,3 +78,37 @@ html {
 .panel-block__inner {
   width: 100%;
 }
+
+/* Autosuggest */
+.autosuggest__results-container {
+  position: absolute;
+  z-index: 99;
+  background-color: var(--white);
+  width: 100%;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  user-select: none;
+  box-shadow:
+    0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.048),
+    0 12.5px 10px rgba(0, 0, 0, 0.06),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.072),
+    0 41.8px 33.4px rgba(0, 0, 0, 0.086),
+    0 100px 80px rgba(0, 0, 0, 0.12);
+}
+
+.autosuggest__results-item {
+  padding: var(--spacing-05) var(--spacing);
+}
+
+.autosuggest__results-item--highlighted,
+.autosuggest__results-item:hover {
+  background-color: var(--gray-dark);
+}
+
+.autosuggest__results-item:first-of-type {
+  padding-top: var(--spacing);
+}
+
+.autosuggest__results-item:last-of-type {
+  padding-bottom: var(--spacing);
+}

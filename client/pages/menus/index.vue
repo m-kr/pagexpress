@@ -64,13 +64,13 @@
                     class: 'input',
                     placeholder: 'Search page',
                   }"
-                  @input="onInputChange"
+                  :get-suggestion-value="getSuggestionValue"
                   @selected="selectHandler"
                   @click="clickHandler"
                 >
                   <div slot-scope="{ suggestion }">
                     <span class="autosuggest-item__row">
-                      {{ suggestion.item.name }}
+                      {{ suggestion.item.label }}
                     </span>
                     <span class="autosuggest-item__row">
                       {{ suggestion.item.url }}
@@ -84,13 +84,23 @@
                 <div class="field">
                   <label for="new-menu-item-label" class="label">Label</label>
                   <div class="control">
-                    <input id="new-menu-item-label" type="text" class="input" />
+                    <input
+                      id="new-menu-item-label"
+                      v-model="newMenuItem.label"
+                      type="text"
+                      class="input"
+                    />
                   </div>
                 </div>
                 <div class="field">
                   <label for="new-menu-item-url" class="label">URL</label>
                   <div class="control">
-                    <input id="new-menu-item-url" type="text" class="input" />
+                    <input
+                      id="new-menu-item-url"
+                      v-model="newMenuItem.url"
+                      type="text"
+                      class="input"
+                    />
                   </div>
                 </div>
                 <div v-if="menus" class="field">
@@ -99,7 +109,10 @@
                   </label>
                   <div class="control">
                     <div class="select select--full-width">
-                      <select id="new-menu-parent-item">
+                      <select
+                        id="new-menu-parent-item"
+                        v-model="newMenuItem.parentItem"
+                      >
                         <option value="">No parent</option>
                         <option
                           v-for="item in activeMenuItems"
@@ -115,7 +128,10 @@
               </div>
             </div>
             <div class="panel-block">
-              <button class="button is-link is-outlined is-fullwidth">
+              <button
+                class="button is-link is-outlined is-fullwidth"
+                @click="addItem"
+              >
                 Add item
               </button>
             </div>
@@ -145,14 +161,17 @@ export default {
 
   data() {
     return {
+      newMenuItem: {
+        parentItem: '',
+      },
       menuName: '',
       activeMenuId: null,
       autosuggestData: [
         {
           data: [
-            { name: 'Sample page', url: '/sample-page' },
-            { name: 'Second page', url: '/second-page' },
-            { name: 'Other page', url: '/other-page' },
+            { label: 'Sample page', url: '/sample-page' },
+            { label: 'Second page', url: '/second-page' },
+            { label: 'Other page', url: '/other-page' },
           ],
         },
       ],
@@ -201,12 +220,22 @@ export default {
       });
     },
 
-    onInputChange(value) {
-      console.log('onInputChange', value);
+    addItem() {
+      console.log('Add item', this.newMenuItem);
     },
 
-    selectHandler(value) {
-      console.log('selectHandler', value);
+    getSuggestionValue(suggestion) {
+      return suggestion.item.label;
+    },
+
+    selectHandler({ item }) {
+      const { url, label } = item;
+
+      this.newMenuItem = {
+        ...this.newMenuItem,
+        label,
+        url,
+      };
     },
 
     clickHandler(value) {
