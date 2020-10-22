@@ -5,5 +5,8 @@ export * from './format-request-error';
 export * from './get-nested-things-by-key';
 export * from './get-page-structure-from-template';
 export * from './get-slug';
+export * from './string-match';
 export * from './reorder-items';
 export * from './update-item-children';
+export * from './update-all-nested-items';
+export * from './update-nested-item';

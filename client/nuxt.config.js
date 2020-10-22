@@ -57,7 +57,14 @@ export default {
         imports: [
           {
             set: '@fortawesome/free-solid-svg-icons',
-            icons: ['faEdit', 'faMinus', 'faPlus', 'faTimes', 'faGripVertical'],
+            icons: [
+              'faEdit',
+              'faGripVertical',
+              'faMinus',
+              'faPlus',
+              'faSearch',
+              'faTimes',
+            ],
           },
         ],
       },

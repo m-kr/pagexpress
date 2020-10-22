@@ -1,31 +1,31 @@
+// import Vue from 'vue';
+import { v4 as uuidv4 } from 'uuid';
 import {
   enrichById,
   formatRequestError,
   reorderItems,
+  updateAllNestedItems,
   updateItemChildren,
+  updateNestedItem,
 } from '@/utils';
 
 export const state = () => ({
   menus: [],
 });
 
+export const getters = {
+  getMenuById: state => menuId => {
+    return state.menus.find(menu => menu._id === menuId);
+  },
+};
+
 export const mutations = {
   FETCH_MENUS(state, menus) {
     state.menus = menus;
   },
 
-  UPDATE_MENU(state, { menuId, menuData }) {
-    const newMenus = [];
-
-    for (const menu of state.menus) {
-      if (menu._id === menuId) {
-        newMenus.push(menuData);
-      } else {
-        newMenus.push(menu);
-      }
-    }
-
-    state.menus = newMenus;
+  ADD_MENU(state, newMenu) {
+    state.menus.push(newMenu);
   },
 
   REORDER_MENU(state, { menuId, dragResults, parentItemId }) {
@@ -42,6 +42,58 @@ export const mutations = {
     }
   },
 
+  ADD_ITEM(state, { menuId, label, url, parentItem }) {
+    const newItem = enrichById({
+      label,
+      url,
+      children: [],
+    });
+
+    const targetMenu = state.menus.find(menu => menu._id === menuId);
+
+    if (!targetMenu.items) {
+      targetMenu.items = [];
+    }
+
+    if (!parentItem) {
+      targetMenu.items.push(newItem);
+    }
+
+    updateNestedItem(targetMenu.items, parentItem, 'children', item => {
+      if (!item.children) {
+        item.children = [];
+      }
+
+      item.children.push(newItem);
+    });
+  },
+
+  UPDATE_ITEM(state, { menuId, newItemData }) {
+    const targetMenu = state.menus.find(menu => menu._id === menuId);
+
+    updateNestedItem(
+      targetMenu.items,
+      newItemData.id,
+      'children',
+      (itemToUpdate, itemIndex, items) => {
+        items.splice(itemIndex, 1, newItemData);
+      }
+    );
+  },
+
+  REMOVE_ITEM(state, { menuId, itemId }) {
+    const targetMenu = state.menus.find(menu => menu._id === menuId);
+
+    updateNestedItem(
+      targetMenu.items,
+      itemId,
+      'children',
+      (itemToRemove, itemIndex, items) => {
+        items.splice(itemIndex, 1);
+      }
+    );
+  },
+
   REMOVE_MENU(state, menuId) {
     state.menus = state.menus.filter(menu => menu._id !== menuId);
   },
@@ -55,21 +107,80 @@ export const actions = {
       'FETCH_MENUS',
       data.map(menu => ({
         ...menu,
-        items: enrichById(menu.items, 'children'),
+        items: updateAllNestedItems(menu.items, 'children', item => {
+          if (!item.children) {
+            item.children = [];
+          }
+
+          item.id = uuidv4();
+        }),
       }))
     );
   },
 
-  async updateMenu({ commit, state }, { menuId, dragResults, parentItemId }) {
-    const { data } = await this.$axios.put(`menus/${menuId}`);
+  async addMenu({ commit, dispatch }, menuName) {
+    const { data } = await this.$axios.post(`menus`, { name: menuName }).catch(
+      error =>
+        dispatch('notifications/error', formatRequestError(error), {
+          root: true,
+        }),
+      { root: true }
+    );
 
-    return commit('UPDATE_MENU', {
-      menuId,
-      data,
-    });
+    if (data) {
+      commit('ADD_MENU', { _id: data, name: menuName });
+      dispatch('notifications/success', `Added new menu: ${menuName}`, {
+        root: true,
+      });
+
+      return true;
+    } else {
+      dispatch('notifications/error', 'Unknown error: Menu cannot be added', {
+        root: true,
+      });
+    }
   },
 
-  async removeMenus({ commit, dispatch }, menuId) {
+  async saveChanges({ commit, dispatch, state }, { menuId, callback }) {
+    const { items, name } = {
+      ...state.menus.find(menu => menu._id === menuId),
+    };
+
+    const itemsToSave = updateAllNestedItems(items, 'children', item => {
+      if (item.children && !item.children.length) {
+        delete item.children;
+      }
+
+      delete item.id;
+    });
+
+    const { data } = await this.$axios
+      .put(`menus/${menuId}`, {
+        name,
+        items: itemsToSave,
+      })
+      .catch(
+        error =>
+          dispatch('notifications/error', formatRequestError(error), {
+            root: true,
+          }),
+        { root: true }
+      );
+
+    if (data) {
+      dispatch('notifications/success', 'Saved changes', {
+        root: true,
+      });
+
+      if (callback) callback();
+    } else {
+      dispatch('notifications/error', 'Unknown error: Menu cannot be saved', {
+        root: true,
+      });
+    }
+  },
+
+  async removeMenu({ commit, dispatch }, menuId) {
     if (!confirm('Please, confirm removing menu')) {
       return;
     }
@@ -84,13 +195,13 @@ export const actions = {
 
     if (data) {
       commit('REMOVE_MENU', menuId);
-      dispatch('notifications/success', 'Removed page', { root: true });
+      dispatch('notifications/success', 'Removed menu', { root: true });
 
       return true;
     } else {
       dispatch(
         'notifications/error',
-        'Unknown error: Page can not be removed',
+        'Unknown error: Menu can not be removed',
         {
           root: true,
         }

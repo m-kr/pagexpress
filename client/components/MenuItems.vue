@@ -14,11 +14,11 @@
         <span class="menu-item__grab-handler">
           <fa icon="grip-vertical" />
         </span>
-        <div v-if="!editingItems.includes(item.id)" class="menu-item__info">
+        <div v-if="!editingItems[item.id]" class="menu-item__info">
           <span class="menu-item__name">{{ item.label }}</span>
           <span class="menu-item__url">{{ item.url }}</span>
         </div>
-        <div v-if="editingItems.includes(item.id)" class="menu-item__edit-form">
+        <div v-else class="menu-item__edit-form">
           <div class="field is-horizontal">
             <div class="field-label is-small">
               <label :for="`menu-item-label-${item.id}`" class="label">
@@ -30,9 +30,9 @@
                 <div class="control">
                   <input
                     id="`menu-item-label-${item.id}`"
+                    v-model="editingItems[item.id].label"
                     type="text"
                     class="input is-small"
-                    :value="item.label"
                   />
                 </div>
               </div>
@@ -47,9 +47,9 @@
                 <div class="control">
                   <input
                     id="`menu-item-url-${item.id}`"
+                    v-model="editingItems[item.id].url"
                     type="text"
                     class="input is-small"
-                    :value="item.url"
                   />
                 </div>
               </div>
@@ -57,10 +57,15 @@
           </div>
           <div class="field">
             <div class="buttons is-right">
-              <button class="button is-small is-success">Save</button>
+              <button
+                class="button is-small is-success"
+                @click="updateItemAction(item.id)"
+              >
+                Save
+              </button>
               <button
                 class="button is-small is-black"
-                @click="switchEditState(item.id)"
+                @click="switchEditState(item)"
               >
                 Cancel
               </button>
@@ -83,13 +88,16 @@
           </button>
           <button
             class="button is-info is-small"
-            @click="switchEditState(item.id)"
+            @click="switchEditState(item)"
           >
             <span class="icon is-small">
               <fa :icon="['fa', 'edit']" />
             </span>
           </button>
-          <button class="button is-danger is-small" @click="removeItem(item)">
+          <button
+            class="button is-danger is-small"
+            @click="removeItemAction(item.id)"
+          >
             <span class="icon is-small">
               <fa :icon="['fa', 'times']" />
             </span>
@@ -101,6 +109,8 @@
         v-if="!collapsedItems.includes(item.id)"
         :chunk="item.children"
         :reorder="reorder"
+        :remove-item="removeItem"
+        :update-item="updateItem"
         :parent-item-id="item.id"
       />
     </Draggable>
@@ -126,7 +136,17 @@ export default {
 
     reorder: {
       type: Function,
-      default: () => null,
+      required: true,
+    },
+
+    removeItem: {
+      type: Function,
+      required: true,
+    },
+
+    updateItem: {
+      type: Function,
+      required: true,
     },
 
     parentItemId: {
@@ -142,7 +162,7 @@ export default {
         animationDuration: '150',
         showOnTop: true,
       },
-      editingItems: [],
+      editingItems: {},
       collapsedItems: [],
     };
   },
@@ -156,13 +176,11 @@ export default {
       return this.chunk[index];
     },
 
-    switchEditState(itemId) {
-      if (!this.editingItems.includes(itemId)) {
-        this.editingItems.push(itemId);
+    switchEditState(item) {
+      if (!this.editingItems[item.id]) {
+        this.$set(this.editingItems, item.id, { ...item });
       } else {
-        this.editingItems = this.editingItems.filter(
-          editingItem => editingItem !== itemId
-        );
+        this.$delete(this.editingItems, item.id);
       }
     },
 
@@ -176,10 +194,15 @@ export default {
       }
     },
 
-    removeItem(item) {
+    removeItemAction(itemId) {
       if (confirm('Please confirm removing menu item')) {
-        console.log(`${item.label} has been removed`);
+        this.removeItem(itemId);
       }
+    },
+
+    updateItemAction(itemId) {
+      this.updateItem(this.editingItems[itemId]);
+      this.switchEditState({ id: itemId });
     },
   },
 };

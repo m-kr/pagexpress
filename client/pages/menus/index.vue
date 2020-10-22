@@ -37,6 +37,7 @@
                     <button
                       class="button is-primary"
                       :disabled="!menuName.length"
+                      @click="addMenu"
                     >
                       Create menu
                     </button>
@@ -45,6 +46,15 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="column buttons right-buttons">
+          <button
+            class="button is-success"
+            :disabled="!unsavedMenuChanges"
+            @click="saveChanges"
+          >
+            Save changes
+          </button>
         </div>
       </div>
     </div>
@@ -58,15 +68,15 @@
             <div class="panel-block add-menu-item">
               <div class="control">
                 <vue-autosuggest
+                  v-model="filterAutosuggestKeyword"
                   :suggestions="autosuggestData"
                   :input-props="{
                     id: 'add-existed-page',
-                    class: 'input',
+                    class: 'input has-icons-right',
                     placeholder: 'Search page',
                   }"
                   :get-suggestion-value="getSuggestionValue"
                   @selected="selectHandler"
-                  @click="clickHandler"
                 >
                   <div slot-scope="{ suggestion }">
                     <span class="autosuggest-item__row">
@@ -130,16 +140,29 @@
             <div class="panel-block">
               <button
                 class="button is-link is-outlined is-fullwidth"
+                :disabled="shouldBeEnabledAddItemButton"
                 @click="addItem"
               >
                 Add item
               </button>
             </div>
           </div>
+          <button
+            class="button is-danger is-fullwidth"
+            :disabled="!activeMenuId"
+            @click="removeMenu"
+          >
+            Delete Menu
+          </button>
         </div>
         <div class="column">
           <div v-if="activeMenu" class="menu-structure">
-            <MenuItems :chunk="activeMenu.items" :reorder="reorderMenu" />
+            <MenuItems
+              :chunk="activeMenu.items"
+              :reorder="reorderMenu"
+              :remove-item="removeItem"
+              :update-item="updateItem"
+            />
           </div>
         </div>
       </div>
@@ -151,7 +174,7 @@
 import { mapState, mapActions } from 'vuex';
 import { VueAutosuggest } from 'vue-autosuggest';
 import MenuItems from '@/components/MenuItems';
-import { getNestedThingsByKey } from '@/utils';
+import { getNestedThingsByKey, stringMatch } from '@/utils';
 
 export default {
   components: {
@@ -166,25 +189,38 @@ export default {
       },
       menuName: '',
       activeMenuId: null,
-      autosuggestData: [
-        {
-          data: [
-            { label: 'Sample page', url: '/sample-page' },
-            { label: 'Second page', url: '/second-page' },
-            { label: 'Other page', url: '/other-page' },
-          ],
-        },
-      ],
+      filterAutosuggestKeyword: '',
+      unsavedMenus: [],
     };
   },
 
   computed: {
     ...mapState({
       menus: state => state.menus.menus,
+      pages: state => state.pages.pagesList,
     }),
 
+    autosuggestData() {
+      let pagesData = this.pages.map(page => ({
+        label: page.name,
+        url: page.url,
+      }));
+
+      if (this.filterAutosuggestKeyword.length) {
+        pagesData = pagesData.filter(
+          page =>
+            stringMatch(this.filterAutosuggestKeyword, page.label) ||
+            stringMatch(this.filterAutosuggestKeyword, page.url)
+        );
+      }
+
+      return [{ data: pagesData }];
+    },
+
     activeMenu() {
-      return this.menus.find(menu => menu._id === this.activeMenuId);
+      return this.activeMenuId
+        ? this.$store.getters['menus/getMenuById'](this.activeMenuId)
+        : null;
     },
 
     activeMenuItems() {
@@ -192,10 +228,20 @@ export default {
 
       return getNestedThingsByKey(this.activeMenu.items, 'children');
     },
+
+    shouldBeEnabledAddItemButton() {
+      const { url, label } = this.newMenuItem;
+      return !(url && url.length && label && label.length);
+    },
+
+    unsavedMenuChanges() {
+      return this.unsavedMenus.includes(this.activeMenuId);
+    },
   },
 
   async mounted() {
     await this.fetchMenus();
+    await this.fetchPages();
 
     this.initActiveMenu();
   },
@@ -203,6 +249,7 @@ export default {
   methods: {
     ...mapActions({
       fetchMenus: 'menus/fetchMenus',
+      fetchPages: 'pages/loadPages',
       removeMenu: 'menus/removeMenu',
     }),
 
@@ -218,10 +265,74 @@ export default {
         dragResults,
         parentItemId,
       });
+
+      if (!this.unsavedMenuChanges) {
+        this.unsavedMenus.push(this.activeMenuId);
+      }
+    },
+
+    addMenu() {
+      this.$store.dispatch('menus/addMenu', this.menuName);
+      this.menuName = '';
+    },
+
+    async saveChanges() {
+      await this.$store.dispatch('menus/saveChanges', {
+        menuId: this.activeMenuId,
+      });
+
+      this.unsavedMenus = this.unsavedMenus.filter(
+        menuId => menuId !== this.activeMenuId
+      );
     },
 
     addItem() {
-      console.log('Add item', this.newMenuItem);
+      const { url, label, parentItem } = this.newMenuItem;
+      this.$store.commit('menus/ADD_ITEM', {
+        menuId: this.activeMenuId,
+        label,
+        url,
+        parentItem: parentItem.length ? parentItem : null,
+      });
+
+      this.newMenuItem = {
+        parentItem: '',
+      };
+
+      this.markMenuAsDirty();
+    },
+
+    removeItem(itemId) {
+      this.$store.commit('menus/REMOVE_ITEM', {
+        menuId: this.activeMenuId,
+        itemId,
+      });
+
+      this.markMenuAsDirty();
+    },
+
+    removeMenu() {
+      const availableMenus = this.menus.filter(
+        menu => menu._id !== this.activeMenuId
+      );
+      this.$store.dispatch('menus/removeMenu', this.activeMenuId);
+
+      this.activeMenuId = availableMenus[0]._id;
+    },
+
+    updateItem(newItemData) {
+      this.$store.commit('menus/UPDATE_ITEM', {
+        menuId: this.activeMenuId,
+        newItemData,
+      });
+
+      this.markMenuAsDirty();
+    },
+
+    markMenuAsDirty() {
+      if (!this.unsavedMenuChanges) {
+        this.unsavedMenus.push(this.activeMenuId);
+      }
     },
 
     getSuggestionValue(suggestion) {
@@ -236,10 +347,8 @@ export default {
         label,
         url,
       };
-    },
 
-    clickHandler(value) {
-      console.log('clickHandler', value);
+      this.filterAutosuggestKeyword = '';
     },
   },
 };
@@ -249,6 +358,12 @@ export default {
 .menus {
   &__toolbar {
     margin-bottom: var(--spacing-2);
+
+    .right-buttons {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
   }
 }
 </style>
