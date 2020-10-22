@@ -1,10 +1,20 @@
 <template>
-  <div class="navbar__outer">
-    <div class="container">
+  <div class="container">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
       <div class="navbar__brand">
         <nuxt-link class="brand" to="/">PAGE<small>xpress</small></nuxt-link>
       </div>
-      <div class="navbar__action">
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <nuxt-link to="/" class="navbar-item">
+            Pages
+          </nuxt-link>
+          <nuxt-link to="/menus" class="navbar-item">
+            Menu
+          </nuxt-link>
+        </div>
+      </div>
+      <div class="navbar-end navbar__action">
         <button v-if="isAuthenticated" class="button is-light" @click="logout">
           <strong>Logout</strong>
         </button>
@@ -12,7 +22,7 @@
           ><strong>Sign In</strong></nuxt-link
         >
       </div>
-    </div>
+    </nav>
   </div>
 </template>
 
@@ -44,6 +54,7 @@ export default {
 
 .navbar__brand {
   font-size: 2.4rem;
+  margin-right: var(--spacing);
 
   a {
     color: var(--body-color);
