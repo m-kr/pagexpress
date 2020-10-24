@@ -119,13 +119,13 @@ export const actions = {
   },
 
   async addMenu({ commit, dispatch }, menuName) {
-    const { data } = await this.$axios.post(`menus`, { name: menuName }).catch(
-      error =>
+    const { data } = await this.$axios
+      .post(`menus`, { name: menuName })
+      .catch(error =>
         dispatch('notifications/error', formatRequestError(error), {
           root: true,
-        }),
-      { root: true }
-    );
+        })
+      );
 
     if (data) {
       commit('ADD_MENU', { _id: data, name: menuName });
@@ -185,12 +185,10 @@ export const actions = {
       return;
     }
 
-    const { data } = await this.$axios.delete(`menus/${menuId}`).catch(
-      error =>
-        dispatch('notifications/error', formatRequestError(error), {
-          root: true,
-        }),
-      { root: true }
+    const { data } = await this.$axios.delete(`menus/${menuId}`).catch(error =>
+      dispatch('notifications/error', formatRequestError(error), {
+        root: true,
+      })
     );
 
     if (data) {
