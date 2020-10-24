@@ -33,7 +33,7 @@
     </div>
 
     <Container
-      v-if="componentPatterns"
+      v-if="componentPatterns && componentPatterns.length"
       class="components-wrapper"
       drag-handle-selector=".card-header__grab-handler"
       @drop="onDrop"
@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { Container, Draggable } from 'vue-smooth-dnd';
 import PageComponent from '@/components/PageComponent';
 import SelectWithAction from '@/components/SelectWithAction';
@@ -93,6 +93,8 @@ export default {
       components: state => state.pageDetails.components,
       fieldTypes: state => state.fieldTypes.types,
     }),
+
+    ...mapGetters('pageDetails', ['rootComponents']),
 
     componentPatternsOptions() {
       if (!this.componentPatterns) {
@@ -145,11 +147,8 @@ export default {
       });
     },
 
-    onDrop({ removedIndex, addedIndex }) {
-      this.$store.dispatch('pageDetails/reorderComponents', {
-        oldIndex: removedIndex,
-        newIndex: addedIndex,
-      });
+    onDrop(dragResults) {
+      this.$store.dispatch('pageDetails/reorderRootComponents', dragResults);
     },
 
     removeComponent(componentId) {

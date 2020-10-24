@@ -1,6 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
-import { formatRequestError, getPageStructureFromTemplate } from '@/utils';
+import {
+  formatRequestError,
+  getPageStructureFromTemplate,
+  getRequestData,
+  reorderItems,
+} from '@/utils';
 
 const detailsStructure = {
   _id: '',
@@ -14,6 +19,12 @@ export const state = () => ({
   details: { ...detailsStructure },
   components: null,
 });
+
+export const getters = {
+  rootComponents(state) {
+    return state.components.filter(component => !component.parentComponentId);
+  },
+};
 
 export const mutations = {
   FETCH_PAGE_DETAILS(state, { components, ...details }) {
@@ -50,10 +61,6 @@ export const mutations = {
     });
   },
 
-  UPDATE_ALL_COMPONENTS(state, components) {
-    state.components = components;
-  },
-
   REMOVE_COMPONENT(state, componentId) {
     state.components = state.components.filter(
       component => component._id !== componentId
@@ -64,15 +71,24 @@ export const mutations = {
     state.details = { ...detailsStructure };
     state.components = null;
   },
+
+  REORDER_COMPONENTS(state, { dragResults, parentComponentId }) {
+    console.log(dragResults, parentComponentId);
+
+    if (!parentComponentId) {
+      state.components = [...reorderItems(state.components, dragResults)];
+    }
+  },
 };
 
 export const actions = {
   async fetchPageDetails({ commit, dispatch, state }, pageDetailsId) {
     const { data } = await this.$axios
       .get(`page-details/${pageDetailsId}`)
-      .catch(
-        error => dispatch('notifications/error', formatRequestError(error)),
-        { root: true }
+      .catch(error =>
+        dispatch('notifications/error', formatRequestError(error), {
+          root: true,
+        })
       );
 
     commit('FETCH_PAGE_DETAILS', data);
@@ -82,23 +98,21 @@ export const actions = {
     { commit, dispatch, state },
     { pageId, templateComponents }
   ) {
-    const { data } = await this.$axios
-      .post(`page-details`, {
+    const pageDetailsId = await getRequestData({
+      request: this.$axios.post(`page-details`, {
         pageId,
         components: getPageStructureFromTemplate(templateComponents),
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
-      })
-      .catch(
-        error => dispatch('notifications/error', formatRequestError(error)),
-        { root: true }
-      );
+      }),
+      dispatch,
+    });
 
     dispatch('notifications/success', 'Added page variant', { root: true });
     commit(
       'page/ADD_VARIANT',
       {
         ...state.details,
-        _id: data,
+        _id: pageDetailsId,
       },
       { root: true }
     );
@@ -113,9 +127,10 @@ export const actions = {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
         components,
       })
-      .catch(
-        error => dispatch('notifications/error', formatRequestError(error)),
-        { root: true }
+      .catch(error =>
+        dispatch('notifications/error', formatRequestError(error), {
+          root: true,
+        })
       );
 
     dispatch('notifications/success', 'Saved page details changes', {
@@ -130,9 +145,10 @@ export const actions = {
 
     const { data } = await this.$axios
       .delete(`page-details/${pageDetailsId}`)
-      .catch(
-        error => dispatch('notifications/error', formatRequestError(error)),
-        { root: true }
+      .catch(error =>
+        dispatch('notifications/error', formatRequestError(error), {
+          root: true,
+        })
       );
 
     if (data) {
@@ -156,12 +172,44 @@ export const actions = {
     });
   },
 
-  reorderComponents({ commit, state }, { oldIndex, newIndex }) {
-    const reorderedComponents = [...state.components];
-    const movedElement = reorderedComponents[oldIndex];
-    reorderedComponents.splice(oldIndex, 1);
-    reorderedComponents.splice(newIndex, 0, movedElement);
+  reorderRootComponents(
+    { commit, state, getters },
+    { removedIndex, addedIndex, payload }
+  ) {
+    const { rootComponents } = getters;
+    const { components } = state;
+    let addedComponentIndex = null;
+    let removedComponentIndex = null;
 
-    commit('UPDATE_ALL_COMPONENTS', reorderedComponents);
+    for (const [index, component] of components.entries()) {
+      if (
+        addedIndex !== null &&
+        rootComponents[addedIndex]._id === component._id
+      ) {
+        addedComponentIndex = index;
+      }
+
+      if (
+        removedIndex !== null &&
+        rootComponents[removedIndex]._id === component._id
+      ) {
+        removedComponentIndex = index;
+      }
+
+      if (
+        (addedIndex === null || addedComponentIndex) &&
+        (removedIndex === null || removedComponentIndex)
+      ) {
+        break;
+      }
+    }
+
+    commit('REORDER_COMPONENTS', {
+      dragResults: {
+        addedIndex: addedComponentIndex,
+        removedIndex: removedComponentIndex,
+        payload,
+      },
+    });
   },
 };

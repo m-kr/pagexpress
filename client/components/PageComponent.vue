@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div v-if="componentPattern" class="card">
     <header class="card-header">
       <span class="card-header__grab-handler">
         <fa icon="grip-vertical" />
@@ -21,13 +21,14 @@
       </button>
     </header>
     <div v-if="!collapsed" class="card-content">
-      <PageComponentData
-        v-if="componentPattern && componentPattern.fields"
-        :fields="componentPattern.fields"
-        :field-types="fieldTypes"
-        :data="component.data"
-        :on-update-data="updateData"
-      />
+      <div v-if="componentPattern.fields" class="fields-container">
+        <PageComponentData
+          :fields="componentPattern.fields"
+          :field-types="fieldTypes"
+          :data="component.data"
+          :on-update-data="updateData"
+        />
+      </div>
 
       <div
         v-if="componentPattern && componentPattern.fieldset"
