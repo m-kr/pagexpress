@@ -25,9 +25,12 @@
     </nav>
 
     <div class="columns">
-      <div class="column">
+      <div class="column buttons">
         <button class="button is-primary" @click="saveChanges">
           Save changes
+        </button>
+        <button class="button is-info" @click="collapseAllComponents">
+          Collapse all
         </button>
       </div>
     </div>
@@ -37,6 +40,7 @@
       class="components-wrapper"
       drag-handle-selector=".card-header__grab-handler"
       @drop="onDrop"
+      @drag-end="onDragStop()"
     >
       <Draggable v-for="component in rootComponents" :key="component._id">
         <PageComponent
@@ -46,6 +50,8 @@
           :field-types="fieldTypes"
           :update-component="updateComponent"
           :remove-component="removeComponent"
+          :collapsed="collapsedComponents.includes(component._id)"
+          :toggle-collapsed-state="toggleCollapsedState"
         >
           <div class="field is-grouped add-component">
             <SelectWithAction
@@ -87,6 +93,12 @@ export default {
     Container,
   },
 
+  data() {
+    return {
+      collapsedComponents: [],
+    };
+  },
+
   computed: {
     ...mapState({
       componentPatterns: state => state.componentPatterns.patterns,
@@ -116,6 +128,7 @@ export default {
 
   mounted() {
     this.initPageData();
+    console.log(this);
   },
 
   methods: {
@@ -149,6 +162,26 @@ export default {
 
     onDrop(dragResults) {
       this.$store.dispatch('pageDetails/reorderRootComponents', dragResults);
+    },
+
+    collapseAllComponents() {
+      this.collapsedComponents = this.rootComponents.map(
+        component => component._id
+      );
+    },
+
+    toggleCollapsedState(targetComponentId) {
+      if (this.collapsedComponents.includes(targetComponentId)) {
+        this.collapsedComponents = this.collapsedComponents.filter(
+          componentId => componentId !== targetComponentId
+        );
+      } else {
+        this.collapsedComponents.push(targetComponentId);
+      }
+    },
+
+    onDragStop() {
+      this.dragging = false;
     },
 
     removeComponent(componentId) {

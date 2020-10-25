@@ -8,7 +8,10 @@
         <span>{{ componentPattern.label }}</span>
         <small>{{ componentPattern.description }}</small>
       </p>
-      <button class="button is-small" @click="toggleCollapseState">
+      <button
+        class="button is-small"
+        @click="toggleCollapsedState(component._id)"
+      >
         <span class="icon is-small">
           <fa v-if="!collapsed" :icon="['fa', 'minus']" />
           <fa v-if="collapsed" :icon="['fa', 'plus']" />
@@ -57,6 +60,10 @@
           :field-types="fieldTypes"
           :update-component="updateComponent"
           :remove-component="removeComponent"
+          :collapsed="collapsedChildren.includes(childComponent._id)"
+          :toggle-collapsed-state="
+            toggleChildrenCollapseState.bind(childComponent._id)
+          "
         />
       </div>
       <div class="card-footer">
@@ -103,11 +110,19 @@ export default {
       type: Function,
       required: true,
     },
+    toggleCollapsedState: {
+      type: Function,
+      default: () => {},
+    },
+    collapsed: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
     return {
-      collapsed: false,
+      collapsedChildren: [],
     };
   },
 
@@ -135,8 +150,14 @@ export default {
       this.removeComponent(this.component._id);
     },
 
-    toggleCollapseState() {
-      this.collapsed = !this.collapsed;
+    toggleChildrenCollapseState(targetComponentId) {
+      if (this.collapsedChildren.includes(targetComponentId)) {
+        this.collapsedChildren = this.collapsedChildren.filter(
+          componentId => componentId !== targetComponentId
+        );
+      } else {
+        this.collapsedChildren.push(targetComponentId);
+      }
     },
   },
 };
