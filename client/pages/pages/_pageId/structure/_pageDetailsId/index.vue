@@ -39,8 +39,8 @@
       v-if="componentPatterns && componentPatterns.length"
       class="components-wrapper"
       drag-handle-selector=".card-header__grab-handler"
+      :drop-placeholder="dropPlaceholderOptions"
       @drop="onDrop"
-      @drag-end="onDragStop()"
     >
       <Draggable v-for="component in rootComponents" :key="component._id">
         <PageComponent
@@ -96,6 +96,11 @@ export default {
   data() {
     return {
       collapsedComponents: [],
+      dropPlaceholderOptions: {
+        className: 'drop-preview',
+        animationDuration: '150',
+        showOnTop: true,
+      },
     };
   },
 
@@ -128,7 +133,6 @@ export default {
 
   mounted() {
     this.initPageData();
-    console.log(this);
   },
 
   methods: {
@@ -178,10 +182,6 @@ export default {
       } else {
         this.collapsedComponents.push(targetComponentId);
       }
-    },
-
-    onDragStop() {
-      this.dragging = false;
     },
 
     removeComponent(componentId) {
