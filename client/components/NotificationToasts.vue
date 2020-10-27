@@ -55,7 +55,7 @@ export default {
   position: fixed;
   display: flex;
   flex-direction: column;
-  width: 15rem;
+  width: 25rem;
   max-width: 100%;
   right: var(--spacing);
   bottom: var(--spacing);

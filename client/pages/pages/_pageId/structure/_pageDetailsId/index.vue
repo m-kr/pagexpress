@@ -26,9 +26,6 @@
 
     <div class="columns">
       <div class="column buttons">
-        <button class="button is-primary" @click="saveChanges">
-          Save changes
-        </button>
         <button class="button is-info" @click="collapseAllComponents">
           Collapse all
         </button>
@@ -65,10 +62,6 @@
       </Draggable>
     </Container>
     <div class="field is-grouped add-component">
-      <button class="button is-primary" @click="saveChanges">
-        Save changes
-      </button>
-
       <SelectWithAction
         placeholder="Choose component"
         button-label="Add component"
@@ -158,7 +151,7 @@ export default {
     },
 
     updateComponent(componentId, componentData) {
-      this.$store.commit('pageDetails/UPDATE_COMPONENT', {
+      this.$store.dispatch('pageDetails/updateComponent', {
         _id: componentId,
         ...componentData,
       });
@@ -185,7 +178,7 @@ export default {
     },
 
     removeComponent(componentId) {
-      this.$store.commit('pageDetails/REMOVE_COMPONENT', componentId);
+      this.$store.dispatch('pageDetails/removeComponent', componentId);
     },
 
     // Move them to getters
@@ -214,8 +207,13 @@ export default {
     margin-bottom: var(--spacing-2);
   }
 
-  & > .smooth-dnd-draggable-wrapper {
-    overflow: visible;
+  /* Fix issue with missing box shadow */
+  &.smooth-dnd-container {
+    &.vertical {
+      & > .smooth-dnd-draggable-wrapper {
+        overflow: visible;
+      }
+    }
   }
 }
 </style>
