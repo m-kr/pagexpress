@@ -4,6 +4,7 @@ export * from './format-date';
 export * from './format-request-error';
 export * from './get-nested-things-by-key';
 export * from './get-page-structure-from-template';
+export * from './get-request-data';
 export * from './get-slug';
 export * from './string-match';
 export * from './reorder-items';

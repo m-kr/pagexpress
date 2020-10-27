@@ -21,7 +21,7 @@ export default {
     },
     destroyTimeout: {
       type: Number,
-      default: 2000,
+      default: 3000,
     },
     notificationTypeClass: {
       type: String,

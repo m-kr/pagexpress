@@ -54,3 +54,9 @@ export default {
   },
 };
 </script>
+
+<style lang="postcss" scoped>
+.control {
+  background-color: var(--white);
+}
+</style>

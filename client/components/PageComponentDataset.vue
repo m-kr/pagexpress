@@ -8,7 +8,7 @@
       <div
         v-for="(field, fieldIndex) in fields"
         :key="fieldIndex"
-        class="field-wrapper column is-one-third"
+        class="field-wrapper column"
       >
         <FieldText
           v-if="isFieldType(field.fieldTypeId, 'text')"

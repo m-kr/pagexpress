@@ -25,17 +25,21 @@
     </nav>
 
     <div class="columns">
-      <div class="column">
+      <div class="column buttons">
         <button class="button is-primary" @click="saveChanges">
           Save changes
+        </button>
+        <button class="button is-info" @click="collapseAllComponents">
+          Collapse all
         </button>
       </div>
     </div>
 
     <Container
-      v-if="componentPatterns"
+      v-if="componentPatterns && componentPatterns.length"
       class="components-wrapper"
       drag-handle-selector=".card-header__grab-handler"
+      :drop-placeholder="dropPlaceholderOptions"
       @drop="onDrop"
     >
       <Draggable v-for="component in rootComponents" :key="component._id">
@@ -46,6 +50,8 @@
           :field-types="fieldTypes"
           :update-component="updateComponent"
           :remove-component="removeComponent"
+          :collapsed="collapsedComponents.includes(component._id)"
+          :toggle-collapsed-state="toggleCollapsedState"
         >
           <div class="field is-grouped add-component">
             <SelectWithAction
@@ -74,7 +80,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { Container, Draggable } from 'vue-smooth-dnd';
 import PageComponent from '@/components/PageComponent';
 import SelectWithAction from '@/components/SelectWithAction';
@@ -87,12 +93,25 @@ export default {
     Container,
   },
 
+  data() {
+    return {
+      collapsedComponents: [],
+      dropPlaceholderOptions: {
+        className: 'drop-preview',
+        animationDuration: '150',
+        showOnTop: true,
+      },
+    };
+  },
+
   computed: {
     ...mapState({
       componentPatterns: state => state.componentPatterns.patterns,
       components: state => state.pageDetails.components,
       fieldTypes: state => state.fieldTypes.types,
     }),
+
+    ...mapGetters('pageDetails', ['rootComponents']),
 
     componentPatternsOptions() {
       if (!this.componentPatterns) {
@@ -145,11 +164,24 @@ export default {
       });
     },
 
-    onDrop({ removedIndex, addedIndex }) {
-      this.$store.dispatch('pageDetails/reorderComponents', {
-        oldIndex: removedIndex,
-        newIndex: addedIndex,
-      });
+    onDrop(dragResults) {
+      this.$store.dispatch('pageDetails/reorderRootComponents', dragResults);
+    },
+
+    collapseAllComponents() {
+      this.collapsedComponents = this.rootComponents.map(
+        component => component._id
+      );
+    },
+
+    toggleCollapsedState(targetComponentId) {
+      if (this.collapsedComponents.includes(targetComponentId)) {
+        this.collapsedComponents = this.collapsedComponents.filter(
+          componentId => componentId !== targetComponentId
+        );
+      } else {
+        this.collapsedComponents.push(targetComponentId);
+      }
     },
 
     removeComponent(componentId) {

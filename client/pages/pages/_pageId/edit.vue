@@ -555,7 +555,7 @@ export default {
 };
 </script>
 
-<style lang="postcss" scroped>
+<style lang="postcss" scoped>
 .panel-block {
   flex-direction: column;
   justify-content: space-around;
