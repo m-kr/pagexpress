@@ -214,8 +214,13 @@ export default {
     margin-bottom: var(--spacing-2);
   }
 
-  & > .smooth-dnd-draggable-wrapper {
-    overflow: visible;
+  /* Fix issue with missing box shadow */
+  &.smooth-dnd-container {
+    &.vertical {
+      & > .smooth-dnd-draggable-wrapper {
+        overflow: visible;
+      }
+    }
   }
 }
 </style>
