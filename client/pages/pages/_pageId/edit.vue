@@ -290,7 +290,7 @@
                   <div class="select is-fullwidth">
                     <select
                       id="details"
-                      @change="swichPageDetailsData($event.target.value)"
+                      @change="switchPageDetailsData($event.target.value)"
                     >
                       <option
                         v-for="variant of pageVariants"
@@ -369,7 +369,7 @@
           </div>
           <div class="column">
             <div class="field is-fullwidth">
-              <label for="new-page-details-description" class="label">
+              <label for="page-details-description" class="label">
                 Description
               </label>
               <div class="control">
@@ -464,6 +464,7 @@ export default {
 
   methods: {
     async initPageData(pageId) {
+      this.$store.commit('pageDetails/RESET_DETAILS');
       await this.$store.dispatch('pageTypes/fetchPageTypes');
       await this.$store.dispatch('fieldTypes/fetchFieldTypes');
       await this.$store.dispatch('countries/fetchCountries');
@@ -476,7 +477,7 @@ export default {
 
       if (pageVariants && pageVariants.length) {
         this.activeDetailsTab = 'edit';
-        this.swichPageDetailsData(pageVariants[0]._id);
+        this.switchPageDetailsData(pageVariants[0]._id);
       } else {
         this.activeDetailsTab = 'add';
       }
@@ -526,7 +527,7 @@ export default {
       this.$store.commit('pageDetails/UPDATE_PAGE_DETAILS', { [field]: value });
     },
 
-    swichPageDetailsData(pageDetailsId) {
+    switchPageDetailsData(pageDetailsId) {
       const pageDetails = this.pageVariants.find(
         variant => variant._id === pageDetailsId
       );

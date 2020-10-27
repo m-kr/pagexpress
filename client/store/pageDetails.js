@@ -73,8 +73,6 @@ export const mutations = {
   },
 
   REORDER_COMPONENTS(state, { dragResults, parentComponentId }) {
-    console.log(dragResults, parentComponentId);
-
     if (!parentComponentId) {
       state.components = [...reorderItems(state.components, dragResults)];
     }
@@ -100,9 +98,9 @@ export const actions = {
   ) {
     const pageDetailsId = await getRequestData({
       request: this.$axios.post(`page-details`, {
-        pageId,
-        components: getPageStructureFromTemplate(templateComponents),
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
+        components: getPageStructureFromTemplate(templateComponents),
+        pageId,
       }),
       dispatch,
     });
