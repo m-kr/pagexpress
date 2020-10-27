@@ -5,10 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const rootPath = path.join(__dirname, '../');
-
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config({ path: `${rootPath}.env` });
-}
+require('dotenv').config({ path: `${rootPath}.env` });
 
 const config = require('config');
 const {
