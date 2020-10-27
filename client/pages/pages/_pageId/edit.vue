@@ -387,16 +387,7 @@
           </div>
         </div>
         <div class="columns">
-          <div class="column">
-            <nuxt-link
-              class="button is-link"
-              :to="`/pages/${pageId}/structure/${pageDetails._id}`"
-            >
-              Components structure
-            </nuxt-link>
-            <button class="button is-info" @click="downloadPageStructure">
-              Download JSON schema
-            </button>
+          <div class="column buttons">
             <button
               v-if="unsavedData.includes('pageDetails')"
               type="submit"
@@ -405,7 +396,19 @@
             >
               Save changes
             </button>
-            <button class="button is-danger" @click="removePageVariant">
+            <nuxt-link
+              class="button is-link"
+              :to="`/pages/${pageId}/structure/${pageDetails._id}`"
+            >
+              Edit page variant
+            </nuxt-link>
+            <button class="button is-black" @click="downloadPageStructure">
+              Download Page JSON schema
+            </button>
+            <button
+              class="button is-danger is-right"
+              @click="removePageVariant"
+            >
               Remove page variant
             </button>
           </div>

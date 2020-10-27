@@ -7,6 +7,9 @@ import {
   reorderItems,
 } from '@/utils';
 
+const saveChangesDelay = 500;
+let lastUpdateComponentSaveTimeout = null;
+
 const detailsStructure = {
   _id: '',
   name: '',
@@ -80,7 +83,7 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchPageDetails({ commit, dispatch, state }, pageDetailsId) {
+  async fetchPageDetails({ commit, dispatch }, pageDetailsId) {
     const { data } = await this.$axios
       .get(`page-details/${pageDetailsId}`)
       .catch(error =>
@@ -119,20 +122,12 @@ export const actions = {
 
   async savePageDetails({ state, dispatch }) {
     const components = [...state.components];
-
-    await this.$axios
-      .put(`page-details/${state.details._id}`, {
+    await getRequestData({
+      request: this.$axios.put(`page-details/${state.details._id}`, {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
         components,
-      })
-      .catch(error =>
-        dispatch('notifications/error', formatRequestError(error), {
-          root: true,
-        })
-      );
-
-    dispatch('notifications/success', 'Saved page details changes', {
-      root: true,
+      }),
+      dispatch,
     });
   },
 
@@ -141,37 +136,53 @@ export const actions = {
       return;
     }
 
-    const { data } = await this.$axios
-      .delete(`page-details/${pageDetailsId}`)
-      .catch(error =>
-        dispatch('notifications/error', formatRequestError(error), {
-          root: true,
-        })
-      );
+    await getRequestData({
+      request: this.$axios.delete(`page-details/${pageDetailsId}`),
+      dispatch,
+    });
 
-    if (data) {
-      dispatch('notifications/success', 'Removed page variant', { root: true });
-      commit('page/REMOVE_VARIANT', pageDetailsId, { root: true });
-      commit('REMOVE_PAGE_DETAILS');
-    } else {
-      dispatch(
-        'notifications/error',
-        'Unknown error: Page variant can not be removed',
-        { root: true }
-      );
-    }
+    dispatch('notifications/success', 'Removed page variant', { root: true });
+    commit('page/REMOVE_VARIANT', pageDetailsId, { root: true });
+    commit('REMOVE_PAGE_DETAILS');
   },
 
-  addComponent({ commit, state }, newComponentData) {
+  addComponent({ commit, dispatch }, newComponentData) {
     commit('ADD_COMPONENT', {
       _id: uuidv4(),
       ...newComponentData,
       data: {},
     });
+
+    dispatch('savePageDetails');
+  },
+
+  updateComponent({ state, commit, dispatch }, componentData) {
+    commit('UPDATE_COMPONENT', componentData);
+
+    if (lastUpdateComponentSaveTimeout) {
+      clearTimeout(lastUpdateComponentSaveTimeout);
+    }
+
+    lastUpdateComponentSaveTimeout = setTimeout(
+      () => dispatch('savePageDetails'),
+      saveChangesDelay
+    );
+  },
+
+  removeComponent({ commit, dispatch }, componentId) {
+    if (!confirm('Please, confirm removing component')) {
+      return;
+    }
+
+    commit('REMOVE_COMPONENT', componentId);
+    dispatch('savePageDetails');
+    dispatch('notifications/success', 'Component has been removed', {
+      root: true,
+    });
   },
 
   reorderRootComponents(
-    { commit, state, getters },
+    { commit, dispatch, state, getters },
     { removedIndex, addedIndex, payload }
   ) {
     const { rootComponents } = getters;
@@ -209,5 +220,7 @@ export const actions = {
         payload,
       },
     });
+
+    dispatch('savePageDetails');
   },
 };
