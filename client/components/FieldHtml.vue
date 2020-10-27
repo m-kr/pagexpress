@@ -39,6 +39,7 @@ export default {
           toolbar: [
             [{ header: [2, 3, 4, 5, false] }],
             ['bold', 'italic', 'underline'],
+            ['link'],
             [{ list: 'ordered' }, { list: 'bullet' }],
             ['blockquote'],
             ['clean'],
