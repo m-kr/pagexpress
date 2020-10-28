@@ -320,7 +320,7 @@
                   type="text"
                   name="page-variant-name"
                   placeholder="Page variant name"
-                  @input="updatePageDetails('title', $event.target.value)"
+                  @input="updatePageDetails('name', $event.target.value)"
                 />
               </div>
             </div>
@@ -402,9 +402,6 @@
             >
               Edit page variant
             </nuxt-link>
-            <button class="button is-black" @click="downloadPageStructure">
-              Download Page JSON schema
-            </button>
             <button
               class="button is-danger is-right"
               @click="removePageVariant"
@@ -413,6 +410,13 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column buttons is right">
+        <button class="button is-black" @click="downloadPageStructure">
+          Download Page JSON schema
+        </button>
       </div>
     </div>
   </div>
