@@ -201,6 +201,14 @@ export default {
   }
 }
 
+.card-content {
+  & > * {
+    &:not(:last-of-type) {
+      margin-bottom: var(--spacing-2);
+    }
+  }
+}
+
 .card-footer {
   flex-direction: row-reverse;
 }

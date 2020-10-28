@@ -13,6 +13,7 @@
         <FieldText
           v-if="isFieldType(field.fieldTypeId, 'text')"
           :label="field.label"
+          :options="field.options"
           :value="singleData ? singleData[field.name] : ''"
           @update="value => updateData(dataIndex, field.name, value)"
         />
@@ -27,6 +28,7 @@
         <FieldList
           v-if="isFieldType(field.fieldTypeId, 'list')"
           :label="field.label"
+          :options="field.options"
           :values="singleData ? singleData[field.name] : []"
           @update="value => updateData(dataIndex, field.name, value)"
         />
@@ -120,14 +122,14 @@ export default {
 };
 </script>
 
-<style scoped lang="postcss">
+<style lang="postcss">
 .component-dataset {
   counter-reset: row-number;
   padding: var(--spacing-05);
 
   &__row {
     position: relative;
-    padding: var(--spacing-05);
+    padding: var(--spacing-25) var(--spacing-05) var(--spacing-05);
     background-color: var(--gray-dark);
     counter-increment: row-number;
 
@@ -155,6 +157,10 @@ export default {
   &__actions {
     display: flex;
     justify-content: flex-end;
+  }
+
+  .control {
+    min-width: 200px;
   }
 }
 </style>
