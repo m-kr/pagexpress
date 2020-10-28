@@ -8,6 +8,7 @@
       <FieldText
         v-if="isFieldType(field.fieldTypeId, 'text')"
         :label="field.label"
+        :options="field.options"
         :value="data ? data[field.name] : null"
         @update="value => updateData(field.name, value)"
       />
@@ -22,6 +23,7 @@
       <FieldList
         v-if="isFieldType(field.fieldTypeId, 'list')"
         :label="field.label"
+        :options="field.options"
         :values="data ? data[field.name] : []"
         @update="value => updateData(field.name, value)"
       />
