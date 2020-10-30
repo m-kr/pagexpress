@@ -16,6 +16,7 @@ const {
   menu,
   pageAttributeTypes,
   pageDetails,
+  pageStructure,
   pageTemplates,
   pageTypes,
   pages,
@@ -49,6 +50,7 @@ app.use('/v1', fields);
 app.use('/v1', menu);
 app.use('/v1', pageAttributeTypes);
 app.use('/v1', pageDetails);
+app.use('/v1', pageStructure);
 app.use('/v1', pageTemplates);
 app.use('/v1', pageTypes);
 app.use('/v1', pages);

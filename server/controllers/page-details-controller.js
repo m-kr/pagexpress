@@ -81,8 +81,13 @@ const createPageDetails = async (req, res) => {
   }
 
   try {
+    if (req.body.default === true) {
+      await PageDetails.updateMany({ pageId: req.body.pageId }, { default: false });
+    }
+
     const pageDetails = new PageDetails(req.body);
     page.pageDetails.push(pageDetails);
+
     await pageDetails.save();
     await Page.findOneAndUpdate({ _id: pageDetails.pageId }, { $push: { pageDetails: pageDetails } });
     res.send(pageDetails._id);
@@ -106,6 +111,10 @@ const updatePageDetails = async (req, res) => {
   }
 
   try {
+    if (req.body.default === true) {
+      await PageDetails.updateMany({ pageId: req.body.pageId }, { default: false });
+    }
+
     const pageDetails = await PageDetails.findOneAndUpdate({ _id: pageDetailsId }, req.body);
     res.send(pageDetails);
   } catch (err) {
