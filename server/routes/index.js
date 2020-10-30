@@ -5,6 +5,7 @@ const fields = require('./fields-routes');
 const menu = require('./menus-routes');
 const pageAttributeTypes = require('./page-attribute-types-routes');
 const pageDetails = require('./page-details-routes');
+const pageStructure = require('./page-structure-routes');
 const pageTemplates = require('./page-templates-routes');
 const pageTypes = require('./page-types-routes');
 const pages = require('./pages-routes');
@@ -18,6 +19,7 @@ module.exports = {
   menu,
   pageAttributeTypes,
   pageDetails,
+  pageStructure,
   pageTemplates,
   pageTypes,
   pages,
