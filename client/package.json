@@ -41,8 +41,8 @@
     "jest": "^24.1.0",
     "postcss-nested": "^4.2.1",
     "prettier": "^1.19.1",
-    "stylelint": "^10.1.0",
+    "stylelint": "^13.7.2",
     "uuid": "^8.2.0",
-    "vue-jest": "^4.0.0-0"
+    "vue-jest": "^4.0.0-rc.0"
   }
 }
