@@ -23,7 +23,9 @@ const getPageStructure = async (req, res) => {
       .exec();
 
     if (!pageData) {
-      throw new Error(`Page with ID ${pageId} doesn't exist`);
+      res.status(401).send(`Page with ID ${pageId} doesn't exist`);
+
+      return;
     }
 
     const componentPatterns = await ComponentPattern.find().exec();
@@ -65,7 +67,9 @@ const getPages = async (req, res) => {
         .exec();
 
       if (!singlePage) {
-        throw new Error('Page not exist');
+        res.status(401).send('Page not exist');
+
+        return;
       }
 
       const { type } = singlePage.toObject();
@@ -73,7 +77,7 @@ const getPages = async (req, res) => {
       const pageTypeData = pageType.toObject();
       const pageTypeAttributesSchema = pageTypeData.attributes.map(attribute => ({
         ...attribute,
-        type: attribute.type.name,
+        type: attribute.type.type,
       }));
 
       res.send({
