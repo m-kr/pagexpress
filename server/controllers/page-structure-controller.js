@@ -25,7 +25,9 @@ const getPageStructure = async (req, res) => {
       .exec();
 
     if (!pageData) {
-      throw new Error(`Page with ID ${pageId} doesn't exist`);
+      res.status(401).send(`Page with ID ${pageId} doesn't exist`);
+
+      return;
     }
 
     const componentPatterns = await ComponentPattern.find().exec();
@@ -43,7 +45,7 @@ const getPageStructure = async (req, res) => {
       variants: pageVariants.map(variant => {
         return {
           ...R.pick(['name', 'country', 'title', 'description'], variant),
-          components: variant.components.map(({ name, data }) => ({ name, data })),
+          components: variant.components.map(({ name, data, components }) => ({ name, data, components })),
         };
       }),
     };
