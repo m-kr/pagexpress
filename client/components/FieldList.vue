@@ -9,6 +9,7 @@
           v-model="newItem"
           class="input"
           type="text"
+          @keyup.enter="addItem"
         />
         <div v-else class="select">
           <select :id="label" v-model="newItem">
@@ -24,24 +25,24 @@
         </div>
       </div>
       <div class="control">
-        <a class="button is-info" @click.prevent="addItem">
+        <button class="button is-info" @click="addItem">
           <span>Add</span>
           <span class="icon">
             <fa icon="plus" />
           </span>
-        </a>
+        </button>
       </div>
     </div>
     <ul>
       <li v-for="(value, index) of values" :key="index">
-        <a
+        <button
           class="button is-light is-danger is-small"
-          @click.prevent="removeItem(value)"
+          @click="removeItem(value)"
         >
           <span class="icon is-small">
             <fa :icon="['fas', 'times']" />
           </span>
-        </a>
+        </button>
         {{ value }}
       </li>
     </ul>

@@ -184,7 +184,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="postcss">
 .panel-block {
   flex-direction: column;
   justify-content: space-around;
