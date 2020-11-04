@@ -121,7 +121,6 @@ const deletePage = async (req, res) => {
 };
 
 module.exports = {
-  getPageStructure,
   getPages,
   createPage,
   updatePage,
