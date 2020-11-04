@@ -1,52 +1,6 @@
 const { Page, pageValidationSchema } = require('../models/Page');
-const { ComponentPattern } = require('../models/ComponentPattern');
 const { PageType } = require('../models/PageType');
 const ListFeatures = require('../utils/ListFeatures');
-const { buildPageStructure } = require('../utils/page-structure');
-const R = require('ramda');
-
-const getPageStructure = async (req, res) => {
-  const { pageId } = req.params;
-
-  try {
-    const pageData = await Page.findById(pageId)
-      .select('name url pageDetails attributes')
-      .populate({
-        path: 'pageDetails',
-        model: 'PageDetails',
-        select: 'name country title description components',
-      })
-      .populate({
-        path: 'type',
-        select: 'name',
-      })
-      .exec();
-
-    if (!pageData) {
-      res.status(401).send(`Page with ID ${pageId} doesn't exist`);
-
-      return;
-    }
-
-    const componentPatterns = await ComponentPattern.find().exec();
-    const fullPageData = pageData.toObject();
-
-    const pageVariants = fullPageData.pageDetails.map(details => {
-      return {
-        ...details,
-        components: buildPageStructure(details.components, componentPatterns),
-      };
-    });
-
-    res.send({
-      ...R.pick(['name', 'url', 'attributes'], fullPageData),
-      variants: pageVariants,
-    });
-    // res.send(fullPageData);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-};
 
 const getPages = async (req, res) => {
   const { pageId } = req.params;
