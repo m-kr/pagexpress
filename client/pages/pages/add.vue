@@ -174,7 +174,7 @@ export default {
     },
 
     getPageType(pageTypeId) {
-      return this.pageAttributeTypes.find(type => type._id === pageTypeId).name;
+      return this.pageAttributeTypes.find(type => type._id === pageTypeId).type;
     },
 
     updateAttribute(name, value) {
