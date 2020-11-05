@@ -34,9 +34,14 @@
         />
       </div>
 
-      <button class="button is-small is-danger" @click="removeRow(dataIndex)">
-        Remove
-      </button>
+      <div class="component-dataset__inner-buttons buttons">
+        <button class="button is-small is-info" @click="duplicate(dataIndex)">
+          Duplicate
+        </button>
+        <button class="button is-small is-danger" @click="removeRow(dataIndex)">
+          Remove
+        </button>
+      </div>
     </div>
     <div class="component-dataset__actions">
       <button class="button is-small is-success" @click="addFieldsRow">
@@ -108,11 +113,22 @@ export default {
       );
     },
 
+    duplicate(rowIndex) {
+      const newDataset = [...this.dataset];
+      const duplicatedItem = newDataset.find(
+        (val, index) => index === rowIndex
+      );
+      newDataset.splice(rowIndex, 0, duplicatedItem);
+
+      this.onUpdateData(newDataset);
+    },
+
     updateData(index, fieldName, value) {
       const newDataset = this.dataset.map((fieldChunk, fieldChunkIndex) => {
         if (index === fieldChunkIndex) {
           fieldChunk[fieldName] = value;
         }
+
         return fieldChunk;
       });
 
@@ -129,7 +145,7 @@ export default {
 
   &__row {
     position: relative;
-    padding: var(--spacing-25) var(--spacing-05) var(--spacing-05);
+    padding: var(--spacing-35) var(--spacing-05) var(--spacing-05);
     background-color: var(--gray-dark);
     counter-increment: row-number;
 
@@ -146,12 +162,12 @@ export default {
       color: var(--gray-darken);
       content: '#' counter(row-number);
     }
+  }
 
-    .button {
-      position: absolute;
-      top: var(--spacing);
-      right: var(--spacing);
-    }
+  &__inner-buttons {
+    position: absolute;
+    top: var(--spacing);
+    right: var(--spacing);
   }
 
   &__actions {

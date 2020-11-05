@@ -174,7 +174,7 @@ export default {
     },
 
     getPageType(pageTypeId) {
-      return this.pageAttributeTypes.find(type => type._id === pageTypeId).name;
+      return this.pageAttributeTypes.find(type => type._id === pageTypeId).type;
     },
 
     updateAttribute(name, value) {
@@ -184,7 +184,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="postcss">
 .panel-block {
   flex-direction: column;
   justify-content: space-around;
