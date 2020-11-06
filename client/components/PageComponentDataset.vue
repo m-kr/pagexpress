@@ -109,8 +109,6 @@ export default {
         animationDuration: '150',
         showOnTop: true,
       },
-      editingItems: {},
-      collapsedItems: [],
     };
   },
 
@@ -222,6 +220,11 @@ export default {
 
   .control {
     min-width: 200px;
+
+    .select,
+    select {
+      width: 100%;
+    }
   }
 }
 

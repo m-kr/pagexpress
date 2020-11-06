@@ -33,62 +33,155 @@
         </button>
       </div>
     </div>
-    <ul>
-      <li v-for="(value, index) of values" :key="index">
+    <Container
+      tag="ul"
+      drag-class="fieldlist-item__ghost"
+      drop-class="fieldlist-item__ghost--drop"
+      drag-handle-selector=".fieldlist-item__grab-handler"
+      :group-name="`fieldlist-${getRandomId}`"
+      :get-child-payload="getItemPayload"
+      :drop-placeholder="dropPlaceholderOptions"
+      @drop="onDrop"
+    >
+      <Draggable
+        v-for="(value, index) of values"
+        :key="index"
+        class="fieldlist-item"
+        tag="li"
+      >
+        <span class="fieldlist-item__grab-handler">
+          <fa icon="grip-vertical" />
+        </span>
+        <span class="fieldlist-item__value">{{ value }}</span>
         <button
-          class="button is-light is-danger is-small"
+          class="button is-outlined is-danger is-small"
           @click="removeItem(value)"
         >
           <span class="icon is-small">
             <fa :icon="['fas', 'times']" />
           </span>
         </button>
-        {{ value }}
-      </li>
-    </ul>
+      </Draggable>
+    </Container>
   </div>
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
+import { Container, Draggable } from 'vue-smooth-dnd';
+import { reorderItems } from '@/utils';
+
 export default {
   name: 'FieldList',
+
+  components: {
+    Container,
+    Draggable,
+  },
+
   props: {
     label: {
       type: String,
       required: true,
     },
+
     options: {
       type: Array,
       default: () => [],
     },
+
     values: {
       type: Array,
       default: () => [],
     },
   },
+
   data() {
     return {
       newItem: '',
+      dropPlaceholderOptions: {
+        className: 'drop-preview',
+        animationDuration: '150',
+        showOnTop: true,
+      },
     };
   },
+
   methods: {
     addItem() {
       this.$emit('add', this.newItem);
       this.$emit('update', [...this.values, this.newItem]);
       this.newItem = '';
     },
+
     removeItem(removedValue) {
       this.$emit(
         'update',
         this.values.filter(val => val !== removedValue)
       );
     },
+
+    onDrop(dropResult) {
+      const newValues = [...this.values];
+      this.$emit('update', reorderItems(newValues, dropResult));
+    },
+
+    getRandomId() {
+      return uuidv4();
+    },
+
+    getItemPayload(rowIndex) {
+      return this.values.find((item, index) => index === rowIndex);
+    },
   },
 };
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 li {
   margin-bottom: 0.5em;
+}
+
+.smooth-dnd-container {
+  &.vertical {
+    & > .smooth-dnd-draggable-wrapper {
+      display: flex;
+      align-items: center;
+
+      & > * {
+        margin-right: var(--spacing-05);
+      }
+    }
+  }
+}
+
+.fieldlist-item {
+  padding: var(--spacing-025);
+  border: 1px solid var(--gray-dark);
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+
+  &:not(:last-of-type) {
+    margin-bottom: var(--spacing);
+  }
+
+  &__value {
+    flex: 1 1 0;
+    font-size: var(--font-md);
+    font-weight: var(--font-weight-medium);
+  }
+
+  &__grab-handler {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-025);
+    margin-right: var(--spacing-025);
+    color: var(--gray-dark);
+    cursor: move;
+
+    &:hover {
+      color: var(--gray-darken);
+    }
+  }
 }
 </style>
