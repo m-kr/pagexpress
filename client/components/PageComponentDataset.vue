@@ -1,60 +1,76 @@
 <template>
-  <div v-if="fieldTypes && fieldTypes.length" class="component-dataset">
-    <div
-      v-for="(singleData, dataIndex) in dataset"
-      :key="dataIndex"
-      class="component-dataset__row columns is-multiline is-mobile"
+  <div v-if="fieldTypes" class="component-dataset">
+    <Container
+      class="component-dataset__inner"
+      drag-class="dataset-item__ghost"
+      drop-class="dataset-item__ghost--drop"
+      :group-name="`dataset-${getRandomId}`"
+      :get-child-payload="getItemPayload"
+      :drop-placeholder="dropPlaceholderOptions"
+      @drop="onDrop"
     >
-      <div
-        v-for="(field, fieldIndex) in fields"
-        :key="fieldIndex"
-        class="field-wrapper column"
+      <Draggable
+        v-for="(singleData, dataIndex) in dataset"
+        :key="dataIndex"
+        class="component-dataset__row columns is-multiline is-mobile"
       >
-        <FieldText
-          v-if="isFieldType(field.fieldTypeId, 'text')"
-          :label="field.label"
-          :options="field.options"
-          :value="singleData ? singleData[field.name] : ''"
-          @update="value => updateData(dataIndex, field.name, value)"
-        />
+        <div
+          v-for="(field, fieldIndex) in fields"
+          :key="fieldIndex"
+          class="field-wrapper column"
+        >
+          <FieldText
+            v-if="isFieldType(field.fieldTypeId, 'text')"
+            :label="field.label"
+            :options="field.options"
+            :value="singleData ? singleData[field.name] : ''"
+            @update="value => updateData(dataIndex, field.name, value)"
+          />
 
-        <FieldHtml
-          v-if="isFieldType(field.fieldTypeId, 'html')"
-          :label="field.label"
-          :value="singleData ? singleData[field.name] : ''"
-          @update="value => updateData(dataIndex, field.name, value)"
-        />
+          <FieldHtml
+            v-if="isFieldType(field.fieldTypeId, 'html')"
+            :label="field.label"
+            :value="singleData ? singleData[field.name] : ''"
+            @update="value => updateData(dataIndex, field.name, value)"
+          />
 
-        <FieldList
-          v-if="isFieldType(field.fieldTypeId, 'list')"
-          :label="field.label"
-          :options="field.options"
-          :values="singleData ? singleData[field.name] : []"
-          @update="value => updateData(dataIndex, field.name, value)"
-        />
-      </div>
+          <FieldList
+            v-if="isFieldType(field.fieldTypeId, 'list')"
+            :label="field.label"
+            :options="field.options"
+            :values="singleData ? singleData[field.name] : []"
+            @update="value => updateData(dataIndex, field.name, value)"
+          />
+        </div>
 
-      <div class="component-dataset__inner-buttons buttons">
-        <button class="button is-small is-info" @click="duplicate(dataIndex)">
-          Duplicate
+        <div class="component-dataset__inner-buttons buttons">
+          <button class="button is-small is-info" @click="duplicate(dataIndex)">
+            Duplicate
+          </button>
+          <button
+            class="button is-small is-danger"
+            @click="removeRow(dataIndex)"
+          >
+            Remove
+          </button>
+        </div>
+      </Draggable>
+      <div class="component-dataset__actions">
+        <button class="button is-small is-success" @click="addFieldsRow">
+          Add +
         </button>
-        <button class="button is-small is-danger" @click="removeRow(dataIndex)">
-          Remove
-        </button>
       </div>
-    </div>
-    <div class="component-dataset__actions">
-      <button class="button is-small is-success" @click="addFieldsRow">
-        Add +
-      </button>
-    </div>
+    </Container>
   </div>
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
+import { Container, Draggable } from 'vue-smooth-dnd';
 import FieldText from './FieldText';
 import FieldHtml from './FieldHtml';
 import FieldList from './FieldList';
+import { reorderItems } from '@/utils';
 
 export default {
   name: 'PageComponentDataset',
@@ -63,6 +79,8 @@ export default {
     FieldHtml,
     FieldText,
     FieldList,
+    Container,
+    Draggable,
   },
 
   props: {
@@ -82,6 +100,16 @@ export default {
       type: Function,
       required: true,
     },
+  },
+
+  data() {
+    return {
+      dropPlaceholderOptions: {
+        className: 'drop-preview',
+        animationDuration: '150',
+        showOnTop: true,
+      },
+    };
   },
 
   computed: {
@@ -115,24 +143,39 @@ export default {
 
     duplicate(rowIndex) {
       const newDataset = [...this.dataset];
-      const duplicatedItem = newDataset.find(
-        (val, index) => index === rowIndex
-      );
+      const duplicatedItem = {
+        ...newDataset.find((val, index) => index === rowIndex),
+      };
       newDataset.splice(rowIndex, 0, duplicatedItem);
 
       this.onUpdateData(newDataset);
     },
 
+    getItemPayload(rowIndex) {
+      return this.dataset.find((item, index) => index === rowIndex);
+    },
+
+    onDrop(dropResult) {
+      const newDataset = [...this.dataset];
+      this.onUpdateData(reorderItems(newDataset, dropResult));
+    },
+
     updateData(index, fieldName, value) {
       const newDataset = this.dataset.map((fieldChunk, fieldChunkIndex) => {
+        const newFieldChunk = { ...fieldChunk };
+
         if (index === fieldChunkIndex) {
-          fieldChunk[fieldName] = value;
+          newFieldChunk[fieldName] = value;
         }
 
-        return fieldChunk;
+        return newFieldChunk;
       });
 
       this.onUpdateData(newDataset);
+    },
+
+    getRandomId() {
+      return uuidv4();
     },
   },
 };
@@ -177,6 +220,40 @@ export default {
 
   .control {
     min-width: 200px;
+
+    .select,
+    select {
+      width: 100%;
+    }
+  }
+}
+
+.dataset-item {
+  &__ghost {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--gray-dark);
+    border: 2px solid var(--gray-darken);
+    z-index: 3;
+
+    & * {
+      visibility: hidden;
+      opacity: 0;
+    }
+  }
+}
+
+.smooth-dnd-container {
+  &.vertical {
+    & > .smooth-dnd-draggable-wrapper {
+      &.columns {
+        display: flex;
+        overflow: visible;
+      }
+    }
   }
 }
 </style>
