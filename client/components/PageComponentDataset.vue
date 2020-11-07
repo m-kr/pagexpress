@@ -5,6 +5,7 @@
       drag-class="dataset-item__ghost"
       drop-class="dataset-item__ghost--drop"
       :group-name="`dataset-${getRandomId}`"
+      drag-handle-selector=".dataset-item__grab-handler"
       :get-child-payload="getItemPayload"
       :drop-placeholder="dropPlaceholderOptions"
       @drop="onDrop"
@@ -12,37 +13,38 @@
       <Draggable
         v-for="(singleData, dataIndex) in dataset"
         :key="dataIndex"
-        class="component-dataset__row columns is-multiline is-mobile"
+        class="component-dataset__row"
       >
-        <div
-          v-for="(field, fieldIndex) in fields"
-          :key="fieldIndex"
-          class="field-wrapper column"
-        >
-          <FieldText
-            v-if="isFieldType(field.fieldTypeId, 'text')"
-            :label="field.label"
-            :options="field.options"
-            :value="singleData ? singleData[field.name] : ''"
-            @update="value => updateData(dataIndex, field.name, value)"
-          />
+        <div class="columns is-multiline is-mobile">
+          <div
+            v-for="(field, fieldIndex) in fields"
+            :key="fieldIndex"
+            class="field-wrapper column"
+          >
+            <FieldText
+              v-if="isFieldType(field.fieldTypeId, 'text')"
+              :label="field.label"
+              :options="field.options"
+              :value="singleData ? singleData[field.name] : ''"
+              @update="value => updateData(dataIndex, field.name, value)"
+            />
 
-          <FieldHtml
-            v-if="isFieldType(field.fieldTypeId, 'html')"
-            :label="field.label"
-            :value="singleData ? singleData[field.name] : ''"
-            @update="value => updateData(dataIndex, field.name, value)"
-          />
+            <FieldHtml
+              v-if="isFieldType(field.fieldTypeId, 'html')"
+              :label="field.label"
+              :value="singleData ? singleData[field.name] : ''"
+              @update="value => updateData(dataIndex, field.name, value)"
+            />
 
-          <FieldList
-            v-if="isFieldType(field.fieldTypeId, 'list')"
-            :label="field.label"
-            :options="field.options"
-            :values="singleData ? singleData[field.name] : []"
-            @update="value => updateData(dataIndex, field.name, value)"
-          />
+            <FieldList
+              v-if="isFieldType(field.fieldTypeId, 'list')"
+              :label="field.label"
+              :options="field.options"
+              :values="singleData ? singleData[field.name] : []"
+              @update="value => updateData(dataIndex, field.name, value)"
+            />
+          </div>
         </div>
-
         <div class="component-dataset__inner-buttons buttons">
           <button class="button is-small is-info" @click="duplicate(dataIndex)">
             Duplicate
@@ -54,6 +56,9 @@
             Remove
           </button>
         </div>
+        <span class="dataset-item__grab-handler">
+          <fa icon="grip-vertical" />
+        </span>
       </Draggable>
       <div class="component-dataset__actions">
         <button class="button is-small is-success" @click="addFieldsRow">
@@ -188,7 +193,7 @@ export default {
 
   &__row {
     position: relative;
-    padding: var(--spacing-35) var(--spacing-05) var(--spacing-05);
+    padding: var(--spacing-2) var(--spacing-05) var(--spacing-05);
     background-color: var(--gray-dark);
     counter-increment: row-number;
 
@@ -208,14 +213,17 @@ export default {
   }
 
   &__inner-buttons {
-    position: absolute;
-    top: var(--spacing);
-    right: var(--spacing);
+    justify-content: flex-end;
+
+    &.buttons {
+      margin: 0;
+    }
   }
 
   &__actions {
     display: flex;
     justify-content: flex-end;
+    margin-top: var(--spacing);
   }
 
   .control {
@@ -229,6 +237,19 @@ export default {
 }
 
 .dataset-item {
+  &__grab-handler {
+    position: absolute;
+    top: var(--spacing-025);
+    right: var(--spacing-025);
+    padding: var(--spacing-025) var(--spacing-05);
+    color: var(--gray-darken);
+    cursor: move;
+
+    &:hover {
+      color: var(--black);
+    }
+  }
+
   &__ghost {
     position: absolute;
     top: 0;
