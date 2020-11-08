@@ -14,7 +14,7 @@
                 placeholder: 'Search component',
               }"
               :get-suggestion-value="getSuggestionValue"
-              @selected="selectHandler"
+              :section-configs="sectionConfigs"
             >
               <div
                 slot-scope="{ suggestion }"
@@ -41,7 +41,7 @@
       </a>
     </div>
     <button class="button is-info" @click="toggleSelectorVisibility">
-      Add component
+      {{ buttonLabel ? buttonLabel : 'Add component' }}
     </button>
   </div>
 </template>
@@ -86,18 +86,22 @@ export default {
       selectedPatternId: null,
       isSelectorVisible: false,
       sectionConfigs: {
-        destinations: {
+        recent: {
           limit: 2,
           label: 'Recently used',
           onSelected: selected => {
-            this.selected = selected.item;
+            if (selected && selected.item) {
+              this.addComponent(selected.item._id);
+            }
           },
         },
-        hotels: {
+        filtered: {
           limit: 5,
           label: 'Components',
           onSelected: selected => {
-            this.selected = selected.item;
+            if (selected && selected.item) {
+              this.addComponent(selected.item._id);
+            }
           },
         },
       },
@@ -106,7 +110,9 @@ export default {
 
   computed: {
     firstAutosuggestListData() {
-      if (!this.lastUsedPatternIds.length) return [];
+      if (!this.lastUsedPatternIds.length || this.autosuggestKeyword.length) {
+        return [];
+      }
 
       const lastUsedPatternIds =
         this.lastUsedPatternIds.length > 3
@@ -115,6 +121,7 @@ export default {
 
       return [
         {
+          name: 'recent',
           data: lastUsedPatternIds.map(patternId => {
             const {
               _id,
@@ -154,7 +161,7 @@ export default {
         );
       }
 
-      return [{ data: componentPatternsData }];
+      return [{ name: 'filtered', data: componentPatternsData }];
     },
 
     autosuggestData() {
@@ -166,33 +173,43 @@ export default {
   },
 
   methods: {
-    selectHandler(selected) {
-      if (selected && selected.item) {
-        this.addComponent(selected.item._id);
-      }
-    },
-
     getSuggestionValue(suggestion) {
       return suggestion.item.label;
     },
 
     addComponent(selectedPatternId) {
-      // this.selectAction(selectedPatternId);
+      this.selectAction(selectedPatternId);
       this.lastUsedPatternIds.push(selectedPatternId);
       this.selectedPatternId = null;
+      this.toggleSelectorVisibility();
     },
 
     toggleSelectorVisibility() {
       this.isSelectorVisible = !this.isSelectorVisible;
 
       if (this.isSelectorVisible) {
-        setTimeout(
-          () => this.$refs.autosuggest.$el.querySelector('input').focus(),
-          0
-        );
-        window.addEventListener('keyup', this.closeOnEscape);
+        this.toggleBlockingBodyHeight(true);
+
+        setTimeout(() => {
+          const autosuggestInput = this.$refs.autosuggest.$el.querySelector(
+            'input'
+          );
+          autosuggestInput.click();
+          autosuggestInput.focus();
+          window.addEventListener('keyup', this.closeOnEscape);
+        }, 0);
       } else {
+        this.toggleBlockingBodyHeight();
         window.removeEventListener('keyup', this.closeOnEscape);
+      }
+    },
+
+    toggleBlockingBodyHeight(shouldBlock) {
+      if (shouldBlock) {
+        window.document.body.style.maxHeight = '100vh';
+        window.document.body.style.overflow = 'hidden';
+      } else {
+        window.document.body.removeAttribute('style');
       }
     },
 
@@ -245,45 +262,55 @@ export default {
     padding: var(--spacing-025) var(--spacing-05);
     z-index: 999;
   }
-}
 
-.autosuggest {
-  &__results {
-    padding-top: var(--spacing);
+  .autosuggest {
+    &__results {
+      padding-top: var(--spacing);
 
-    &-container {
-      box-shadow: none;
+      &-container {
+        box-shadow: none;
+      }
+
+      &-item {
+        padding: var(--spacing);
+        background-color: var(--gray-dark);
+        border-radius: var(--border-radius);
+
+        &:not(:last-of-type) {
+          margin-bottom: var(--spacing);
+        }
+
+        &.autosuggest__results-item--highlighted,
+        &:hover {
+          background-color: var(--gray-darken);
+          color: var(--white);
+        }
+
+        &-inner {
+          display: flex;
+          flex-direction: column;
+        }
+
+        &-header {
+          font-weight: var(--font-weight-bold);
+          font-size: var(--font-lg);
+        }
+      }
+
+      &-before {
+        padding: var(--spacing-05) 0;
+      }
+
+      & > ul {
+        &:not(:last-of-type) {
+          margin-bottom: var(--spacing);
+        }
+      }
     }
 
-    &-item {
-      padding: var(--spacing);
-      background-color: var(--gray-dark);
-      border-radius: var(--border-radius);
-
-      &:not(:last-of-type) {
-        margin-bottom: var(--spacing);
-      }
-
-      &.autosuggest__results-item--highlighted,
-      &:hover {
-        background-color: var(--gray-darken);
-        color: var(--white);
-      }
-
-      &-inner {
-        display: flex;
-        flex-direction: column;
-      }
-
-      &-header {
-        font-weight: var(--font-weight-bold);
-        font-size: var(--font-lg);
-      }
+    &__wrapper {
+      width: 100%;
     }
-  }
-
-  &__wrapper {
-    width: 100%;
   }
 }
 </style>

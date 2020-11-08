@@ -51,17 +51,18 @@
           :toggle-collapsed-state="toggleCollapsedState"
         >
           <div class="field is-grouped add-component">
-            <SelectWithAction
-              placeholder="Choose component"
+            <ComponentSelector
+              :component-patterns="componentPatterns ? componentPatterns : []"
               button-label="Add inner component"
-              :options="componentPatternsOptions"
-              :action="patternId => addComponent(patternId, component._id)"
+              :select-action="
+                patternId => addComponent(patternId, component._id)
+              "
             />
           </div>
         </PageComponent>
       </Draggable>
     </Container>
-    <div class="field is-grouped add-component">
+    <div class="structure-builder__bottom-actions">
       <ComponentSelector
         :component-patterns="componentPatterns ? componentPatterns : []"
         :select-action="patternId => addComponent(patternId)"
@@ -74,7 +75,6 @@
 import { mapState, mapGetters } from 'vuex';
 import { Container, Draggable } from 'vue-smooth-dnd';
 import PageComponent from '@/components/PageComponent';
-import SelectWithAction from '@/components/SelectWithAction';
 import ComponentSelector from '@/components/ComponentSelector';
 
 export default {
@@ -83,7 +83,6 @@ export default {
     Container,
     Draggable,
     PageComponent,
-    SelectWithAction,
   },
 
   data() {
@@ -105,19 +104,6 @@ export default {
     }),
 
     ...mapGetters('pageDetails', ['rootComponents']),
-
-    componentPatternsOptions() {
-      if (!this.componentPatterns) {
-        return;
-      }
-
-      return this.componentPatterns.map(pattern => {
-        return {
-          value: pattern._id,
-          name: pattern.name,
-        };
-      });
-    },
 
     rootComponents() {
       return this.components.filter(component => !component.parentComponentId);
@@ -215,5 +201,11 @@ export default {
       }
     }
   }
+}
+
+.structure-builder__bottom-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--spacing-15);
 }
 </style>

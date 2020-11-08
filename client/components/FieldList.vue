@@ -144,6 +144,8 @@ li {
 
 .smooth-dnd-container {
   &.vertical {
+    min-height: 0;
+
     & > .smooth-dnd-draggable-wrapper {
       display: flex;
       align-items: center;
