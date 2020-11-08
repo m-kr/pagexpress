@@ -62,11 +62,9 @@
       </Draggable>
     </Container>
     <div class="field is-grouped add-component">
-      <SelectWithAction
-        placeholder="Choose component"
-        button-label="Add component"
-        :options="componentPatternsOptions"
-        :action="patternId => addComponent(patternId)"
+      <ComponentSelector
+        :component-patterns="componentPatterns ? componentPatterns : []"
+        :select-action="patternId => addComponent(patternId)"
       />
     </div>
   </div>
@@ -77,13 +75,15 @@ import { mapState, mapGetters } from 'vuex';
 import { Container, Draggable } from 'vue-smooth-dnd';
 import PageComponent from '@/components/PageComponent';
 import SelectWithAction from '@/components/SelectWithAction';
+import ComponentSelector from '@/components/ComponentSelector';
 
 export default {
   components: {
+    ComponentSelector,
+    Container,
+    Draggable,
     PageComponent,
     SelectWithAction,
-    Draggable,
-    Container,
   },
 
   data() {
