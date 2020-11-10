@@ -40,7 +40,11 @@
         <fa :icon="['fas', 'times']" />
       </a>
     </div>
-    <button class="button is-info" @click="toggleSelectorVisibility">
+    <button
+      :class="buttonStyle.length ? `is-${buttonStyle}` : ''"
+      class="button"
+      @click="toggleSelectorVisibility"
+    >
       {{ buttonLabel ? buttonLabel : 'Add component' }}
     </button>
   </div>
@@ -67,6 +71,11 @@ export default {
       default: 'Add component',
     },
 
+    buttonStyle: {
+      type: String,
+      default: '',
+    },
+
     componentPatterns: {
       type: Array,
       default: () => [],
@@ -80,6 +89,7 @@ export default {
 
   data() {
     return {
+      lastScrollTopPosition: 0,
       autosuggestKeyword: '',
       lastUsedPatternIds: [],
       lastUsedListLimit: 3,
@@ -115,8 +125,8 @@ export default {
       }
 
       const lastUsedPatternIds =
-        this.lastUsedPatternIds.length > 3
-          ? this.lastUsedPatternIds.slice(-3)
+        this.lastUsedPatternIds.length > this.lastUsedListLimit
+          ? this.lastUsedPatternIds.slice(-1 * this.lastUsedListLimit)
           : this.lastUsedPatternIds;
 
       return [
@@ -206,10 +216,13 @@ export default {
 
     toggleBlockingBodyHeight(shouldBlock) {
       if (shouldBlock) {
+        this.lastScrollTopPosition =
+          document.body.scrollTop || document.documentElement.scrollTop;
         window.document.body.style.maxHeight = '100vh';
         window.document.body.style.overflow = 'hidden';
       } else {
         window.document.body.removeAttribute('style');
+        window.scrollTo(0, this.lastScrollTopPosition);
       }
     },
 
