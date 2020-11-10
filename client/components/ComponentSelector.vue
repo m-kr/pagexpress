@@ -40,7 +40,11 @@
         <fa :icon="['fas', 'times']" />
       </a>
     </div>
-    <button class="button is-info" @click="toggleSelectorVisibility">
+    <button
+      :class="buttonStyle.length ? `is-${buttonStyle}` : ''"
+      class="button"
+      @click="toggleSelectorVisibility"
+    >
       {{ buttonLabel ? buttonLabel : 'Add component' }}
     </button>
   </div>
@@ -65,6 +69,11 @@ export default {
     buttonLabel: {
       type: String,
       default: 'Add component',
+    },
+
+    buttonStyle: {
+      type: String,
+      default: '',
     },
 
     componentPatterns: {
@@ -115,8 +124,8 @@ export default {
       }
 
       const lastUsedPatternIds =
-        this.lastUsedPatternIds.length > 3
-          ? this.lastUsedPatternIds.slice(-3)
+        this.lastUsedPatternIds.length > this.lastUsedListLimit
+          ? this.lastUsedPatternIds.slice(-1 * this.lastUsedListLimit)
           : this.lastUsedPatternIds;
 
       return [

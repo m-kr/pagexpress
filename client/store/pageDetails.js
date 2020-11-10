@@ -54,6 +54,10 @@ export const mutations = {
     state.components = [...state.components, component];
   },
 
+  ADD_COMPONENT_IN_PLACE(state, { placeIndex, componentData }) {
+    state.components.splice(placeIndex, 0, componentData);
+  },
+
   UPDATE_COMPONENT(state, newComponentData) {
     state.components = state.components.map(component => {
       if (component._id === newComponentData._id) {
@@ -154,6 +158,21 @@ export const actions = {
     });
 
     dispatch('savePageDetails');
+  },
+
+  addComponentInPlace(
+    { commit, dispatch, state },
+    { componentPatternId, targetPlaceIndex }
+  ) {
+    commit('ADD_COMPONENT_IN_PLACE', {
+      placeIndex: targetPlaceIndex,
+      componentData: {
+        _id: uuidv4(),
+        componentPatternId,
+        data: {},
+      },
+    });
+    // dispatch('savePageDetails');
   },
 
   updateComponent({ state, commit, dispatch }, componentData) {

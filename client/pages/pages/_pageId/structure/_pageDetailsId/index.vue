@@ -39,7 +39,10 @@
       :drop-placeholder="dropPlaceholderOptions"
       @drop="onDrop"
     >
-      <Draggable v-for="component in rootComponents" :key="component._id">
+      <Draggable
+        v-for="(component, rowIndex) in rootComponents"
+        :key="component._id"
+      >
         <PageComponent
           :child-components="getChildComponents(component._id)"
           :component-patterns="componentPatterns"
@@ -50,7 +53,14 @@
           :collapsed="collapsedComponents.includes(component._id)"
           :toggle-collapsed-state="toggleCollapsedState"
         >
-          <div class="field is-grouped add-component">
+          <div class="add-component__container">
+            <ComponentSelector
+              :component-patterns="componentPatterns ? componentPatterns : []"
+              button-label="Add component after"
+              :select-action="
+                patternId => addComponentAfterSelf(patternId, rowIndex + 1)
+              "
+            />
             <ComponentSelector
               :component-patterns="componentPatterns ? componentPatterns : []"
               button-label="Add inner component"
@@ -64,6 +74,7 @@
     </Container>
     <div class="structure-builder__bottom-actions">
       <ComponentSelector
+        button-style="info"
         :component-patterns="componentPatterns ? componentPatterns : []"
         :select-action="patternId => addComponent(patternId)"
       />
@@ -136,6 +147,13 @@ export default {
       });
     },
 
+    addComponentAfterSelf(componentPatternId, targetPlaceIndex) {
+      this.$store.dispatch('pageDetails/addComponentInPlace', {
+        componentPatternId,
+        targetPlaceIndex,
+      });
+    },
+
     updateComponent(componentId, componentData) {
       this.$store.dispatch('pageDetails/updateComponent', {
         _id: componentId,
@@ -178,13 +196,15 @@ export default {
 </script>
 
 <style scoped lang="postcss">
-.add-component {
+.add-component__container {
+  display: flex;
+  justify-content: flex-end;
   margin-top: var(--spacing);
-}
 
-.field {
-  &.add-component {
-    justify-content: space-between;
+  & > * {
+    &:not(:last-of-type) {
+      margin-right: var(--spacing);
+    }
   }
 }
 
