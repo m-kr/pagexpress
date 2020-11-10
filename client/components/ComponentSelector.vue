@@ -89,6 +89,7 @@ export default {
 
   data() {
     return {
+      lastScrollTopPosition: 0,
       autosuggestKeyword: '',
       lastUsedPatternIds: [],
       lastUsedListLimit: 3,
@@ -215,10 +216,13 @@ export default {
 
     toggleBlockingBodyHeight(shouldBlock) {
       if (shouldBlock) {
+        this.lastScrollTopPosition =
+          document.body.scrollTop || document.documentElement.scrollTop;
         window.document.body.style.maxHeight = '100vh';
         window.document.body.style.overflow = 'hidden';
       } else {
         window.document.body.removeAttribute('style');
+        window.scrollTo(0, this.lastScrollTopPosition);
       }
     },
 

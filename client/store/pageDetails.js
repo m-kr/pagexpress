@@ -172,7 +172,8 @@ export const actions = {
         data: {},
       },
     });
-    // dispatch('savePageDetails');
+
+    dispatch('savePageDetails');
   },
 
   updateComponent({ state, commit, dispatch }, componentData) {
