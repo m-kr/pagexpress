@@ -74,7 +74,13 @@ class ListFeatures {
   getQueryFilter() {
     const { search } = this.query;
 
-    return search && this.searchOnField ? { [this.searchOnField]: { $regex: search } } : null;
+    if (!(search && this.searchOnField)) {
+      return null;
+    }
+
+    const keywordRegex = new RegExp(`${search}`, 'i');
+
+    return { [this.searchOnField]: { $regex: keywordRegex } };
   }
 
   /**
