@@ -1,48 +1,25 @@
 <template>
   <div v-if="fieldTypes && fieldTypes.length" class="componentData">
-    <div
+    <Field
       v-for="(field, fieldIndex) in fields"
       :key="fieldIndex"
-      class="field-wrapper"
-    >
-      <FieldText
-        v-if="isFieldType(field.fieldTypeId, 'text')"
-        :label="field.label"
-        :options="field.options"
-        :value="data ? data[field.name] : null"
-        @update="value => updateData(field.name, value)"
-      />
-
-      <FieldHtml
-        v-if="isFieldType(field.fieldTypeId, 'html')"
-        :label="field.label"
-        :value="data ? data[field.name] : null"
-        @update="value => updateData(field.name, value)"
-      />
-
-      <FieldList
-        v-if="isFieldType(field.fieldTypeId, 'list')"
-        :label="field.label"
-        :options="field.options"
-        :values="data ? data[field.name] : []"
-        @update="value => updateData(field.name, value)"
-      />
-    </div>
+      :field-type="getFieldType(field.fieldTypeId)"
+      :label="field.label"
+      :options="field.options"
+      :value="data ? data[field.name] : null"
+      :update="value => updateData(field.name, value)"
+    />
   </div>
 </template>
 
 <script>
-import FieldText from './FieldText';
-import FieldHtml from './FieldHtml';
-import FieldList from './FieldList';
+import Field from './Field';
 
 export default {
   name: 'PageComponentData',
 
   components: {
-    FieldHtml,
-    FieldText,
-    FieldList,
+    Field,
   },
 
   props: {
@@ -69,21 +46,9 @@ export default {
       this.onUpdateData(fieldName, value);
     },
 
-    isFieldType(fieldTypeId, targetTypeName) {
-      const fieldType = this.fieldTypes.find(
-        field => field._id === fieldTypeId
-      );
-
-      return fieldType.type === targetTypeName;
+    getFieldType(fieldTypeId) {
+      return this.fieldTypes.find(field => field._id === fieldTypeId).type;
     },
   },
 };
 </script>
-
-<style scoped>
-.field-wrapper {
-  &:not(:first-of-type) {
-    margin-top: var(--spacing);
-  }
-}
-</style>

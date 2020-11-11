@@ -22,10 +22,12 @@ export default {
       type: String,
       required: true,
     },
+
     value: {
       type: String,
       default: '',
     },
+
     placeholder: {
       type: String,
       default: '',

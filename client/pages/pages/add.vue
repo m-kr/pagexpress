@@ -80,25 +80,12 @@
       >
         <div class="columns">
           <div class="column">
-            <FieldList
-              v-if="getPageType(pageAttribute.type) === 'list'"
-              :values="attributes[pageAttribute.name]"
-              :label="pageAttribute.description"
-              @update="value => updateAttribute(pageAttribute.name, value)"
-            />
-
-            <FieldText
-              v-if="getPageType(pageAttribute.type) === 'text'"
+            <Field
+              :field-type="getPageType(pageAttribute.type)"
               :value="attributes[pageAttribute.name]"
               :label="pageAttribute.description"
-              @update="value => updateAttribute(pageAttribute.name, value)"
-            />
-
-            <FieldHtml
-              v-if="getPageType(pageAttribute.type) === 'html'"
-              :value="pageAttribute[pageAttribute.name]"
-              :label="pageAttribute.description"
-              @update="value => updateAttribute(pageAttribute.name, value)"
+              :options="pageAttribute.options"
+              :update="value => updateAttribute(pageAttribute.name, value)"
             />
           </div>
         </div>
@@ -117,13 +104,11 @@
 
 <script>
 import { mapState } from 'vuex';
-import { FieldText, FieldHtml, FieldList } from '@/components';
+import Field from '@/components/Field';
 
 export default {
   components: {
-    FieldHtml,
-    FieldText,
-    FieldList,
+    Field,
   },
   data() {
     return {

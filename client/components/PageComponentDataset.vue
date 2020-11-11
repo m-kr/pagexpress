@@ -16,34 +16,16 @@
         class="component-dataset__row"
       >
         <div class="columns is-multiline is-mobile">
-          <div
+          <Field
             v-for="(field, fieldIndex) in fields"
             :key="fieldIndex"
-            class="field-wrapper column"
-          >
-            <FieldText
-              v-if="isFieldType(field.fieldTypeId, 'text')"
-              :label="field.label"
-              :options="field.options"
-              :value="singleData ? singleData[field.name] : ''"
-              @update="value => updateData(dataIndex, field.name, value)"
-            />
-
-            <FieldHtml
-              v-if="isFieldType(field.fieldTypeId, 'html')"
-              :label="field.label"
-              :value="singleData ? singleData[field.name] : ''"
-              @update="value => updateData(dataIndex, field.name, value)"
-            />
-
-            <FieldList
-              v-if="isFieldType(field.fieldTypeId, 'list')"
-              :label="field.label"
-              :options="field.options"
-              :values="singleData ? singleData[field.name] : []"
-              @update="value => updateData(dataIndex, field.name, value)"
-            />
-          </div>
+            css-class="column"
+            :field-type="getFieldType(field.fieldTypeId)"
+            :label="field.label"
+            :options="field.options"
+            :value="singleData ? singleData[field.name] : null"
+            :update="value => updateData(dataIndex, field.name, value)"
+          />
         </div>
         <div class="component-dataset__inner-buttons buttons">
           <button class="button is-small is-info" @click="duplicate(dataIndex)">
@@ -72,18 +54,14 @@
 <script>
 import { v4 as uuidv4 } from 'uuid';
 import { Container, Draggable } from 'vue-smooth-dnd';
-import FieldText from './FieldText';
-import FieldHtml from './FieldHtml';
-import FieldList from './FieldList';
+import Field from '@/components/Field';
 import { reorderItems } from '@/utils';
 
 export default {
   name: 'PageComponentDataset',
 
   components: {
-    FieldHtml,
-    FieldText,
-    FieldList,
+    Field,
     Container,
     Draggable,
   },
@@ -132,12 +110,8 @@ export default {
       this.onUpdateData([...this.dataset, {}]);
     },
 
-    isFieldType(fieldTypeId, targetTypeName) {
-      const fieldType = this.fieldTypes.find(
-        field => field._id === fieldTypeId
-      );
-
-      return fieldType.type === targetTypeName;
+    getFieldType(fieldTypeId) {
+      return this.fieldTypes.find(field => field._id === fieldTypeId).type;
     },
 
     removeRow(rowIndex) {

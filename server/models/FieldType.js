@@ -7,6 +7,7 @@ const fieldSchema = new Schema({
   label: { type: String, require: true, min: 3, max: 30 },
   description: { type: String, min: 5, max: 100 },
   required: { type: Boolean, default: false },
+  default: { type: Boolean, default: undefined },
   fieldTypeId: { type: Schema.Types.ObjectId, ref: 'FieldType', require: true },
   options: { type: Array, min: 1 },
 });

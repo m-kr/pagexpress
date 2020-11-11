@@ -20,6 +20,5 @@ export const reorderItems = (items, { removedIndex, addedIndex, payload }) => {
     reorderedItems.splice(addedIndex, 0, itemToAdd);
   }
 
-  debugger;
   return reorderedItems.length ? reorderedItems : undefined;
 };

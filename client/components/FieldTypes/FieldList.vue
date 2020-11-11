@@ -1,18 +1,18 @@
 <template>
   <div class="field-list">
-    <label :for="label" class="label">{{ label }}</label>
+    <label :for="fieldId" class="label">{{ label }}</label>
     <div class="field is-fullwidth has-addons">
       <div class="control">
         <input
           v-if="!options.length"
-          :id="label"
+          :id="fieldId"
           v-model="newItem"
           class="input"
           type="text"
           @keyup.enter="addItem"
         />
         <div v-else class="select">
-          <select :id="label" v-model="newItem">
+          <select :id="fieldId" v-model="newItem">
             <option value="">-- Chose value --</option>
             <option
               v-for="(option, index) in options"
@@ -105,6 +105,14 @@ export default {
         showOnTop: true,
       },
     };
+  },
+
+  computed: {
+    fieldId() {
+      const slug = this.label.replace(/\s/, '-').toLowerCase();
+      const uniqueId = uuidv4().replace('-', '');
+      return `${slug}_${uniqueId}`;
+    },
   },
 
   methods: {

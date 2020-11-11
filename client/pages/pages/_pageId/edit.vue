@@ -94,25 +94,12 @@
       >
         <div class="columns">
           <div class="column">
-            <FieldList
-              v-if="attributeSchema.type === 'list'"
+            <Field
+              :field-type="attributeSchema.type"
               :label="attributeSchema.description"
-              :values="pageAttributes[attributeSchema.name]"
-              @update="value => updateAttribute(attributeSchema.name, value)"
-            />
-
-            <FieldText
-              v-if="attributeSchema.type === 'text'"
-              :label="attributeSchema.description"
+              :options="attributeSchema.options"
               :value="pageAttributes[attributeSchema.name]"
-              @update="value => updateAttribute(attributeSchema.name, value)"
-            />
-
-            <FieldHtml
-              v-if="attributeSchema.type === 'html'"
-              :label="attributeSchema.description"
-              :value="pageAttributes[attributeSchema.name]"
-              @update="value => updateAttribute(attributeSchema.name, value)"
+              :update="value => updateAttribute(attributeSchema.name, value)"
             />
           </div>
         </div>
@@ -424,14 +411,12 @@
 
 <script>
 import { mapState } from 'vuex';
-import { FieldText, FieldHtml, FieldList } from '@/components';
+import Field from '@/components/Field';
 import { downloadJsonFile, getSlug } from '@/utils';
 
 export default {
   components: {
-    FieldHtml,
-    FieldText,
-    FieldList,
+    Field,
   },
   data() {
     return {
