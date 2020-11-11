@@ -1,10 +1,10 @@
 const { ComponentPattern, componentPatternValidationSchema } = require('../models/ComponentPattern');
 
 const getComponentPatterns = async (req, res) => {
-  const { componentPaternId } = req.params;
+  const { componentPatternId } = req.params;
 
   try {
-    const query = (await componentPaternId) ? ComponentPattern.findById(componentPaternId) : ComponentPattern.find();
+    const query = (await componentPatternId) ? ComponentPattern.findById(componentPatternId) : ComponentPattern.find();
 
     const data = await query.exec();
     res.send(data);
