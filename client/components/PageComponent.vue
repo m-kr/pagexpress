@@ -223,6 +223,14 @@ export default {
     &:not(:last-of-type) {
       margin-bottom: var(--spacing);
     }
+
+    &-header {
+      padding-left: var(--spacing);
+
+      &__grab-handler {
+        display: none;
+      }
+    }
   }
 }
 </style>
