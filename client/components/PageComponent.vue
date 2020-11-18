@@ -1,7 +1,10 @@
 <template>
-  <div v-if="componentPattern" class="card">
+  <div v-if="componentPattern" class="card__inner">
     <header class="card-header">
-      <span class="card-header__grab-handler">
+      <span
+        :class="isRootComponent ? 'root' : 'inner'"
+        class="card-header__grab-handler"
+      >
         <fa icon="grip-vertical" />
       </span>
       <p class="card-header-title">
@@ -52,19 +55,34 @@
       <div v-if="childComponents.length" class="inner-components">
         <h4 class="title is-4">Inner components</h4>
 
-        <PageComponent
-          v-for="childComponent in childComponents"
-          :key="childComponent._id"
-          :component="childComponent"
-          :component-patterns="componentPatterns"
-          :field-types="fieldTypes"
-          :update-component="updateComponent"
-          :remove-component="removeComponent"
-          :collapsed="collapsedChildren.includes(childComponent._id)"
-          :toggle-collapsed-state="
-            toggleChildrenCollapseState.bind(childComponent._id)
-          "
-        />
+        <Container
+          v-if="componentPatterns && componentPatterns.length"
+          class="components-wrapper"
+          drag-handle-selector=".card-header__grab-handler.inner"
+          :drop-placeholder="dropPlaceholderOptions"
+          @drop="onDrop"
+        >
+          <Draggable
+            v-for="childComponent in childComponents"
+            :key="childComponent._id"
+            class="card"
+          >
+            <PageComponent
+              :component="childComponent"
+              :component-patterns="componentPatterns"
+              :field-types="fieldTypes"
+              :update-component="updateComponent"
+              :remove-component="removeComponent"
+              :reorder="reorder"
+              :drop-placeholder-options="dropPlaceholderOptions"
+              :collapsed="collapsedChildren.includes(childComponent._id)"
+              :is-root-component="false"
+              :toggle-collapsed-state="
+                toggleChildrenCollapseState.bind(childComponent._id)
+              "
+            />
+          </Draggable>
+        </Container>
       </div>
       <div class="card-footer">
         <slot />
@@ -74,6 +92,7 @@
 </template>
 
 <script>
+import { Container, Draggable } from 'vue-smooth-dnd';
 import PageComponentData from './PageComponentData';
 import PageComponentDataset from './PageComponentDataset';
 
@@ -81,6 +100,8 @@ export default {
   name: 'PageComponent',
 
   components: {
+    Container,
+    Draggable,
     PageComponentData,
     PageComponentDataset,
   },
@@ -90,33 +111,55 @@ export default {
       type: Array,
       required: true,
     },
+
     fieldTypes: {
       type: Array,
       default: () => [],
     },
+
     component: {
       type: Object,
       required: true,
     },
+
     childComponents: {
       type: Array,
       default: () => [],
     },
+
     updateComponent: {
       type: Function,
       required: true,
     },
+
     removeComponent: {
       type: Function,
       required: true,
     },
+
     toggleCollapsedState: {
       type: Function,
       default: () => {},
     },
+
     collapsed: {
       type: Boolean,
       default: false,
+    },
+
+    reorder: {
+      type: Function,
+      required: true,
+    },
+
+    dropPlaceholderOptions: {
+      type: Object,
+      default: () => {},
+    },
+
+    isRootComponent: {
+      type: Boolean,
+      required: true,
     },
   },
 
@@ -140,6 +183,27 @@ export default {
           [fieldName]: value,
         },
       });
+    },
+
+    onDrop(dragResults) {
+      let addedItemId = null;
+      let removedItemId = null;
+
+      if (
+        this.childComponents &&
+        this.childComponents[dragResults.addedIndex]
+      ) {
+        addedItemId = this.childComponents[dragResults.addedIndex]._id;
+      }
+
+      if (
+        this.childComponents &&
+        this.childComponents[dragResults.removedIndex]
+      ) {
+        removedItemId = this.childComponents[dragResults.removedIndex]._id;
+      }
+
+      this.reorder({ addedItemId, removedItemId });
     },
 
     getComponentPattern(patternId) {
@@ -222,14 +286,6 @@ export default {
   .card {
     &:not(:last-of-type) {
       margin-bottom: var(--spacing);
-    }
-
-    &-header {
-      padding-left: var(--spacing);
-
-      &__grab-handler {
-        display: none;
-      }
     }
   }
 }

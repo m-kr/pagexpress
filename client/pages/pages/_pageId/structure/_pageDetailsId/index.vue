@@ -35,13 +35,14 @@
     <Container
       v-if="componentPatterns && componentPatterns.length"
       class="components-wrapper"
-      drag-handle-selector=".card-header__grab-handler"
+      drag-handle-selector=".card-header__grab-handler.root"
       :drop-placeholder="dropPlaceholderOptions"
       @drop="onDrop"
     >
       <Draggable
         v-for="(component, rowIndex) in rootComponents"
         :key="component._id"
+        class="card"
       >
         <PageComponent
           :child-components="getChildComponents(component._id)"
@@ -50,8 +51,11 @@
           :field-types="fieldTypes"
           :update-component="updateComponent"
           :remove-component="removeComponent"
+          :drop-placeholder-options="dropPlaceholderOptions"
+          :reorder="reorderComponents"
           :collapsed="collapsedComponents.includes(component._id)"
           :toggle-collapsed-state="toggleCollapsedState"
+          :is-root-component="true"
         >
           <div class="add-component__container">
             <ComponentSelector
@@ -83,7 +87,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import { Container, Draggable } from 'vue-smooth-dnd';
 import PageComponent from '@/components/PageComponent';
 import ComponentSelector from '@/components/ComponentSelector';
@@ -126,6 +130,9 @@ export default {
   },
 
   methods: {
+    ...mapActions({
+      reorderComponents: 'pageDetails/reorderComponents',
+    }),
     async initPageData() {
       await this.$store.dispatch(
         'pageDetails/fetchPageDetails',
