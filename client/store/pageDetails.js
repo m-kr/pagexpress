@@ -79,10 +79,8 @@ export const mutations = {
     state.components = null;
   },
 
-  REORDER_COMPONENTS(state, { dragResults, parentComponentId }) {
-    if (!parentComponentId) {
-      state.components = [...reorderItems(state.components, dragResults)];
-    }
+  REORDER_COMPONENTS(state, dragResults) {
+    state.components = [...reorderItems(state.components, dragResults)];
   },
 };
 
@@ -201,6 +199,35 @@ export const actions = {
     });
   },
 
+  reorderComponents(
+    { commit, dispatch, state },
+    { addedItemId, removedItemId }
+  ) {
+    let addedIndex = null;
+    let removedIndex = null;
+
+    for (let i = 0; i < state.components.length; i++) {
+      const component = state.components[i];
+
+      if (component._id === addedItemId) {
+        addedIndex = i;
+      }
+
+      if (component._id === removedItemId) {
+        removedIndex = i;
+      }
+
+      if (addedIndex !== null && removedIndex !== null) {
+        break;
+      }
+    }
+    commit('REORDER_COMPONENTS', {
+      addedIndex,
+      removedIndex,
+    });
+    dispatch('savePageDetails');
+  },
+
   reorderRootComponents(
     { commit, dispatch, state, getters },
     { removedIndex, addedIndex, payload }
@@ -234,11 +261,9 @@ export const actions = {
     }
 
     commit('REORDER_COMPONENTS', {
-      dragResults: {
-        addedIndex: addedComponentIndex,
-        removedIndex: removedComponentIndex,
-        payload,
-      },
+      addedIndex: addedComponentIndex,
+      removedIndex: removedComponentIndex,
+      payload,
     });
 
     dispatch('savePageDetails');
