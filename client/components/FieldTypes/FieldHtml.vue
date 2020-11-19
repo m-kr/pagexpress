@@ -46,6 +46,25 @@ export default {
             ['blockquote'],
             ['clean'],
           ],
+          clipboard: {
+            allowed: {
+              tags: [
+                'a',
+                'b',
+                'strong',
+                'u',
+                's',
+                'i',
+                'p',
+                'br',
+                'ul',
+                'ol',
+                'li',
+                'span',
+              ],
+              attributes: ['href', 'rel', 'target', 'class'],
+            },
+          },
         },
       },
     };
