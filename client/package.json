@@ -22,6 +22,7 @@
     "lodash": "^4.17.20",
     "nuxt": "^2.0.0",
     "nuxt-fontawesome": "^0.4.0",
+    "quill-paste-smart": "^1.2.1",
     "vue-autosuggest": "^2.2.0",
     "vue-quill-editor": "^3.0.6",
     "vue-smooth-dnd": "^0.8.1",
