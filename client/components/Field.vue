@@ -83,11 +83,3 @@ export default {
   },
 };
 </script>
-
-<style lang="postcss" scoped>
-.field-wrapper {
-  &:not(:first-of-type) {
-    margin-top: var(--spacing);
-  }
-}
-</style>
