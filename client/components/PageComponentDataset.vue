@@ -167,7 +167,7 @@ export default {
 
   &__row {
     position: relative;
-    padding: var(--spacing-2) var(--spacing-05) var(--spacing-05);
+    padding: var(--spacing-25) var(--spacing-05) var(--spacing-05);
     background-color: var(--gray-dark);
     counter-increment: row-number;
 
