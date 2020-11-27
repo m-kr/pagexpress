@@ -87,6 +87,14 @@ export default {
 <style lang="postcss" scoped>
 .field-wrapper {
   &:not(:first-of-type) {
+    margin-bottom: var(--spacing);
+  }
+}
+</style>
+
+<style lang="postcss" scoped>
+.field-wrapper {
+  &:not(:first-of-type) {
     margin-top: var(--spacing);
   }
 }

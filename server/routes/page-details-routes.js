@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const auth = require('../middleware/auth');
+const { auth, grandAccess } = require('../middleware');
 const {
   getPageDetails,
   createPageDetails,
@@ -7,9 +7,9 @@ const {
   deletePageDetails,
 } = require('../controllers/page-details-controller');
 
-router.get('/page-details/:pageDetailsId?', auth, getPageDetails);
-router.post('/page-details', auth, createPageDetails);
-router.put('/page-details/:pageDetailsId', auth, updatePageDetails);
-router.delete('/page-details/:pageDetailsId', auth, deletePageDetails);
+router.get('/page-details/:pageDetailsId?', auth, grandAccess('readAny', 'pageDetails'), getPageDetails);
+router.post('/page-details', auth, grandAccess('readAny', 'pageDetails'), createPageDetails);
+router.put('/page-details/:pageDetailsId', auth, grandAccess('readAny', 'pageDetails'), updatePageDetails);
+router.delete('/page-details/:pageDetailsId', auth, grandAccess('readAny', 'pageDetails'), deletePageDetails);
 
 module.exports = router;
