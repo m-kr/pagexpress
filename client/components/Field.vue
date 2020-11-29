@@ -86,6 +86,6 @@ export default {
 
 <style lang="postcss" scoped>
 .field-wrapper {
-  margin-bottom: var(--spacing);
+  padding-bottom: var(--spacing);
 }
 </style>
