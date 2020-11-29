@@ -11,17 +11,17 @@ const pageTypes = require('./page-types-routes');
 const pages = require('./pages-routes');
 const users = require('./users-routes');
 
-module.exports = {
-  auth,
-  componentPatterns,
-  countries,
-  fields,
-  menu,
-  pageAttributeTypes,
-  pageDetails,
-  pageStructure,
-  pageTemplates,
-  pageTypes,
-  pages,
-  users,
+module.exports = app => {
+  app.use('/v1', auth);
+  app.use('/v1', componentPatterns);
+  app.use('/v1', countries);
+  app.use('/v1', fields);
+  app.use('/v1', menu);
+  app.use('/v1', pageAttributeTypes);
+  app.use('/v1', pageDetails);
+  app.use('/v1', pageStructure);
+  app.use('/v1', pageTemplates);
+  app.use('/v1', pageTypes);
+  app.use('/v1', pages);
+  app.use('/v1', users);
 };

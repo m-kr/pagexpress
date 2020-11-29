@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const auth = require('../middleware/auth');
+const { auth, grandAccess } = require('../middleware');
 const {
   getPageTypes,
   createPageType,
@@ -7,9 +7,9 @@ const {
   deletePageType,
 } = require('../controllers/page-types-controller');
 
-router.get('/page-types/:pageTypeId?', auth, getPageTypes);
-router.post('/page-types', auth, createPageType);
-router.put('/page-types/:pageTypeId', auth, updatePageType);
-router.delete('/page-types/:pageTypeId', auth, deletePageType);
+router.get('/page-types/:pageTypeId?', auth, grandAccess('readAny', 'pageType'), getPageTypes);
+router.post('/page-types', auth, grandAccess('createOwn', 'pageType'), createPageType);
+router.put('/page-types/:pageTypeId', auth, grandAccess('updateAny', 'pageType'), updatePageType);
+router.delete('/page-types/:pageTypeId', auth, grandAccess('deleteAny', 'pageType'), deletePageType);
 
 module.exports = router;

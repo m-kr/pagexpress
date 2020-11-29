@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const auth = require('../middleware/auth');
+const { auth, grandAccess } = require('../middleware');
 const {
   getPageTemplates,
   createPageTemplate,
@@ -7,9 +7,9 @@ const {
   deletePageTemplate,
 } = require('../controllers/page-templates-controller');
 
-router.get('/page-templates/:pageTemplateId?', auth, getPageTemplates);
-router.post('/page-templates', auth, createPageTemplate);
-router.put('/page-templates/:pageTemplateId', auth, updatePageTemplate);
-router.delete('/page-templates/:pageTemplateId', auth, deletePageTemplate);
+router.get('/page-templates/:pageTemplateId?', auth, grandAccess('readAny', 'pageTemplate'), getPageTemplates);
+router.post('/page-templates', auth, grandAccess('createOwn', 'pageTemplate'), createPageTemplate);
+router.put('/page-templates/:pageTemplateId', auth, grandAccess('updateAny', 'pageTemplate'), updatePageTemplate);
+router.delete('/page-templates/:pageTemplateId', auth, grandAccess('deleteAny', 'pageTemplate'), deletePageTemplate);
 
 module.exports = router;

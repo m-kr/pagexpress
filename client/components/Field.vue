@@ -83,3 +83,9 @@ export default {
   },
 };
 </script>
+
+<style lang="postcss" scoped>
+.field-wrapper {
+  padding-bottom: var(--spacing);
+}
+</style>

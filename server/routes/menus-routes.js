@@ -1,15 +1,10 @@
 const router = require('express').Router();
-const auth = require('../middleware/auth');
-const {
-  getMenus,
-  createMenu,
-  updateMenu,
-  deleteMenu,
-} = require('../controllers/menus-controller');
+const { auth, grandAccess } = require('../middleware');
+const { getMenus, createMenu, updateMenu, deleteMenu } = require('../controllers/menus-controller');
 
-router.get('/menus/:menuId?', auth, getMenus);
-router.post('/menus/', auth, createMenu);
-router.put('/menus/:menuId', auth, updateMenu);
-router.delete('/menus/:menuId', auth, deleteMenu);
+router.get('/menus/:menuId?', auth, grandAccess('readAny', 'menu'), getMenus);
+router.post('/menus/', auth, grandAccess('createOwn', 'menu'), createMenu);
+router.put('/menus/:menuId', auth, grandAccess('', 'menu'), updateMenu);
+router.delete('/menus/:menuId', auth, grandAccess('readAny', 'menu'), deleteMenu);
 
 module.exports = router;
