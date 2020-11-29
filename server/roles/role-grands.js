@@ -25,12 +25,12 @@ const roleGrands = () => {
     .readAny('pageDetails')
     .updateAny('pageDetails')
     .deleteAny('pageDetails')
-    .readAny('menu');
+    .readAny('menu')
+    .updateAny('menu');
 
   ac.grant(DEV)
     .extend(REDACTOR)
     .createAny('menu')
-    .updateAny('menu')
     .deleteAny('menu')
     .createAny('componentPattern')
     .readAny('componentPattern')
