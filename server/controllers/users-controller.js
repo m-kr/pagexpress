@@ -1,32 +1,37 @@
 const { User, userValidationSchema } = require('../models/User');
 const bcrypt = require('bcrypt');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const authUser = (req, res) => {
+const authUser = (req, res, next) => {
   try {
-    console.log('user', res.user);
-    res.send(res.user);
+    res.json(res.user);
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    next(err);
   }
 };
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    const query = (await userId) ? User.findById(userId) : User.find();
+    const query = userId ? User.findById(userId) : User.find();
     const data = await query.exec();
-    res.send(data);
+
+    if (userId && !data) {
+      throw new NotFound('User not exist');
+    }
+
+    res.json(data);
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    next(err);
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const { error } = userValidationSchema.validate(req.body);
 
   if (error) {
-    return res.status(400).send({ error: error.details[0].message });
+    throw new BadRequest(error.details[0].message);
   }
 
   const { email, username, password } = req.body;
@@ -34,7 +39,7 @@ const createUser = async (req, res) => {
   const userByUsername = await User.findOne({ username });
 
   if (userByEmail || userByUsername) {
-    return res.status(400).send({ error: 'User already exists' });
+    throw new BadRequest('User already exists');
   }
 
   try {
@@ -42,16 +47,16 @@ const createUser = async (req, res) => {
     // Hash password
     const salt = await bcrypt.genSalt(10);
     newUser.password = await bcrypt.hash(password, salt);
-    newUser.save();
+    await newUser.save();
 
     const token = newUser.generateAuthToken();
     res.send({ token });
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    next(err);
   }
 };
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
   const { userId } = req.params;
   const { password } = req.body;
 
@@ -60,29 +65,29 @@ const resetPassword = async (req, res) => {
   const { error } = userValidationSchema.validate({ username: user.username, email: user.email, password });
 
   if (error) {
-    return res.status(400).send({ error: error.details[0].message });
+    throw new BadRequest(error.details[0].message);
   }
 
   try {
     // Hash password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
-    user.save();
+    await user.save();
     const token = user.generateAuthToken();
-    res.send({ token, userId });
+    res.json({ token, userId });
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
     await User.findByIdAndRemove(userId);
     res.send(userId);
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    next(err);
   }
 };
 

@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { auth, grandAccess } = require('../middleware');
+const { auth, grandAccess } = require('../middlewares');
 const { authUser, getUsers, createUser, resetPassword, deleteUser } = require('../controllers/users-controller');
 
 router.get('/users/me', auth, grandAccess('readOwn', 'user'), authUser);

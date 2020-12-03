@@ -1,8 +1,9 @@
 const { Page, pageValidationSchema } = require('../models/Page');
 const { PageType } = require('../models/PageType');
 const ListFeatures = require('../utils/ListFeatures');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const getPages = async (req, res) => {
+const getPages = async (req, res, next) => {
   const { pageId } = req.params;
 
   try {
@@ -21,9 +22,7 @@ const getPages = async (req, res) => {
         .exec();
 
       if (!singlePage) {
-        res.status(401).send('Page not exist');
-
-        return;
+        throw new NotFound('Page not exist');
       }
 
       const { type } = singlePage.toObject();
@@ -34,7 +33,7 @@ const getPages = async (req, res) => {
         type: attribute.type.type,
       }));
 
-      res.send({
+      res.json({
         pageType: pageTypeData.name,
         attributesSchema: pageTypeAttributesSchema,
         data: singlePage,
@@ -65,7 +64,7 @@ const getPages = async (req, res) => {
         .limit(limit)
         .exec();
 
-      res.send({
+      res.json({
         currentPage,
         totalPages,
         itemsPerPage,
@@ -73,15 +72,15 @@ const getPages = async (req, res) => {
       });
     }
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createPage = async (req, res) => {
+const createPage = async (req, res, next) => {
   const { error } = pageValidationSchema.validate(req.body);
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
 
   try {
@@ -89,34 +88,34 @@ const createPage = async (req, res) => {
     await page.save();
     res.send(page._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updatePage = async (req, res) => {
+const updatePage = async (req, res, next) => {
   const { error } = pageValidationSchema.validate(req.body);
   const { pageId } = req.params;
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
 
   try {
     const page = await Page.findOneAndUpdate({ _id: pageId }, req.body);
-    res.send(page);
+    res.json(page);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deletePage = async (req, res) => {
+const deletePage = async (req, res, next) => {
   const { pageId } = req.params;
 
   try {
     await Page.findByIdAndRemove(pageId);
     res.send(pageId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 

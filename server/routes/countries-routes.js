@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { auth, grandAccess } = require('../middleware');
+const { auth, grandAccess } = require('../middlewares');
 const { getCountries, createCountry, updateCountry, deleteCountry } = require('../controllers/countries-controller');
 
 router.get('/countries/:countryId?', auth, grandAccess('readAny', 'country'), getCountries);

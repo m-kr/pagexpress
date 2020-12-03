@@ -1,58 +1,63 @@
 const { PageTemplate, pageTemplateValidationSchema } = require('../models/PageTemplate');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const getPageTemplates = async (req, res) => {
+const getPageTemplates = async (req, res, next) => {
   const { pageTemplateId } = req.params;
 
   try {
-    const query = (await pageTemplateId) ? PageTemplate.findById(pageTemplateId) : PageTemplate.find();
+    const query = pageTemplateId ? PageTemplate.findById(pageTemplateId) : PageTemplate.find();
     const data = await query.exec();
-    res.send(data);
+
+    if (pageTemplateId && !data) {
+      throw new NotFound('Page template not exist');
+    }
+
+    res.json(data);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createPageTemplate = async (req, res) => {
+const createPageTemplate = async (req, res, next) => {
   const { error } = pageTemplateValidationSchema.validate(req.body);
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
 
   try {
     const pageTemplate = new PageTemplate(req.body);
-    pageTemplate.save();
+    await pageTemplate.save();
     res.send(pageTemplate._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updatePageTemplate = async (req, res) => {
+const updatePageTemplate = async (req, res, next) => {
   const { error } = pageTemplateValidationSchema.validate(req.body);
+  const { pageTemplateId } = req.params;
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
-
-  const { pageTemplateId } = req.params;
 
   try {
     const pageTemplate = await PageTemplate.findOneAndUpdate({ _id: pageTemplateId }, req.body);
-    res.send(pageTemplate);
+    res.json(pageTemplate);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deletePageTemplate = async (req, res) => {
+const deletePageTemplate = async (req, res, next) => {
   const { pageTemplateId } = req.params;
 
   try {
     await PageTemplate.findByIdAndRemove(pageTemplateId);
     res.send(pageTemplateId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 

@@ -2,8 +2,9 @@ const { Page } = require('../models/Page');
 const { ComponentPattern } = require('../models/ComponentPattern');
 const { buildPageStructure } = require('../utils/page-structure');
 const R = require('ramda');
+const { NotFound } = require('../utils/errors');
 
-const getPageStructure = async (req, res) => {
+const getPageStructure = async (req, res, next) => {
   const { pageId } = req.params;
 
   try {
@@ -25,9 +26,7 @@ const getPageStructure = async (req, res) => {
       .exec();
 
     if (!pageData) {
-      res.status(401).send(`Page with ID ${pageId} doesn't exist`);
-
-      return;
+      throw new NotFound(`Page with ID ${pageId} doesn't exist`);
     }
 
     const componentPatterns = await ComponentPattern.find().exec();
@@ -50,9 +49,9 @@ const getPageStructure = async (req, res) => {
       }),
     };
 
-    res.send(pageVariantsSelectedData);
+    res.json(pageVariantsSelectedData);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 

@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { PageDetails, pageDetailsValidationSchema } = require('../models/PageDetails');
 const { Page } = require('../models/Page');
-const { buildPageDetailsStructure } = require('../utils/page-structure');
+const { BadRequest, NotFound } = require('../utils/errors');
 
 const hasComponentsUniqueIds = components => {
   if (!(components && components.length)) {
@@ -11,27 +11,7 @@ const hasComponentsUniqueIds = components => {
   return _.uniqBy(components, component => component._id);
 };
 
-const getPageDetailsStructure = async (req, res) => {
-  const { pageDetailsId } = req.params;
-
-  try {
-    const pageDetails = await PageDetails.findById(pageDetailsId)
-      .populate({
-        path: 'components.component',
-        select: '_id name description',
-      })
-      .populate('pageDetails type attributes')
-      .select('url description components');
-
-    const structure = buildPageDetailsStructure(pageDetails.toObject().components);
-
-    res.send(structure);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-};
-
-const getPageDetails = async (req, res) => {
+const getPageDetails = async (req, res, next) => {
   const { pageDetailsId } = req.params;
 
   try {
@@ -39,10 +19,10 @@ const getPageDetails = async (req, res) => {
       const singlePageDetails = await PageDetails.findById(pageDetailsId);
 
       if (!singlePageDetails) {
-        return res.status(400).send(`There is no page details with id: ${pageDetailsId}`);
+        throw new NotFound(`There is no page details with id: ${pageDetailsId}`);
       }
 
-      res.send(singlePageDetails);
+      res.json(singlePageDetails);
     } else {
       const query = req.body.pageId ? { pageId: req.body.pageId } : {};
       const pageDetails = await PageDetails.find(query)
@@ -52,31 +32,30 @@ const getPageDetails = async (req, res) => {
         })
         .exec();
 
-      res.send(pageDetails);
+      res.json(pageDetails);
     }
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createPageDetails = async (req, res) => {
+const createPageDetails = async (req, res, next) => {
   const { error } = pageDetailsValidationSchema.validate(req.body);
+  const page = await Page.findById(req.body.pageId);
 
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
 
-  const page = await Page.findById(req.body.pageId);
-
   if (!page) {
-    return res.status(400).send('Page not exist');
+    throw new BadRequest('Page not exist');
   }
 
   if (req.body.components) {
     const uniqueComponents = hasComponentsUniqueIds(req.body.components);
 
     if (!uniqueComponents) {
-      return res.status(400).send('Component Id is not unique');
+      throw new BadRequest('componentId is not unique');
     }
   }
 
@@ -92,22 +71,22 @@ const createPageDetails = async (req, res) => {
     await Page.findOneAndUpdate({ _id: pageDetails.pageId }, { $push: { pageDetails: pageDetails } });
     res.send(pageDetails._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updatePageDetails = async (req, res) => {
+const updatePageDetails = async (req, res, next) => {
   const { error } = pageDetailsValidationSchema.validate(req.body);
   const { pageDetailsId } = req.params;
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
 
   const uniqueComponents = hasComponentsUniqueIds(req.body.components);
 
   if (!uniqueComponents) {
-    return res.status(400).send('Component Id is not unique');
+    throw new BadRequest('Component Id is not unique');
   }
 
   try {
@@ -116,26 +95,25 @@ const updatePageDetails = async (req, res) => {
     }
 
     const pageDetails = await PageDetails.findOneAndUpdate({ _id: pageDetailsId }, req.body);
-    res.send(pageDetails);
+    res.json(pageDetails);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deletePageDetails = async (req, res) => {
+const deletePageDetails = async (req, res, next) => {
   const { pageDetailsId } = req.params;
 
   try {
     await PageDetails.findByIdAndRemove(pageDetailsId);
     res.send(pageDetailsId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
 module.exports = {
   getPageDetails,
-  getPageDetailsStructure,
   createPageDetails,
   updatePageDetails,
   deletePageDetails,

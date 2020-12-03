@@ -1,58 +1,63 @@
 const { PageType, pageTypeValidationSchema } = require('../models/PageType');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const getPageTypes = async (req, res) => {
+const getPageTypes = async (req, res, next) => {
   const { pageTypeId } = req.params;
 
   try {
-    const query = (await pageTypeId) ? PageType.findById(pageTypeId) : PageType.find();
+    const query = pageTypeId ? PageType.findById(pageTypeId) : PageType.find();
     const data = await query.exec();
-    res.send(data);
+
+    if (pageTypeId && !data) {
+      throw new NotFound('Page type not exist');
+    }
+
+    res.json(data);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createPageType = async (req, res) => {
+const createPageType = async (req, res, next) => {
   const { error } = pageTypeValidationSchema.validate(req.body);
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
 
   try {
     const pageType = new PageType(req.body);
-    pageType.save();
+    await pageType.save();
     res.send(pageType._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updatePageType = async (req, res) => {
+const updatePageType = async (req, res, next) => {
   const { error } = pageTypeValidationSchema.validate(req.body);
+  const { pageTypeId } = req.params;
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
-
-  const { pageTypeId } = req.params;
 
   try {
     const pageType = await PageType.findOneAndUpdate({ _id: pageTypeId }, req.body);
-    res.send(pageType);
+    res.json(pageType);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deletePageType = async (req, res) => {
+const deletePageType = async (req, res, next) => {
   const { pageTypeId } = req.params;
 
   try {
     await PageType.findByIdAndRemove(pageTypeId);
     res.send(pageTypeId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 

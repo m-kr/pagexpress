@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { auth, grandAccess } = require('../middleware');
+const { auth, grandAccess } = require('../middlewares');
 
 const {
   getComponentPatterns,
@@ -17,14 +17,14 @@ router.get(
 router.post('/component-patterns', auth, grandAccess('createOwn', 'componentPattern'), createComponentPattern);
 router.put(
   '/component-patterns/:componentPatternId',
-  grandAccess('updateAny', 'componentPattern'),
   auth,
+  grandAccess('updateAny', 'componentPattern'),
   updateComponentPattern
 );
 router.delete(
   '/component-patterns/:componentPatternId',
-  grandAccess('deleteAny', 'componentPattern'),
   auth,
+  grandAccess('deleteAny', 'componentPattern'),
   deleteComponentPattern
 );
 

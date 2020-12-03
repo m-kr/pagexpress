@@ -1,32 +1,28 @@
 const { Country, countryValidationSchema } = require('../models/Country');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const getCountries = async (req, res) => {
+const getCountries = async (req, res, next) => {
   const { countryId } = req.params;
 
   try {
-    if (countryId) {
-      const singleCountry = await Country.findById(countryId);
+    const query = countryId ? Country.findById(countryId) : Country.find();
+    const data = await query.exec();
 
-      if (!singleCountry) {
-        throw new Error('Country not exist');
-      }
-
-      res.send(singleCountry);
-    } else {
-      const countries = await Country.find();
-
-      res.send(countries);
+    if (countryId && !data) {
+      throw new NotFound('Country not exist');
     }
+
+    res.json(data);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createCountry = async (req, res) => {
+const createCountry = async (req, res, next) => {
   const { error } = countryValidationSchema.validate(req.body);
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
 
   try {
@@ -34,34 +30,34 @@ const createCountry = async (req, res) => {
     await country.save();
     res.send(country._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updateCountry = async (req, res) => {
+const updateCountry = async (req, res, next) => {
   const { error } = countryValidationSchema.validate(req.body);
   const { countryId } = req.params;
 
   if (error) {
-    return res.status(400).send(error.details[0].message);
+    throw new BadRequest(error.details[0].message);
   }
 
   try {
     const country = await Country.findOneAndUpdate({ _id: countryId }, req.body);
-    res.send(country);
+    res.json(country);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deleteCountry = async (req, res) => {
+const deleteCountry = async (req, res, next) => {
   const { countryId } = req.params;
 
   try {
     await Country.findByIdAndRemove(countryId);
     res.send(countryId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
