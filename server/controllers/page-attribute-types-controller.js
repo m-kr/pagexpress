@@ -21,17 +21,17 @@ const getPageAttributeTypes = async (req, res, next) => {
 const createPageAttributeType = async (req, res, next) => {
   const { error } = pageTypeAttributeValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
-  const existedAttributeWithName = await PageAttributeType.findOne({ name: req.body.type });
-
-  if (existedAttributeWithName) {
-    throw BadRequest(`Attribute "${req.body.type}" already exists`);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
+    const existedAttributeWithName = await PageAttributeType.findOne({ name: req.body.type });
+
+    if (existedAttributeWithName) {
+      throw BadRequest(`Attribute "${req.body.type}" already exists`);
+    }
+
     const pageAttributeType = new PageAttributeType(req.body);
     await pageAttributeType.save();
     res.send(pageAttributeType._id);
@@ -44,11 +44,11 @@ const updatePageAttributeType = async (req, res, next) => {
   const { error } = pageTypeAttributeValidationSchema.validate(req.body);
   const { pageAttributeTypeId } = req.params;
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const pageAttributeType = await PageAttributeType.findOneAndUpdate({ _id: pageAttributeTypeId }, req.body);
     res.json(pageAttributeType);
   } catch (err) {

@@ -30,19 +30,19 @@ const getUsers = async (req, res, next) => {
 const createUser = async (req, res, next) => {
   const { error } = userValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
-  const { email, username, password } = req.body;
-  const userByEmail = await User.findOne({ email });
-  const userByUsername = await User.findOne({ username });
-
-  if (userByEmail || userByUsername) {
-    throw new BadRequest('User already exists');
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
+    const { email, username, password } = req.body;
+    const userByEmail = await User.findOne({ email });
+    const userByUsername = await User.findOne({ username });
+
+    if (userByEmail || userByUsername) {
+      throw new BadRequest('User already exists');
+    }
+
     const newUser = new User({ username, email, password });
     // Hash password
     const salt = await bcrypt.genSalt(10);
@@ -60,15 +60,15 @@ const resetPassword = async (req, res, next) => {
   const { userId } = req.params;
   const { password } = req.body;
 
-  const user = await User.findById(userId);
-
-  const { error } = userValidationSchema.validate({ username: user.username, email: user.email, password });
-
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    const user = await User.findById(userId);
+
+    const { error } = userValidationSchema.validate({ username: user.username, email: user.email, password });
+
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     // Hash password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);

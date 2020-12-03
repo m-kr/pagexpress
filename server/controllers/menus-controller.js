@@ -21,11 +21,11 @@ const getMenus = async (req, res, next) => {
 const createMenu = async (req, res, next) => {
   const { error } = menuValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const menu = new Menu(req.body);
     await menu.save();
     res.send(menu._id);
@@ -38,11 +38,11 @@ const updateMenu = async (req, res, next) => {
   const { error } = menuValidationSchema.validate(req.body);
   const { menuId } = req.params;
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const menu = await Menu.findOneAndUpdate({ _id: menuId }, req.body);
     res.json(menu);
   } catch (err) {

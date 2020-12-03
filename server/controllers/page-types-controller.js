@@ -21,11 +21,11 @@ const getPageTypes = async (req, res, next) => {
 const createPageType = async (req, res, next) => {
   const { error } = pageTypeValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const pageType = new PageType(req.body);
     await pageType.save();
     res.send(pageType._id);
@@ -38,11 +38,11 @@ const updatePageType = async (req, res, next) => {
   const { error } = pageTypeValidationSchema.validate(req.body);
   const { pageTypeId } = req.params;
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const pageType = await PageType.findOneAndUpdate({ _id: pageTypeId }, req.body);
     res.json(pageType);
   } catch (err) {

@@ -21,11 +21,11 @@ const getCountries = async (req, res, next) => {
 const createCountry = async (req, res, next) => {
   const { error } = countryValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const country = new Country(req.body);
     await country.save();
     res.send(country._id);
@@ -38,11 +38,11 @@ const updateCountry = async (req, res, next) => {
   const { error } = countryValidationSchema.validate(req.body);
   const { countryId } = req.params;
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const country = await Country.findOneAndUpdate({ _id: countryId }, req.body);
     res.json(country);
   } catch (err) {

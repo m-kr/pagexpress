@@ -41,25 +41,26 @@ const getPageDetails = async (req, res, next) => {
 
 const createPageDetails = async (req, res, next) => {
   const { error } = pageDetailsValidationSchema.validate(req.body);
-  const page = await Page.findById(req.body.pageId);
-
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
-  if (!page) {
-    throw new BadRequest('Page not exist');
-  }
-
-  if (req.body.components) {
-    const uniqueComponents = hasComponentsUniqueIds(req.body.components);
-
-    if (!uniqueComponents) {
-      throw new BadRequest('componentId is not unique');
-    }
-  }
 
   try {
+    const page = await Page.findById(req.body.pageId);
+
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
+    if (!page) {
+      throw new BadRequest('Page not exist');
+    }
+
+    if (req.body.components) {
+      const uniqueComponents = hasComponentsUniqueIds(req.body.components);
+
+      if (!uniqueComponents) {
+        throw new BadRequest('componentId is not unique');
+      }
+    }
+
     if (req.body.default === true) {
       await PageDetails.updateMany({ pageId: req.body.pageId }, { default: false });
     }
@@ -79,17 +80,17 @@ const updatePageDetails = async (req, res, next) => {
   const { error } = pageDetailsValidationSchema.validate(req.body);
   const { pageDetailsId } = req.params;
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
-  const uniqueComponents = hasComponentsUniqueIds(req.body.components);
-
-  if (!uniqueComponents) {
-    throw new BadRequest('Component Id is not unique');
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
+    const uniqueComponents = hasComponentsUniqueIds(req.body.components);
+
+    if (!uniqueComponents) {
+      throw new BadRequest('Component Id is not unique');
+    }
+
     if (req.body.default === true) {
       await PageDetails.updateMany({ pageId: req.body.pageId }, { default: false });
     }

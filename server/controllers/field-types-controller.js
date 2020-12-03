@@ -21,11 +21,11 @@ const getFieldTypes = async (req, res, next) => {
 const createFieldType = async (req, res, next) => {
   const { error } = fieldTypeValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const fieldType = new FieldType(req.body);
 
     fieldType.save();
@@ -38,11 +38,11 @@ const createFieldType = async (req, res, next) => {
 const updateFieldType = async (req, res, next) => {
   const { error } = fieldTypeValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const { fieldTypeId } = req.params;
     const fieldType = FieldType.findOneAndUpdate({ _id: fieldTypeId }, req.body);
     res.json(fieldType);

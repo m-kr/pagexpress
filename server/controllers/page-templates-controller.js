@@ -21,11 +21,11 @@ const getPageTemplates = async (req, res, next) => {
 const createPageTemplate = async (req, res, next) => {
   const { error } = pageTemplateValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const pageTemplate = new PageTemplate(req.body);
     await pageTemplate.save();
     res.send(pageTemplate._id);
@@ -38,11 +38,11 @@ const updatePageTemplate = async (req, res, next) => {
   const { error } = pageTemplateValidationSchema.validate(req.body);
   const { pageTemplateId } = req.params;
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const pageTemplate = await PageTemplate.findOneAndUpdate({ _id: pageTemplateId }, req.body);
     res.json(pageTemplate);
   } catch (err) {

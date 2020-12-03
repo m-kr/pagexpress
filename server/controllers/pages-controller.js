@@ -79,11 +79,11 @@ const getPages = async (req, res, next) => {
 const createPage = async (req, res, next) => {
   const { error } = pageValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const page = new Page(req.body);
     await page.save();
     res.send(page._id);
@@ -96,11 +96,11 @@ const updatePage = async (req, res, next) => {
   const { error } = pageValidationSchema.validate(req.body);
   const { pageId } = req.params;
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const page = await Page.findOneAndUpdate({ _id: pageId }, req.body);
     res.json(page);
   } catch (err) {

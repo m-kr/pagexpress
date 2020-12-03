@@ -21,11 +21,11 @@ const getComponentPatterns = async (req, res, next) => {
 const createComponentPattern = async (req, res, next) => {
   const { error } = componentPatternValidationSchema.validate(req.body);
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const componentPattern = new ComponentPattern(req.body);
     await componentPattern.save();
     res.send(componentPattern._id);
@@ -38,11 +38,11 @@ const updateComponentPattern = async (req, res, next) => {
   const { error } = componentPatternValidationSchema.validate(req.body);
   const { componentPatternId } = req.params;
 
-  if (error) {
-    throw new BadRequest(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const componentPattern = await ComponentPattern.findOneAndUpdate({ _id: componentPatternId }, req.body);
     res.json(componentPattern);
   } catch (err) {
