@@ -1,4 +1,4 @@
-import { formatRequestError } from '@/utils';
+import { showRequestResult } from '@/utils';
 
 export const state = () => ({
   newPageId: null,
@@ -63,75 +63,70 @@ export const mutations = {
     }
   },
 
-  RESET_UNSAVE_DATA(state) {
+  RESET_UNSAVED_DATA(state) {
     state.unsavedData = [];
   },
 };
 
 export const actions = {
-  async fetchPageData({ commit, dispatch, state }, { pageId, reload }) {
-    if (state.pageData && !reload) {
-      return;
-    }
+  async fetchPageData({ commit, dispatch, state }, { pageId }) {
+    const pageData = await showRequestResult({
+      request: this.$axios.get(`pages/${pageId}`),
+      dispatch,
+    });
 
-    const { data } = await this.$axios.get(`pages/${pageId}`).catch(
-      error =>
-        dispatch('notifications/error', formatRequestError(error), {
-          root: true,
-        }),
-      { root: true }
-    );
-
-    commit('FETCH_PAGE_DATA', data);
+    commit('FETCH_PAGE_DATA', pageData);
   },
 
   async updatePage({ commit, dispatch, state }) {
     const { type, url, name } = state.mainData;
 
-    await this.$axios
-      .put(`pages/${state.mainData._id}`, {
+    const updatedMainPageData = await showRequestResult({
+      request: this.$axios.put(`pages/${state.mainData._id}`, {
         attributes: state.pageAttributes,
         name,
         pageDetails: state.pageVariants.map(variant => variant._id),
         type: type._id,
         url,
-      })
-      .catch(
-        error =>
-          dispatch('notifications/error', formatRequestError(error), {
-            root: true,
-          }),
-        { root: true }
-      );
+      }),
+      dispatch,
+    });
 
-    if (state.unsavedData.includes('pageDetails')) {
+    let savedAllData =
+      updatedMainPageData && !state.unsavedData.includes('pageDetails');
+
+    if (!savedAllData) {
       const { _id, title, name, description, country } = state.pageDetails;
 
-      await this.$axios.put(`page-details/${_id}`, {
-        country,
-        description,
-        name,
-        pageId: state.mainData._id,
-        title,
+      const saveDetailsResult = await showRequestResult({
+        request: this.$axios.put(`page-details/${_id}`, {
+          country,
+          description,
+          name,
+          pageId: state.mainData._id,
+          title,
+        }),
+        dispatch,
       });
+
+      savedAllData = !!saveDetailsResult;
     }
 
-    dispatch('notifications/success', 'Saved', { root: true });
-    commit('RESET_UNSAVE_DATA');
+    if (savedAllData) {
+      dispatch('notifications/success', 'Saved', { root: true });
+      commit('RESET_UNSAVED_DATA');
+    }
   },
 
   async addPage({ commit, dispatch, state }, pageData) {
-    const { data } = await this.$axios.post(`pages`, pageData).catch(
-      error =>
-        dispatch('notifications/error', formatRequestError(error), {
-          root: true,
-        }),
-      { root: true }
-    );
+    const newPageData = await showRequestResult({
+      request: this.$axios.post('pages', pageData),
+      successMessage: 'Created new page',
+      dispatch,
+    });
 
-    if (data) {
-      dispatch('notifications/success', 'Created page', { root: true });
-      commit('ADD_PAGE', data);
+    if (newPageData) {
+      commit('ADD_PAGE', newPageData);
     }
   },
 
@@ -140,27 +135,10 @@ export const actions = {
       return;
     }
 
-    const { data } = await this.$axios.delete(`pages/${pageId}`).catch(
-      error =>
-        dispatch('notifications/error', formatRequestError(error), {
-          root: true,
-        }),
-      { root: true }
-    );
-
-    if (data) {
-      commit('REMOVE_PAGE', pageId);
-      dispatch('notifications/success', 'Removed page', { root: true });
-
-      return true;
-    } else {
-      dispatch(
-        'notifications/error',
-        'Unknown error: Page can not be removed',
-        {
-          root: true,
-        }
-      );
-    }
+    return await showRequestResult({
+      request: this.$axios.delete(`pages/${pageId}`),
+      successMessage: 'Page has been removed',
+      dispatch,
+    });
   },
 };

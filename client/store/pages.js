@@ -1,4 +1,4 @@
-import { formatRequestError } from '@/utils';
+import { showRequestResult } from '@/utils';
 
 export const state = () => ({
   currentPage: 1,
@@ -31,21 +31,21 @@ export const mutations = {
 
 export const actions = {
   async loadPages({ commit, dispatch, state }, { nextPage } = {}) {
-    const { data } = await this.$axios
-      .get('pages', {
+    const pages = await showRequestResult({
+      request: this.$axios.get('pages', {
         params: {
           page: nextPage || state.currentPage,
           limit: state.itemsPerPage,
           search: state.search,
           sort: state.sort,
         },
-      })
-      .catch(
-        error => dispatch('notifications/error', formatRequestError(error)),
-        { root: true }
-      );
+      }),
+      dispatch,
+    });
 
-    return commit('LOAD_PAGES', data);
+    if (pages) {
+      commit('LOAD_PAGES', pages);
+    }
   },
 
   async removePage({ commit, dispatch }, pageId) {
@@ -53,7 +53,9 @@ export const actions = {
       root: true,
     });
 
-    if (removingPageSuccess) commit('REMOVE_PAGE', pageId);
+    if (removingPageSuccess) {
+      commit('REMOVE_PAGE', pageId);
+    }
   },
 
   async changePage({ state, dispatch }, targetPage) {

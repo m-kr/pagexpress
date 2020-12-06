@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 import {
-  formatRequestError,
   getPageStructureFromTemplate,
-  getRequestData,
+  showRequestResult,
   reorderItems,
 } from '@/utils';
 
@@ -86,45 +85,46 @@ export const mutations = {
 
 export const actions = {
   async fetchPageDetails({ commit, dispatch }, pageDetailsId) {
-    const { data } = await this.$axios
-      .get(`page-details/${pageDetailsId}`)
-      .catch(error =>
-        dispatch('notifications/error', formatRequestError(error), {
-          root: true,
-        })
-      );
+    const pageDetailsData = await showRequestResult({
+      request: this.$axios.get(`page-details/${pageDetailsId}`),
+      dispatch,
+    });
 
-    commit('FETCH_PAGE_DETAILS', data);
+    if (pageDetailsData) {
+      commit('FETCH_PAGE_DETAILS', pageDetailsData);
+    }
   },
 
   async addPageDetails(
     { commit, dispatch, state },
     { pageId, templateComponents }
   ) {
-    const pageDetailsId = await getRequestData({
+    const pageDetailsId = await showRequestResult({
       request: this.$axios.post(`page-details`, {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
         components: getPageStructureFromTemplate(templateComponents),
         pageId,
       }),
+      successMessage: 'Added page variant',
       dispatch,
     });
 
-    dispatch('notifications/success', 'Added page variant', { root: true });
-    commit(
-      'page/ADD_VARIANT',
-      {
-        ...state.details,
-        _id: pageDetailsId,
-      },
-      { root: true }
-    );
-    commit('RESET_DETAILS');
+    if (pageDetailsId) {
+      commit(
+        'page/ADD_VARIANT',
+        {
+          ...state.details,
+          _id: pageDetailsId,
+        },
+        { root: true }
+      );
+      commit('RESET_DETAILS');
+    }
   },
 
   async savePageDetails({ state, dispatch }) {
     const components = [...state.components];
-    await getRequestData({
+    await showRequestResult({
       request: this.$axios.put(`page-details/${state.details._id}`, {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
         components,
@@ -138,14 +138,16 @@ export const actions = {
       return;
     }
 
-    await getRequestData({
+    const removedPageDetailsId = await showRequestResult({
       request: this.$axios.delete(`page-details/${pageDetailsId}`),
+      successMessage: 'Removed page variant',
       dispatch,
     });
 
-    dispatch('notifications/success', 'Removed page variant', { root: true });
-    commit('page/REMOVE_VARIANT', pageDetailsId, { root: true });
-    commit('REMOVE_PAGE_DETAILS');
+    if (removedPageDetailsId) {
+      commit('page/REMOVE_VARIANT', pageDetailsId, { root: true });
+      commit('REMOVE_PAGE_DETAILS');
+    }
   },
 
   addComponent({ commit, dispatch }, newComponentData) {
