@@ -1,3 +1,5 @@
+import { showRequestResult } from '@/utils';
+
 export const state = () => ({
   patterns: null,
 });
@@ -9,13 +11,12 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchPatterns({ commit, state }) {
-    if (state.patterns) {
-      return;
-    }
+  async fetchPatterns({ commit, dispatch }) {
+    const patterns = await showRequestResult({
+      request: this.$axios.get('component-patterns'),
+      dispatch,
+    });
 
-    const { data } = await this.$axios.get('component-patterns');
-
-    return commit('FETCH_PATTERNS', data);
+    commit('FETCH_PATTERNS', patterns);
   },
 };

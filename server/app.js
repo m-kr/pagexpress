@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const errorHandler = require('./middlewares/error-handler');
 
 const rootPath = path.join(__dirname, '../');
 require('dotenv').config({ path: `${rootPath}.env` });
@@ -18,6 +19,7 @@ app.use(bodyParser.json());
 app.use(cors());
 require('./db/db-connect')(config.get('mongodb'));
 require('./routes')(app);
+app.use(errorHandler);
 
 const serverConfig = config.get('server');
 app.listen(serverConfig.port, serverConfig.host);

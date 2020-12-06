@@ -1,22 +1,29 @@
 const { User } = require('../models/User');
 const bcrypt = require('bcrypt');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const auth = async (req, res) => {
+const auth = async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  let user;
+
+  try {
+    user = await User.findOne({ email });
+  } catch (err) {
+    next(err);
+  }
 
   if (!user) {
-    return res.status(400).send({ error: 'Invalid email or password' });
+    throw new NotFound('No user with provided email');
   }
 
   const validPassword = await bcrypt.compare(password, user.password);
 
   if (!validPassword) {
-    return res.status(400).send({ error: 'Invalid email or password' });
+    throw new BadRequest('Invalid password');
   }
 
   const token = user.generateAuthToken();
-  res.send({ token });
+  res.json({ token });
 };
 
 module.exports = auth;

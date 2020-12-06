@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { auth, grandAccess } = require('../middleware');
+const { auth, grandAccess } = require('../middlewares');
 const {
   getFieldTypes,
   createFieldType,

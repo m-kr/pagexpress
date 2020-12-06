@@ -1,58 +1,63 @@
 const { Menu, menuValidationSchema } = require('../models/Menu');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const getMenus = async (req, res) => {
+const getMenus = async (req, res, next) => {
   const { menuId } = req.params;
 
   try {
-    const query = (await menuId) ? Menu.findById(menuId) : Menu.find();
+    const query = menuId ? Menu.findById(menuId) : Menu.find();
     const data = await query.exec();
-    res.send(data);
+
+    if (menuId && !data) {
+      throw new NotFound('Menu not exist');
+    }
+
+    res.json(data);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createMenu = async (req, res) => {
+const createMenu = async (req, res, next) => {
   const { error } = menuValidationSchema.validate(req.body);
 
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const menu = new Menu(req.body);
-    menu.save();
+    await menu.save();
     res.send(menu._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updateMenu = async (req, res) => {
+const updateMenu = async (req, res, next) => {
   const { error } = menuValidationSchema.validate(req.body);
-
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
   const { menuId } = req.params;
 
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const menu = await Menu.findOneAndUpdate({ _id: menuId }, req.body);
-    res.send(menu);
+    res.json(menu);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deleteMenu = async (req, res) => {
+const deleteMenu = async (req, res, next) => {
   const { menuId } = req.params;
 
   try {
     await Menu.findByIdAndRemove(menuId);
     res.send(menuId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 

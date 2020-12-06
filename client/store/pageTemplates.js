@@ -1,3 +1,5 @@
+import { showRequestResult } from '@/utils';
+
 export const state = () => ({
   templates: [],
 });
@@ -9,8 +11,12 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchTemplates({ commit }) {
-    const { data } = await this.$axios.get('page-templates');
-    return commit('FETCH_TEMPLATES', data);
+  async fetchTemplates({ commit, dispatch }) {
+    const templates = await showRequestResult({
+      request: this.$axios.get('page-templates'),
+      dispatch,
+    });
+
+    commit('FETCH_TEMPLATES', templates);
   },
 };

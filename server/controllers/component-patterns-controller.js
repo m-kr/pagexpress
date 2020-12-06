@@ -1,59 +1,63 @@
 const { ComponentPattern, componentPatternValidationSchema } = require('../models/ComponentPattern');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const getComponentPatterns = async (req, res) => {
+const getComponentPatterns = async (req, res, next) => {
   const { componentPatternId } = req.params;
 
   try {
-    const query = (await componentPatternId) ? ComponentPattern.findById(componentPatternId) : ComponentPattern.find();
-
+    const query = componentPatternId ? ComponentPattern.findById(componentPatternId) : ComponentPattern.find();
     const data = await query.exec();
-    res.send(data);
+
+    if (componentPatternId && !data) {
+      throw new NotFound('Component pattern not exist');
+    }
+
+    res.json(data);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createComponentPattern = async (req, res) => {
+const createComponentPattern = async (req, res, next) => {
   const { error } = componentPatternValidationSchema.validate(req.body);
 
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const componentPattern = new ComponentPattern(req.body);
     await componentPattern.save();
     res.send(componentPattern._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updateComponentPattern = async (req, res) => {
+const updateComponentPattern = async (req, res, next) => {
   const { error } = componentPatternValidationSchema.validate(req.body);
-
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
   const { componentPatternId } = req.params;
 
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const componentPattern = await ComponentPattern.findOneAndUpdate({ _id: componentPatternId }, req.body);
-    res.send(componentPattern);
+    res.json(componentPattern);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deleteComponentPattern = async (req, res) => {
+const deleteComponentPattern = async (req, res, next) => {
   const { componentPatternId } = req.params;
 
   try {
     await ComponentPattern.findByIdAndRemove(componentPatternId);
     res.send(componentPatternId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 

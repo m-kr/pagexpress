@@ -1,62 +1,64 @@
 const { FieldType, fieldTypeValidationSchema } = require('../models/FieldType');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const getFieldTypes = async (req, res) => {
+const getFieldTypes = async (req, res, next) => {
   const { fieldTypeId } = req.params;
 
   try {
-    if (fieldTypeId) {
-      const fieldType = await FieldType.findById(fieldTypeId);
-      res.send(fieldType);
+    const query = fieldTypeId ? FieldType.findById(fieldTypeId) : FieldType.find();
+    const data = await query.exec();
+
+    if (fieldTypeId && !data) {
+      throw new NotFound('Field type not exist');
     }
 
-    const fieldTypes = await FieldType.find().exec();
-    res.send(fieldTypes);
+    res.json(data);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createFieldType = async (req, res) => {
+const createFieldType = async (req, res, next) => {
   const { error } = fieldTypeValidationSchema.validate(req.body);
 
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const fieldType = new FieldType(req.body);
+
     fieldType.save();
     res.send(fieldType._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updateFieldType = async (req, res) => {
+const updateFieldType = async (req, res, next) => {
   const { error } = fieldTypeValidationSchema.validate(req.body);
 
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
-  const { fieldTypeId } = req.params;
-
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
+    const { fieldTypeId } = req.params;
     const fieldType = FieldType.findOneAndUpdate({ _id: fieldTypeId }, req.body);
-    res.send(fieldType);
+    res.json(fieldType);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deleteFieldType = async (req, res) => {
+const deleteFieldType = async (req, res, next) => {
   const { fieldTypeId } = req.params;
 
   try {
     await FieldType.findByIdAndRemove(fieldTypeId);
     res.send(fieldTypeId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 

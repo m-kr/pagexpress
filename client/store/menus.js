@@ -1,9 +1,8 @@
-// import Vue from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import {
   enrichById,
-  formatRequestError,
   reorderItems,
+  showRequestResult,
   updateAllNestedItems,
   updateItemChildren,
   updateNestedItem,
@@ -100,12 +99,15 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchMenus({ commit }) {
-    const { data } = await this.$axios.get('menus');
+  async fetchMenus({ commit, dispatch }) {
+    const menus = await showRequestResult({
+      request: this.$axios.get('menus'),
+      dispatch,
+    });
 
     return commit(
       'FETCH_MENUS',
-      data.map(menu => ({
+      menus.map(menu => ({
         ...menu,
         items: updateAllNestedItems(menu.items, 'children', item => {
           if (!item.children) {
@@ -119,26 +121,13 @@ export const actions = {
   },
 
   async addMenu({ commit, dispatch }, menuName) {
-    const { data } = await this.$axios
-      .post(`menus`, { name: menuName })
-      .catch(error =>
-        dispatch('notifications/error', formatRequestError(error), {
-          root: true,
-        })
-      );
+    const menuId = await showRequestResult({
+      request: this.$axios.post(`menus`, { name: menuName }),
+      dispatch,
+      successMessage: `Added new menu: ${menuName}`,
+    });
 
-    if (data) {
-      commit('ADD_MENU', { _id: data, name: menuName });
-      dispatch('notifications/success', `Added new menu: ${menuName}`, {
-        root: true,
-      });
-
-      return true;
-    } else {
-      dispatch('notifications/error', 'Unknown error: Menu cannot be added', {
-        root: true,
-      });
-    }
+    commit('ADD_MENU', { _id: menuId, name: menuName });
   },
 
   async saveChanges({ commit, dispatch, state }, { menuId, callback }) {
@@ -154,29 +143,17 @@ export const actions = {
       delete item.id;
     });
 
-    const { data } = await this.$axios
-      .put(`menus/${menuId}`, {
+    await showRequestResult({
+      request: this.$axios.put(`menus/${menuId}`, {
         name,
         items: itemsToSave,
-      })
-      .catch(
-        error =>
-          dispatch('notifications/error', formatRequestError(error), {
-            root: true,
-          }),
-        { root: true }
-      );
+      }),
+      successMessage: 'Saved changes',
+      dispatch,
+    });
 
-    if (data) {
-      dispatch('notifications/success', 'Saved changes', {
-        root: true,
-      });
-
-      if (callback) callback();
-    } else {
-      dispatch('notifications/error', 'Unknown error: Menu cannot be saved', {
-        root: true,
-      });
+    if (callback) {
+      callback();
     }
   },
 
@@ -185,25 +162,12 @@ export const actions = {
       return;
     }
 
-    const { data } = await this.$axios.delete(`menus/${menuId}`).catch(error =>
-      dispatch('notifications/error', formatRequestError(error), {
-        root: true,
-      })
-    );
+    const removedMenuId = await showRequestResult({
+      request: this.$axios.delete(`menus/${menuId}`),
+      successMessage: 'Menu has been removed',
+      dispatch,
+    });
 
-    if (data) {
-      commit('REMOVE_MENU', menuId);
-      dispatch('notifications/success', 'Removed menu', { root: true });
-
-      return true;
-    } else {
-      dispatch(
-        'notifications/error',
-        'Unknown error: Menu can not be removed',
-        {
-          root: true,
-        }
-      );
-    }
+    commit('REMOVE_MENU', removedMenuId);
   },
 };

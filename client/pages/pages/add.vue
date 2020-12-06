@@ -153,9 +153,14 @@ export default {
         ...this.mainData,
         attributes: this.attributes,
       });
-      this.$router.push({
-        path: `/pages/${this.$store.state.page.newPageId}/edit`,
-      });
+
+      const newPageId = this.$store.state.page.newPageId;
+
+      if (newPageId) {
+        await this.$router.push({
+          path: `/pages/${newPageId}/edit`,
+        });
+      }
     },
 
     getPageType(pageTypeId) {

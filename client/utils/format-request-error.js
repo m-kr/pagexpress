@@ -1,2 +1,2 @@
 export const formatRequestError = error =>
-  `Error code ${error.response.status}: ${error.response.data}`;
+  `${error.response.data.message} (code ${error.response.status})`;

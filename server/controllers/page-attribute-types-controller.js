@@ -1,64 +1,69 @@
 const { PageAttributeType, pageTypeAttributeValidationSchema } = require('../models/PageAttributeType');
+const { BadRequest, NotFound } = require('../utils/errors');
 
-const getPageAttributeTypes = async (req, res) => {
+const getPageAttributeTypes = async (req, res, next) => {
   const { pageAttributeTypeId } = req.params;
 
   try {
     const query = pageAttributeTypeId ? PageAttributeType.findById(pageAttributeTypeId) : PageAttributeType.find();
     const data = await query.exec();
-    res.send(data);
+
+    if (pageAttributeTypeId && !data) {
+      throw new NotFound('Page attribute not exist');
+    }
+
+    res.json(data);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const createPageAttributeType = async (req, res) => {
+const createPageAttributeType = async (req, res, next) => {
   const { error } = pageTypeAttributeValidationSchema.validate(req.body);
-
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
-  const existedAttributeWithName = await PageAttributeType.findOne({ name: req.body.type });
-
-  if (existedAttributeWithName) {
-    return res.status(400).send(`Attribute "${req.body.type}" already exists`);
-  }
 
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
+    const existedAttributeWithName = await PageAttributeType.findOne({ name: req.body.type });
+
+    if (existedAttributeWithName) {
+      throw BadRequest(`Attribute "${req.body.type}" already exists`);
+    }
+
     const pageAttributeType = new PageAttributeType(req.body);
-    pageAttributeType.save();
+    await pageAttributeType.save();
     res.send(pageAttributeType._id);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const updatePageAttributeType = async (req, res) => {
+const updatePageAttributeType = async (req, res, next) => {
   const { error } = pageTypeAttributeValidationSchema.validate(req.body);
-
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
   const { pageAttributeTypeId } = req.params;
 
   try {
+    if (error) {
+      throw new BadRequest(error.details[0].message);
+    }
+
     const pageAttributeType = await PageAttributeType.findOneAndUpdate({ _id: pageAttributeTypeId }, req.body);
-    res.send(pageAttributeType);
+    res.json(pageAttributeType);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
-const deletePageAttributeType = async (req, res) => {
+const deletePageAttributeType = async (req, res, next) => {
   const { pageAttributeTypeId } = req.params;
 
   try {
     await PageAttributeType.findByIdAndRemove(pageAttributeTypeId);
     res.send(pageAttributeTypeId);
   } catch (err) {
-    res.status(500).send(err.message);
+    next(err);
   }
 };
 
