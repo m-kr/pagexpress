@@ -9,7 +9,7 @@ const fieldSchema = new Schema({
   required: { type: Boolean, default: false },
   default: { type: Boolean, default: undefined },
   fieldTypeId: { type: Schema.Types.ObjectId, ref: 'FieldType', require: true },
-  options: { type: Array, min: 1 },
+  options: { type: Schema.Types.ObjectId, ref: 'Definition' },
 });
 
 const fieldTypeSchema = new Schema({
@@ -23,7 +23,7 @@ const fieldValidationSchema = Joi.object({
   description: Joi.string().min(5).max(100),
   required: Joi.boolean(),
   fieldTypeId: Joi.objectId().required(),
-  options: Joi.array().min(1),
+  options: Joi.objectId(),
 });
 
 const fieldTypeValidationSchema = Joi.object({

@@ -65,7 +65,14 @@ const roleGrands = () => {
     .createAny('country')
     .readAny('country')
     .updateAny('country')
-    .deleteAny('country');
+    .deleteAny('country')
+    .readAny('definition')
+    .createOwn('definition')
+    .updateAny('definition')
+    .deleteAny('definition')
+    .readAny('siteInfo')
+    .createOwn('siteInfo')
+    .updateAny('siteInfo');
 
   return ac;
 };
