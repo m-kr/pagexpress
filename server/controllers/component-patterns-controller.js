@@ -1,18 +1,35 @@
 const { ComponentPattern, componentPatternValidationSchema } = require('../models/ComponentPattern');
 const { BadRequest, NotFound } = require('../utils/errors');
+const { normalizeComponentPattern } = require('../utils/normalizers');
 
 const getComponentPatterns = async (req, res, next) => {
   const { componentPatternId } = req.params;
 
   try {
     const query = componentPatternId ? ComponentPattern.findById(componentPatternId) : ComponentPattern.find();
+    await query
+      .populate({
+        path: 'fields.definedOptionsId fieldset.fields.definedOptionsId',
+        model: 'Definition',
+        select: 'values defaultValue -_id',
+      })
+      .populate({
+        path: 'fields.fieldTypeId fieldset.fields.fieldTypeId',
+        model: 'FieldType',
+        select: 'type -_id',
+      });
+
     const data = await query.exec();
 
     if (componentPatternId && !data) {
       throw new NotFound('Component pattern not exist');
     }
 
-    res.json(data);
+    const normalizedData = componentPatternId
+      ? normalizeComponentPattern(data.toObject())
+      : data.map(singleComponentData => normalizeComponentPattern(singleComponentData.toObject()));
+
+    res.json(normalizedData);
   } catch (err) {
     next(err);
   }

@@ -1,12 +1,12 @@
 <template>
-  <div v-if="fieldTypes && fieldTypes.length" class="componentData">
+  <div class="componentData">
     <Field
       v-for="(field, fieldIndex) in fields"
       :key="fieldIndex"
-      :field-type="getFieldType(field.fieldTypeId)"
+      :field-type="field.type"
       :label="field.label"
       :options="field.options"
-      :value="data ? data[field.name] : null"
+      :value="data && data[field.name] ? data[field.name] : field.defaultValue"
       :update="value => updateData(field.name, value)"
     />
   </div>
@@ -23,10 +23,6 @@ export default {
   },
 
   props: {
-    fieldTypes: {
-      type: Array,
-      default: () => [],
-    },
     fields: {
       type: Array,
       default: () => [],
@@ -44,10 +40,6 @@ export default {
   methods: {
     updateData(fieldName, value) {
       this.onUpdateData(fieldName, value);
-    },
-
-    getFieldType(fieldTypeId) {
-      return this.fieldTypes.find(field => field._id === fieldTypeId).type;
     },
   },
 };

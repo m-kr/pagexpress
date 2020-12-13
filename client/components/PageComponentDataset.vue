@@ -1,5 +1,5 @@
 <template>
-  <div v-if="fieldTypes" class="component-dataset">
+  <div class="component-dataset">
     <Container
       class="component-dataset__inner"
       drag-class="dataset-item__ghost"
@@ -20,10 +20,14 @@
             v-for="(field, fieldIndex) in fields"
             :key="fieldIndex"
             css-class="column"
-            :field-type="getFieldType(field.fieldTypeId)"
+            :field-type="field.type"
             :label="field.label"
             :options="field.options"
-            :value="singleData ? singleData[field.name] : null"
+            :value="
+              singleData && singleData[field.name]
+                ? singleData[field.name]
+                : field.defaultValue
+            "
             :update="value => updateData(dataIndex, field.name, value)"
           />
         </div>
@@ -67,10 +71,6 @@ export default {
   },
 
   props: {
-    fieldTypes: {
-      type: Array,
-      default: () => [],
-    },
     fields: {
       type: Array,
       default: () => [],

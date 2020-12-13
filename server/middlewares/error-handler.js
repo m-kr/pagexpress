@@ -2,8 +2,9 @@ const { GeneralError } = require('../utils/errors');
 
 // eslint-disable-next-line
 const errorHandler = (err, req, res, next) => {
-  console.error('Request params', req.params);
-  console.error('Request body', req.body);
+  console.error('URL:', req.url);
+  console.error('PARAMS:', req.params);
+  console.error('DATA:', req.body);
   console.error('Error stack', err.stack);
 
   if (err instanceof GeneralError) {
