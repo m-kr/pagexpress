@@ -11,7 +11,7 @@ const getComponentPatterns = async (req, res, next) => {
       .populate({
         path: 'fields.definedOptionsId fieldset.fields.definedOptionsId',
         model: 'Definition',
-        select: 'values -_id',
+        select: 'values defaultValue -_id',
       })
       .populate({
         path: 'fields.fieldTypeId fieldset.fields.fieldTypeId',

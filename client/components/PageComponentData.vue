@@ -6,7 +6,7 @@
       :field-type="field.type"
       :label="field.label"
       :options="field.options"
-      :value="data ? data[field.name] : null"
+      :value="data && data[field.name] ? data[field.name] : field.defaultValue"
       :update="value => updateData(field.name, value)"
     />
   </div>

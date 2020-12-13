@@ -2,6 +2,10 @@ const normalizeComponentFieldData = field => ({
   ...field,
   type: field.fieldTypeId.type,
   options: field.definedOptionsId && field.definedOptionsId.values ? field.definedOptionsId.values : field.options,
+  defaultValue:
+    field.definedOptionsId && field.definedOptionsId.defaultValue
+      ? field.definedOptionsId.defaultValue
+      : field.defaultValue,
   fieldTypeId: undefined,
   definedOptionsId: undefined,
 });
