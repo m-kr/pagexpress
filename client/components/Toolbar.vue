@@ -25,9 +25,7 @@ export default {
   margin-top: var(--spacing-05);
   margin-bottom: var(--spacing);
   padding: var(--spacing);
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--white);
+  background-color: var(--black);
   z-index: 999;
 
   &__inner {
@@ -35,11 +33,16 @@ export default {
     justify-content: space-between;
   }
 
-  .button {
-    margin-right: var(--spacing-05);
+  &__right-side,
+  &__left-side {
+    display: flex;
 
-    &:last-child {
-      margin-right: 0;
+    & > * {
+      margin-right: var(--spacing-05);
+
+      &:last-child {
+        margin-right: 0;
+      }
     }
   }
 }

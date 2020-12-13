@@ -2,14 +2,25 @@
   <div class="structure-builder">
     <Toolbar>
       <template v-slot:left>
+        <ComponentSelector
+          button-style="success"
+          :component-patterns="componentPatterns ? componentPatterns : []"
+          :select-action="patternId => addComponent(patternId)"
+        />
         <button class="button is-info" @click="collapseAllComponents">
           Collapse all
         </button>
-        <button class="button is-black">Preview</button>
       </template>
 
       <template v-slot:right>
-        <button class="button is-success">Save</button>
+        <a
+          v-if="previewLink"
+          ref="noindex nofollow noreferrer"
+          :href="previewLink"
+          target="_blank"
+          class="button"
+          >Preview</a
+        >
       </template>
     </Toolbar>
 
@@ -56,13 +67,6 @@
         </PageComponent>
       </Draggable>
     </Container>
-    <div class="structure-builder__bottom-actions">
-      <ComponentSelector
-        button-style="info"
-        :component-patterns="componentPatterns ? componentPatterns : []"
-        :select-action="patternId => addComponent(patternId)"
-      />
-    </div>
   </div>
 </template>
 
@@ -96,12 +100,14 @@ export default {
     ...mapState({
       componentPatterns: state => state.componentPatterns.patterns,
       components: state => state.pageDetails.components,
+      siteInfo: state => state.siteInfo,
     }),
-
     ...mapGetters('pageDetails', ['rootComponents']),
 
-    rootComponents() {
-      return this.components.filter(component => !component.parentComponentId);
+    previewLink() {
+      return this.siteInfo && !!this.siteInfo.url
+        ? `${this.siteInfo.url}?preview=${this.$route.params.pageId}`
+        : null;
     },
   },
 
@@ -121,6 +127,7 @@ export default {
       );
 
       await this.$store.dispatch('componentPatterns/fetchPatterns');
+      await this.$store.dispatch('fetchSiteInfo');
     },
 
     async saveChanges() {
@@ -225,11 +232,5 @@ export default {
       }
     }
   }
-}
-
-.structure-builder__bottom-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--spacing-15);
 }
 </style>

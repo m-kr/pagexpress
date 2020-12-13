@@ -1,5 +1,8 @@
+import { showRequestResult } from '@/utils';
+
 export const state = {
   breadcrumbsLinks: [],
+  siteInfo: null,
 };
 
 export const getters = {
@@ -15,5 +18,22 @@ export const getters = {
 export const mutations = {
   UPDATE_BREADCRUMBS_LINKS(state, links) {
     state.breadcrumbsLinks = links;
+  },
+
+  SET_SITE_INFO(state, siteInfo) {
+    state.siteInfo = siteInfo;
+  },
+};
+
+export const actions = {
+  async fetchSiteInfo({ dispatch, commit }) {
+    const siteInfo = await showRequestResult({
+      request: this.$axios.get('site-info'),
+      dispatch,
+    });
+
+    if (siteInfo) {
+      commit('SET_SITE_INFO', siteInfo);
+    }
   },
 };
