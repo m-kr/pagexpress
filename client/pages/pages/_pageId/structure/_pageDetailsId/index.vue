@@ -48,7 +48,6 @@
           :child-components="getChildComponents(component._id)"
           :component-patterns="componentPatterns"
           :component="component"
-          :field-types="fieldTypes"
           :update-component="updateComponent"
           :remove-component="removeComponent"
           :drop-placeholder-options="dropPlaceholderOptions"
@@ -115,7 +114,6 @@ export default {
     ...mapState({
       componentPatterns: state => state.componentPatterns.patterns,
       components: state => state.pageDetails.components,
-      fieldTypes: state => state.fieldTypes.types,
     }),
 
     ...mapGetters('pageDetails', ['rootComponents']),
@@ -140,7 +138,6 @@ export default {
       );
 
       await this.$store.dispatch('componentPatterns/fetchPatterns');
-      await this.$store.dispatch('fieldTypes/fetchFieldTypes');
     },
 
     async saveChanges() {

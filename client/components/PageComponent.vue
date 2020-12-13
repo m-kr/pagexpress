@@ -30,7 +30,6 @@
       <div v-if="componentPattern.fields" class="fields-container">
         <PageComponentData
           :fields="componentPattern.fields"
-          :field-types="fieldTypes"
           :data="component.data"
           :on-update-data="updateData"
         />
@@ -44,7 +43,6 @@
           v-for="singleFieldset in componentPattern.fieldset"
           :key="singleFieldset._id"
           :fields="singleFieldset.fields"
-          :field-types="fieldTypes"
           :data="
             component.data ? component.data[singleFieldset.name] : undefined
           "
@@ -70,7 +68,6 @@
             <PageComponent
               :component="childComponent"
               :component-patterns="componentPatterns"
-              :field-types="fieldTypes"
               :update-component="updateComponent"
               :remove-component="removeComponent"
               :reorder="reorder"
@@ -110,11 +107,6 @@ export default {
     componentPatterns: {
       type: Array,
       required: true,
-    },
-
-    fieldTypes: {
-      type: Array,
-      default: () => [],
     },
 
     component: {
