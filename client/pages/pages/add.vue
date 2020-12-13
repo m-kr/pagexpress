@@ -1,16 +1,5 @@
 <template>
   <div class="page-add">
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
-        <li><nuxt-link to="/">Home</nuxt-link></li>
-        <li class="is-active">
-          <nuxt-link to="/pages/add" aria-current="page">
-            Add new page
-          </nuxt-link>
-        </li>
-      </ul>
-    </nav>
-
     <div class="panel">
       <p class="panel-heading">Main parameters</p>
 
@@ -143,6 +132,7 @@ export default {
 
   methods: {
     async initPageData() {
+      this.setBreadcrumbsLinks();
       await this.$store.dispatch('pageTypes/fetchPageTypes');
       await this.$store.dispatch('fieldTypes/fetchFieldTypes');
       await this.$store.dispatch('pageAttributeTypes/fetchPageAttributeTypes');
@@ -165,6 +155,19 @@ export default {
 
     getPageType(pageTypeId) {
       return this.pageAttributeTypes.find(type => type._id === pageTypeId).type;
+    },
+
+    setBreadcrumbsLinks() {
+      this.$store.commit('UPDATE_BREADCRUMBS_LINKS', [
+        {
+          url: '/',
+          label: 'Home',
+        },
+        {
+          url: '/pages/add',
+          label: 'Add page',
+        },
+      ]);
     },
 
     updateAttribute(name, value) {

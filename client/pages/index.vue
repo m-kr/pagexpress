@@ -1,11 +1,5 @@
 <template>
   <div class="app-view">
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
-        <li><a href="#">Home</a></li>
-        <li class="is-active"><a href="#" aria-current="page">Pages</a></li>
-      </ul>
-    </nav>
     <nav class="level">
       <!-- Left side -->
       <div class="level-left">
@@ -148,8 +142,7 @@ export default {
   },
 
   mounted() {
-    this.loadPages();
-    this.sortBy = this.$store.state.pages.sort;
+    this.initViewData();
   },
 
   methods: {
@@ -158,6 +151,11 @@ export default {
       removePage: 'pages/removePage',
       changePage: 'pages/changePage',
     }),
+
+    initViewData() {
+      this.loadPages();
+      this.sortBy = this.$store.state.pages.sort;
+    },
 
     search(evt) {
       if (this.timeout) clearTimeout(this.timeout);

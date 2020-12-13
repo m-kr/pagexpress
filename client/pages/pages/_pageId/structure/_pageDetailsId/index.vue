@@ -1,36 +1,28 @@
 <template>
   <div class="structure-builder">
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
-        <li><nuxt-link to="/">Home</nuxt-link></li>
-        <li>
-          <nuxt-link
-            :to="`/pages/${$route.params.pageId}/edit`"
-            aria-current="page"
-          >
-            Page edit
-          </nuxt-link>
-        </li>
-        <li class="is-active">
-          <nuxt-link
-            :to="
-              `/pages/${$route.params.pageId}/structure/${$route.params.pageDetailsId}`
-            "
-            aria-current="page"
-          >
-            Page structure
-          </nuxt-link>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="columns">
-      <div class="column buttons">
+    <Toolbar>
+      <template v-slot:left>
+        <ComponentSelector
+          button-style="success"
+          :component-patterns="componentPatterns ? componentPatterns : []"
+          :select-action="patternId => addComponent(patternId)"
+        />
         <button class="button is-info" @click="collapseAllComponents">
           Collapse all
         </button>
-      </div>
-    </div>
+      </template>
+
+      <template v-slot:right>
+        <a
+          v-if="previewLink"
+          ref="noindex nofollow noreferrer"
+          :href="previewLink"
+          target="_blank"
+          class="button"
+          >Preview</a
+        >
+      </template>
+    </Toolbar>
 
     <Container
       v-if="componentPatterns && componentPatterns.length"
@@ -75,21 +67,13 @@
         </PageComponent>
       </Draggable>
     </Container>
-    <div class="structure-builder__bottom-actions">
-      <ComponentSelector
-        button-style="info"
-        :component-patterns="componentPatterns ? componentPatterns : []"
-        :select-action="patternId => addComponent(patternId)"
-      />
-    </div>
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
 import { Container, Draggable } from 'vue-smooth-dnd';
-import PageComponent from '@/components/PageComponent';
-import ComponentSelector from '@/components/ComponentSelector';
+import { ComponentSelector, PageComponent, Toolbar } from '@/components';
 
 export default {
   components: {
@@ -97,11 +81,13 @@ export default {
     Container,
     Draggable,
     PageComponent,
+    Toolbar,
   },
 
   data() {
     return {
       collapsedComponents: [],
+
       dropPlaceholderOptions: {
         className: 'drop-preview',
         animationDuration: '150',
@@ -114,12 +100,14 @@ export default {
     ...mapState({
       componentPatterns: state => state.componentPatterns.patterns,
       components: state => state.pageDetails.components,
+      siteInfo: state => state.siteInfo,
     }),
-
     ...mapGetters('pageDetails', ['rootComponents']),
 
-    rootComponents() {
-      return this.components.filter(component => !component.parentComponentId);
+    previewLink() {
+      return this.siteInfo && !!this.siteInfo.url
+        ? `${this.siteInfo.url}?preview=${this.$route.params.pageId}`
+        : null;
     },
   },
 
@@ -132,12 +120,14 @@ export default {
       reorderComponents: 'pageDetails/reorderComponents',
     }),
     async initPageData() {
+      this.setBreadcrumbsLinks();
       await this.$store.dispatch(
         'pageDetails/fetchPageDetails',
         this.$route.params.pageDetailsId
       );
 
       await this.$store.dispatch('componentPatterns/fetchPatterns');
+      await this.$store.dispatch('fetchSiteInfo');
     },
 
     async saveChanges() {
@@ -156,6 +146,23 @@ export default {
         componentPatternId,
         targetPlaceIndex,
       });
+    },
+
+    setBreadcrumbsLinks() {
+      this.$store.commit('UPDATE_BREADCRUMBS_LINKS', [
+        {
+          url: '/',
+          label: 'Home',
+        },
+        {
+          url: `/pages/${this.$route.params.pageId}/edit/`,
+          label: 'Page edit',
+        },
+        {
+          url: `/pages/${this.$route.params.pageId}/structure/${this.$route.params.pageDetailsId}`,
+          label: 'Page structure',
+        },
+      ]);
     },
 
     updateComponent(componentId, componentData) {
@@ -225,11 +232,5 @@ export default {
       }
     }
   }
-}
-
-.structure-builder__bottom-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--spacing-15);
 }
 </style>

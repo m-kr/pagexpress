@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <nav class="navbar" role="navigation" aria-label="main navigation">
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="container">
       <div class="navbar__brand">
         <nuxt-link class="brand" to="/">PAGE<small>xpress</small></nuxt-link>
       </div>
@@ -22,8 +22,8 @@
           ><strong>Sign In</strong></nuxt-link
         >
       </div>
-    </nav>
-  </div>
+    </div>
+  </nav>
 </template>
 
 <script>
@@ -42,14 +42,9 @@ export default {
 };
 </script>
 
-<style>
-.navbar__outer {
-  padding: 0.5rem 1.5rem;
-
-  .container {
-    display: grid;
-    grid-template-columns: 1fr auto;
-  }
+<style lang="postcss">
+.navbar {
+  margin-bottom: var(--spacing-15);
 }
 
 .navbar__brand {
