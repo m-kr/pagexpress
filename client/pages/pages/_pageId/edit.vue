@@ -1,15 +1,5 @@
 <template>
   <div class="page-edit">
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
-        <li><nuxt-link to="/">Home</nuxt-link></li>
-        <li class="is-active">
-          <nuxt-link :to="`/pages/${$route.params.pageId}`" aria-current="page">
-            Page edit
-          </nuxt-link>
-        </li>
-      </ul>
-    </nav>
     <div v-if="mainData" class="panel">
       <p class="panel-heading">Main parameters</p>
 
@@ -418,6 +408,7 @@ export default {
   components: {
     Field,
   },
+
   data() {
     return {
       activeDetailsTab: null,
@@ -456,6 +447,8 @@ export default {
 
   methods: {
     async initPageData(pageId) {
+      this.setBreadcrumbsLinks();
+
       this.$store.commit('pageDetails/RESET_DETAILS');
       await this.$store.dispatch('pageTypes/fetchPageTypes');
       await this.$store.dispatch('fieldTypes/fetchFieldTypes');
@@ -485,6 +478,19 @@ export default {
       if (this.$store.state.page.pageVariants.length > pageVariantsQtty) {
         this.activeDetailsTab = 'edit';
       }
+    },
+
+    setBreadcrumbsLinks() {
+      this.$store.commit('UPDATE_BREADCRUMBS_LINKS', [
+        {
+          url: '/',
+          label: 'Home',
+        },
+        {
+          url: `/pages/${this.$route.params.pageId}/edit/`,
+          label: 'Page edit',
+        },
+      ]);
     },
 
     async removePageVariant() {

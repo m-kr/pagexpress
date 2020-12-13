@@ -1,3 +1,4 @@
+import Breadcrumbs from './Breadcrumbs';
 import ComponentSelector from './ComponentSelector';
 import Field from './Field';
 import MenuItems from './MenuItems';
@@ -9,8 +10,10 @@ import PageComponentData from './PageComponentData';
 import PageComponentDataset from './PageComponentDataset';
 import SelectWithAction from './SelectWithAction';
 import Table from './Table';
+import Toolbar from './Toolbar';
 
 export {
+  Breadcrumbs,
   ComponentSelector,
   Field,
   MenuItems,
@@ -22,4 +25,5 @@ export {
   PageComponentDataset,
   SelectWithAction,
   Table,
+  Toolbar,
 };
