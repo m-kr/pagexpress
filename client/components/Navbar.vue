@@ -9,6 +9,9 @@
           <nuxt-link to="/" class="navbar-item">
             Pages
           </nuxt-link>
+          <nuxt-link to="/components" class="navbar-item">
+            Components
+          </nuxt-link>
           <nuxt-link to="/menus" class="navbar-item">
             Menu
           </nuxt-link>

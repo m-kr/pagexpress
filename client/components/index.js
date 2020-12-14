@@ -8,6 +8,7 @@ import NotificationToasts from './NotificationToasts';
 import PageComponent from './PageComponent';
 import PageComponentData from './PageComponentData';
 import PageComponentDataset from './PageComponentDataset';
+import Pagination from './Pagination';
 import SelectWithAction from './SelectWithAction';
 import Table from './Table';
 import Toolbar from './Toolbar';
@@ -23,6 +24,7 @@ export {
   PageComponent,
   PageComponentData,
   PageComponentDataset,
+  Pagination,
   SelectWithAction,
   Table,
   Toolbar,

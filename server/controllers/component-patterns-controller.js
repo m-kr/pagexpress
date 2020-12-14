@@ -1,13 +1,38 @@
 const { ComponentPattern, componentPatternValidationSchema } = require('../models/ComponentPattern');
 const { BadRequest, NotFound } = require('../utils/errors');
+const ListFeatures = require('../utils/ListFeatures');
 const { normalizeComponentPattern } = require('../utils/normalizers');
 
 const getComponentPatterns = async (req, res, next) => {
   const { componentPatternId } = req.params;
 
   try {
-    const query = componentPatternId ? ComponentPattern.findById(componentPatternId) : ComponentPattern.find();
-    await query
+    if (componentPatternId) {
+      const data = await ComponentPattern.findById(componentPatternId)
+        .populate({
+          path: 'fields.definedOptionsId fieldset.fields.definedOptionsId',
+          model: 'Definition',
+          select: 'values defaultValue -_id',
+        })
+        .populate({
+          path: 'fields.fieldTypeId fieldset.fields.fieldTypeId',
+          model: 'FieldType',
+          select: 'type -_id',
+        })
+        .exec();
+
+      if (!data) {
+        throw new NotFound('Component pattern not exist');
+      }
+
+      return res.json(normalizeComponentPattern(data.toObject()));
+    }
+
+    const listFeatures = new ListFeatures(ComponentPattern, req.query, 'name');
+    const { currentPage, itemsPerPage, limit, skip, totalPages } = await listFeatures.getPaginationParameters();
+    const queryFilter = listFeatures.getQueryFilter();
+    console.log('queryFilter', queryFilter);
+    const data = await ComponentPattern.find(queryFilter)
       .populate({
         path: 'fields.definedOptionsId fieldset.fields.definedOptionsId',
         model: 'Definition',
@@ -17,19 +42,20 @@ const getComponentPatterns = async (req, res, next) => {
         path: 'fields.fieldTypeId fieldset.fields.fieldTypeId',
         model: 'FieldType',
         select: 'type -_id',
-      });
+      })
+      .sort('-name')
+      .skip(skip)
+      .limit(limit)
+      .exec();
 
-    const data = await query.exec();
+    const normalizedData = data.map(singleComponentData => normalizeComponentPattern(singleComponentData.toObject()));
 
-    if (componentPatternId && !data) {
-      throw new NotFound('Component pattern not exist');
-    }
-
-    const normalizedData = componentPatternId
-      ? normalizeComponentPattern(data.toObject())
-      : data.map(singleComponentData => normalizeComponentPattern(singleComponentData.toObject()));
-
-    res.json(normalizedData);
+    res.json({
+      currentPage,
+      totalPages,
+      itemsPerPage,
+      data: normalizedData,
+    });
   } catch (err) {
     next(err);
   }
