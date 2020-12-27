@@ -3,7 +3,7 @@
     <Panel title="Main parameters">
       <Form
         :form-schema="formMainParameters"
-        :values="mainData"
+        :values="componentPatternMainData"
         :update="updateMainParameters"
       />
     </Panel>
@@ -14,14 +14,14 @@
           class="draggable-forms-container"
           drag-class="draggable-form__ghost"
           drop-class="draggable-form__ghost--drop"
-          :group-name="`draggable-form-${getRandomId}`"
+          :group-name="`draggable-form-${randomId}`"
           drag-handle-selector=".draggable-form__grab-handler"
           :get-child-payload="getItemPayload"
           :drop-placeholder="dropPlaceholderOptions"
           @drop="onFieldDrop"
         >
           <Draggable
-            v-for="(field, index) of fields"
+            v-for="(field, index) of componentPatternFields"
             :key="index"
             class="fields__item"
           >
@@ -47,7 +47,7 @@
     </Panel>
 
     <Panel
-      v-for="(singleFieldset, singleFieldsetIndex) of fieldset"
+      v-for="(singleFieldset, singleFieldsetIndex) of componentPatternFieldset"
       :key="singleFieldsetIndex"
       title="Fieldset"
     >
@@ -61,7 +61,7 @@
           class="draggable-forms-container"
           drag-class="draggable-form__ghost"
           drop-class="draggable-form__ghost--drop"
-          :group-name="`draggable-form-${getRandomId}`"
+          :group-name="`draggable-form-${randomId}`"
           drag-handle-selector=".draggable-form__grab-handler"
           :get-child-payload="getItemPayload"
           :drop-placeholder="dropPlaceholderOptions"
@@ -106,106 +106,23 @@
 
 <script>
 import { Draggable, Container } from 'vue-smooth-dnd';
-import { mapGetters, mapState } from 'vuex';
-import { v4 as uuidv4 } from 'uuid';
+import { mapGetters, mapState, mapActions } from 'vuex';
 import { Form, Panel, DraggableForm } from '@/components';
 
 export default {
   computed: {
-    ...mapGetters('componentPatterns', ['formFieldsAttributes']),
-    ...mapState({
-      fieldTypes: state => state.fieldTypes.types,
-    }),
-
-    formMainParameters() {
-      const fieldsAttributes = this.formFieldsAttributes('componentPattern');
-
-      return {
-        name: {
-          type: 'text',
-          description: 'Camel case with first capital letter',
-          attributes: fieldsAttributes.name,
-        },
-        label: {
-          type: 'text',
-          attributes: fieldsAttributes.label,
-        },
-        description: {
-          type: 'text',
-          attributes: fieldsAttributes.description,
-        },
-      };
-    },
-
-    formFields() {
-      const fieldsAttributes = this.formFieldsAttributes('field');
-
-      return {
-        required: {
-          type: 'boolean',
-          attributes: fieldsAttributes.required,
-        },
-        fieldTypeId: {
-          label: 'Field type',
-          type: 'text',
-          defaultValue: 'text',
-          hidden: !this.getFieldTypeOptions(),
-          options: this.getFieldTypeOptions(),
-          attributes: fieldsAttributes.fieldTypeId,
-        },
-        name: {
-          label: 'Name (camelCase)',
-          type: 'text',
-          attributes: fieldsAttributes.name,
-        },
-        label: {
-          type: 'text',
-          attributes: fieldsAttributes.label,
-        },
-        description: {
-          type: 'text',
-          attributes: fieldsAttributes.description,
-        },
-        definedOptionsId: {
-          label: 'Options from global definition',
-          type: 'text',
-          attributes: fieldsAttributes.definedOptionsId,
-        },
-        options: {
-          label: 'Custom options',
-          type: 'list',
-          attributes: fieldsAttributes.options,
-        },
-        defaultValue: {
-          label: 'Default value',
-          typeFrom: 'fieldTypeId',
-          attributes: fieldsAttributes.defaultValue,
-        },
-      };
-    },
-
-    formFieldset() {
-      const fieldsetAttributes = this.formFieldsAttributes('fieldset');
-
-      return {
-        required: {
-          type: 'boolean',
-          attributes: fieldsetAttributes.required,
-        },
-        name: {
-          type: 'text',
-          attributes: fieldsetAttributes.name,
-        },
-        label: {
-          type: 'text',
-          attributes: fieldsetAttributes.label,
-        },
-        description: {
-          type: 'text',
-          attributes: fieldsetAttributes.description,
-        },
-      };
-    },
+    ...mapGetters('componentPatterns', [
+      'formMainParameters',
+      'formFields',
+      'formFieldset',
+      'randomId',
+    ]),
+    ...mapState('componentPatterns', [
+      'componentPatternMainData',
+      'componentPatternFields',
+      'componentPatternFieldset',
+      'fieldTypes',
+    ]),
   },
   components: {
     Container,
@@ -217,8 +134,6 @@ export default {
 
   data() {
     return {
-      mainData: {},
-      fields: [{}],
       fieldset: [
         {
           fields: [{}],
@@ -233,35 +148,48 @@ export default {
   },
 
   mounted() {
-    this.initPageData();
+    this.$store.dispatch('componentPatterns/initAddComponentViewData');
   },
 
   methods: {
-    async initPageData() {
-      await this.$store.dispatch('fieldTypes/fetchFieldTypes');
-    },
-
-    getFieldTypeOptions() {
-      if (!this.fieldTypes) {
-        return null;
-      }
-
-      return this.fieldTypes.map(fieldType => ({
-        name: fieldType.type,
-        value: fieldType._id,
-      }));
-    },
+    ...mapActions('componentPatterns', ['addField', 'addFieldsetField']),
 
     updateMainParameters(fieldName, value) {
-      this.mainData[fieldName] = value;
+      this.$store.dispatch(
+        'componentPatterns/updateComponentPatternMainParameters',
+        {
+          fieldName,
+          value,
+        }
+      );
     },
 
-    updateFields(index, fieldName, value) {
-      if (Array.isArray(value) || !!this.formFields[fieldName].options) {
-        this.$set(this.fields[index], fieldName, value);
-      } else {
-        this.fields[index][fieldName] = value;
-      }
+    updateFields(fieldIndex, fieldName, value) {
+      this.$store.dispatch('componentPatterns/updateComponentPatternField', {
+        fieldIndex,
+        fieldName,
+        value,
+      });
+    },
+
+    updateFieldsetData(fieldsetIndex, fieldName, value) {
+      this.$store.dispatch('componentPatterns/updateFieldsetData', {
+        fieldsetIndex,
+        fieldName,
+        value,
+      });
+    },
+
+    updateFieldsetFieldData(fieldsetIndex, fieldIndex, fieldName, value) {
+      this.$store.dispatch(
+        'componentPatterns/updateComponentPatternFieldsetField',
+        {
+          fieldsetIndex,
+          fieldIndex,
+          fieldName,
+          value,
+        }
+      );
     },
 
     onFieldDrop() {
@@ -270,43 +198,6 @@ export default {
 
     onFieldsetFieldDrop(fieldsetIndex) {
       console.log('test', fieldsetIndex);
-    },
-
-    addField() {
-      this.fields.push({});
-    },
-
-    addFieldset() {
-      this.fieldset.push({
-        fields: [{}],
-      });
-    },
-
-    addFieldsetField(fieldsetIndex) {
-      this.fieldset[fieldsetIndex].fields.push({});
-    },
-
-    updateFieldsetData(fieldsetIndex, fieldName, value) {
-      this.fieldset[fieldsetIndex][fieldName] = value;
-    },
-
-    updateFieldsetFieldData(fieldsetIndex, fieldIndex, fieldName, value) {
-      if (
-        Array.isArray(value) ||
-        !!this.fieldset[fieldsetIndex].fields[fieldName].options
-      ) {
-        this.$set(
-          this.fieldset[fieldsetIndex].fields[fieldIndex],
-          fieldName,
-          value
-        );
-      } else {
-        this.fieldset[fieldsetIndex].fields[fieldIndex][fieldName] = value;
-      }
-    },
-
-    getRandomId() {
-      return uuidv4();
     },
 
     getItemPayload(index) {
