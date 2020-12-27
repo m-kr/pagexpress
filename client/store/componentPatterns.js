@@ -1,14 +1,60 @@
+import {
+  ComponentPatternModelSchema,
+  FieldModelSchema,
+  FieldsetModelSchema,
+} from '../../server/models/data-schemas';
 import { showRequestResult } from '@/utils';
 
+const FIELD_ATTRIBUTES = ['min', 'max', 'required', 'default'];
+
 export const state = () => ({
+  newComponentId: null,
   componentPatterns: [],
   activeComponentPattern: null,
   currentPage: 1,
+  modelSchemas: {
+    componentPattern: ComponentPatternModelSchema(),
+    field: FieldModelSchema(),
+    fieldset: FieldsetModelSchema(),
+  },
   totalPages: 1,
   itemsPerPage: 10,
   search: null,
   sort: '-updatedAt',
 });
+
+export const getters = {
+  /**
+   * @param {object} state
+   * @return {function(string): (null|[])}
+   */
+  formFieldsAttributes: state => schemaName => {
+    if (!state.modelSchemas[schemaName]) {
+      return null;
+    }
+
+    const attributes = {};
+
+    for (const [fieldName, fieldAttributes] of Object.entries(
+      state.modelSchemas[schemaName]
+    )) {
+      const filteredAttributesKeys = Object.keys(
+        fieldAttributes
+      ).filter(attributeKey => FIELD_ATTRIBUTES.includes(attributeKey));
+
+      attributes[fieldName] = {};
+
+      for (const filteredAttributeKey in filteredAttributesKeys) {
+        attributes[fieldName] = {
+          ...attributes[fieldName],
+          [filteredAttributeKey]: fieldAttributes[filteredAttributeKey],
+        };
+      }
+    }
+
+    return attributes;
+  },
+};
 
 export const mutations = {
   LOAD_COMPONENT_PATTERNS(
@@ -23,6 +69,10 @@ export const mutations = {
 
   LOAD_SINGLE_PATTERN(state, componentPattern) {
     state.activeComponentPattern = componentPattern;
+  },
+
+  ADD_COMPONENT_PATTERN(state, componentId) {
+    state.newComponentId = componentId;
   },
 
   UPDATE_ACTIVE_COMPONENT_PATTERN(state, componentPatternData) {
@@ -70,6 +120,18 @@ export const actions = {
 
     if (data) {
       commit('LOAD_SINGLE_PATTERN', data);
+    }
+  },
+
+  async addComponentPattern({ commit, dispatch }, componentData) {
+    const componentId = await showRequestResult({
+      request: this.$axios.post('component-patterns/', componentData),
+      dispatch,
+      successMessage: `Added ${componentData.name} component`,
+    });
+
+    if (componentId) {
+      commit('ADD_COMPONENT', componentId);
     }
   },
 

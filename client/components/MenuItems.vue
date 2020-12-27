@@ -249,7 +249,6 @@ export default {
     padding: var(--spacing);
     margin-right: var(--spacing);
     color: var(--gray-darken);
-    background-color: var(--gray);
     border-right: 1px solid var(--border-color);
     cursor: move;
   }

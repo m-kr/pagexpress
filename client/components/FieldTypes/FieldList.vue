@@ -25,7 +25,7 @@
         </div>
       </div>
       <div class="control">
-        <button class="button is-info" @click="addItem">
+        <button class="button is-info" @click.prevent="addItem">
           <span>Add</span>
           <span class="icon">
             <fa icon="plus" />
