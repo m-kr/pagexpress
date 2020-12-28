@@ -4,7 +4,7 @@ import {
   FieldModelSchema,
   FieldsetModelSchema,
 } from '../../server/models/data-schemas';
-import { showRequestResult } from '@/utils';
+import { reorderItems, showRequestResult } from '@/utils';
 
 const FIELD_ATTRIBUTES = ['min', 'max', 'required', 'default'];
 
@@ -356,6 +356,20 @@ export const actions = {
     commit('UPDATE_FIELDSET', {
       ...updateFieldsetData,
       fieldSchema: getters.formFieldset[updateFieldsetData.fieldName],
+    });
+  },
+
+  reorderFields({ commit, state }, dropResult) {
+    const newFields = [...state.componentPatternFields];
+    commit('UPDATE_FIELDS', reorderItems(newFields, dropResult));
+  },
+
+  reorderFieldsetFields({ commit, state }, { fieldsetIndex, dropResult }) {
+    const newFields = [...state.componentPatternFieldset[fieldsetIndex].fields];
+    commit('UPDATE_FIELDSET', {
+      fieldsetIndex,
+      fieldName: 'fields',
+      value: reorderItems(newFields, dropResult),
     });
   },
 

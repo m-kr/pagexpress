@@ -16,9 +16,8 @@
           drop-class="draggable-form__ghost--drop"
           :group-name="`draggable-form-${randomId}`"
           drag-handle-selector=".draggable-form__grab-handler"
-          :get-child-payload="getItemPayload"
           :drop-placeholder="dropPlaceholderOptions"
-          @drop="onFieldDrop"
+          @drop="reorderFields"
         >
           <Draggable
             v-for="(field, index) of componentPatternFields"
@@ -63,9 +62,10 @@
           drop-class="draggable-form__ghost--drop"
           :group-name="`draggable-form-${randomId}`"
           drag-handle-selector=".draggable-form__grab-handler"
-          :get-child-payload="getItemPayload"
           :drop-placeholder="dropPlaceholderOptions"
-          @drop="onFieldsetFieldDrop(singleFieldsetIndex)"
+          @drop="
+            dropResults => onFieldsetFieldDrop(singleFieldsetIndex, dropResults)
+          "
         >
           <Draggable
             v-for="(field, index) of singleFieldset.fields"
@@ -152,7 +152,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('componentPatterns', ['addField', 'addFieldsetField']),
+    ...mapActions('componentPatterns', [
+      'addField',
+      'addFieldsetField',
+      'reorderFields',
+      'reorderFieldsetFields',
+    ]),
 
     updateMainParameters(fieldName, value) {
       this.$store.dispatch(
@@ -192,16 +197,8 @@ export default {
       );
     },
 
-    onFieldDrop() {
-      console.log('test');
-    },
-
-    onFieldsetFieldDrop(fieldsetIndex) {
-      console.log('test', fieldsetIndex);
-    },
-
-    getItemPayload(index) {
-      return index;
+    onFieldsetFieldDrop(fieldsetIndex, dropResult) {
+      this.reorderFieldsetFields({ fieldsetIndex, dropResult });
     },
   },
 };
