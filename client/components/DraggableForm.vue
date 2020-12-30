@@ -1,5 +1,5 @@
 <template>
-  <div class="draggable-form">
+  <div class="draggable-form" :class="type ? `draggable-form--${type}` : ''">
     <slot name="form" />
     <div class="draggable-form__actions buttons">
       <slot name="actions" />
@@ -13,6 +13,13 @@
 <script>
 export default {
   name: 'DraggableForm',
+
+  props: {
+    type: {
+      type: String,
+      default: null,
+    },
+  },
 };
 </script>
 
@@ -23,18 +30,24 @@ export default {
   background-color: var(--gray-dark);
   counter-increment: row-number;
 
+  &--nested {
+    background-color: var(--white);
+  }
+
   &:not(:first-of-type) {
     margin-top: var(--spacing);
   }
 
-  &::before {
-    position: absolute;
-    top: var(--spacing-05);
-    left: var(--spacing-05);
-    font-size: var(--font-small);
-    font-weight: 700;
-    color: var(--gray-darken);
-    content: '#' counter(row-number);
+  &:not(.draggable-form--nested) {
+    &::before {
+      position: absolute;
+      top: var(--spacing-05);
+      left: var(--spacing-05);
+      font-size: var(--font-small);
+      font-weight: 700;
+      color: var(--gray-darken);
+      content: '#' counter(row-number);
+    }
   }
 
   &__grab-handler {

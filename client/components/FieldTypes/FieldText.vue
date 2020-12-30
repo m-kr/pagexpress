@@ -9,7 +9,7 @@
         class="input"
         type="text"
         :placeholder="placeholder"
-        @input="onChange($event.target.value)"
+        @input="onInput"
       />
 
       <div v-if="options.length" class="select">
@@ -33,6 +33,7 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid';
+import _debounce from 'lodash/debounce';
 
 export default {
   name: 'FieldText',
@@ -70,6 +71,10 @@ export default {
     onChange(value) {
       this.$emit('update', value);
     },
+
+    onInput: _debounce(function(evt) {
+      this.$emit('update', evt.target.value);
+    }, 500),
   },
 };
 </script>

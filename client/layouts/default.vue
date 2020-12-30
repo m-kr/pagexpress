@@ -20,3 +20,9 @@ export default {
   },
 };
 </script>
+
+<style lang="postcss" scoped>
+.container {
+  padding-bottom: var(--spacing-2);
+}
+</style>

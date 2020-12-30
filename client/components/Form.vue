@@ -1,28 +1,93 @@
 <template>
   <form class="form">
-    <Field
-      v-for="(fieldSchema, fieldName) of formSchema"
-      :key="getRandomId(fieldName)"
-      :hidden="isHidden(fieldSchema)"
-      :field-type="getFieldType(fieldSchema)"
-      :label="fieldSchema.label || getFieldLabel(fieldName)"
-      :value="getValue(fieldSchema, fieldName)"
-      :options="fieldSchema.options"
-      :placeholder="fieldSchema.placeholder"
-      :update="value => update(fieldName, value)"
-      :css-class="`field--${getFieldType(fieldSchema)}`"
-    />
+    <div v-if="fields" class="form__fields">
+      <Field
+        v-for="(fieldSchema, fieldName) of fields"
+        :key="fieldName"
+        :hidden="isHidden(fieldSchema)"
+        :field-type="getFieldType(fieldSchema)"
+        :label="fieldSchema.label || getFieldLabel(fieldName)"
+        :value="getValue(fieldSchema, fieldName)"
+        :options="fieldSchema.options"
+        :placeholder="fieldSchema.placeholder"
+        :update="value => update(fieldName, value)"
+        :css-class="`field--${getFieldType(fieldSchema)}`"
+      />
+    </div>
+    <div v-if="fieldsGroups && fieldsGroups" class="form__fields-groups">
+      <div
+        v-for="(fieldsGroup, fieldsGroupName) of fieldsGroups"
+        :key="fieldsGroupName"
+        class="form__fields-group"
+      >
+        <p class="label">
+          {{ fieldsGroup.label || getFieldLabel(fieldsGroupName) }}:
+        </p>
+        <Container
+          class="draggable-forms-container"
+          drag-class="draggable-form__ghost"
+          drop-class="draggable-form__ghost--drop"
+          :group-name="`draggable-form-${getRandomId(fieldsGroupName)}`"
+          drag-handle-selector=".draggable-form__grab-handler"
+          :drop-placeholder="dropPlaceholderOptions"
+          @drop="
+            dropResult => reorderFieldsGroupItems(fieldsGroupName, dropResult)
+          "
+        >
+          <Draggable
+            v-for="(rowValues, rowIndex) of values[fieldsGroupName]"
+            :key="`${fieldsGroupName}-${rowIndex}`"
+            class="fields__item"
+          >
+            <DraggableForm type="nested">
+              <template #form>
+                <Field
+                  v-for="(fieldSchema, fieldName) of fieldsGroup.fields"
+                  :key="`${fieldsGroupName}-${rowIndex}-${fieldName}`"
+                  :hidden="isHidden(fieldSchema)"
+                  :field-type="getFieldType(fieldSchema)"
+                  :label="fieldSchema.label || getFieldLabel(fieldName)"
+                  :value="rowValues[fieldName]"
+                  :options="fieldSchema.options"
+                  :placeholder="fieldSchema.placeholder"
+                  :update="
+                    value =>
+                      updateFieldsGroup(
+                        fieldsGroupName,
+                        rowIndex,
+                        fieldName,
+                        value
+                      )
+                  "
+                  :css-class="`field--${getFieldType(fieldSchema)}`"
+                />
+              </template>
+            </DraggableForm>
+          </Draggable>
+        </Container>
+        <div class="form__fields-group-actions buttons">
+          <button
+            class="button is-small is-success"
+            @click.prevent="addFieldsGroupItem(fieldsGroupName)"
+          >
+            Add fields group item +
+          </button>
+        </div>
+      </div>
+    </div>
   </form>
 </template>
 
 <script>
+import { Draggable, Container } from 'vue-smooth-dnd';
 import { v4 as uuidv4 } from 'uuid';
-import { Field } from '@/components';
+import { Field, DraggableForm } from '@/components';
+import { reorderItems } from '@/utils';
 
 export default {
   name: 'Form',
 
-  components: { Field },
+  components: { Container, Draggable, DraggableForm, Field },
 
   props: {
     update: {
@@ -48,8 +113,42 @@ export default {
 
   data() {
     return {
-      dataModel: {},
+      dropPlaceholderOptions: {
+        className: 'drop-preview',
+        animationDuration: '150',
+        showOnTop: true,
+      },
     };
+  },
+
+  computed: {
+    fields() {
+      const fields = {};
+
+      for (const fieldName of Object.keys(this.formSchema)) {
+        const fieldSchema = this.formSchema[fieldName];
+
+        if (!(fieldSchema.type && fieldSchema.type === 'fieldsGroup')) {
+          fields[fieldName] = fieldSchema;
+        }
+      }
+
+      return fields;
+    },
+
+    fieldsGroups() {
+      const fields = {};
+
+      for (const fieldName of Object.keys(this.formSchema)) {
+        const fieldSchema = this.formSchema[fieldName];
+
+        if (fieldSchema.type && fieldSchema.type === 'fieldsGroup') {
+          fields[fieldName] = fieldSchema;
+        }
+      }
+
+      return fields;
+    },
   },
 
   methods: {
@@ -108,16 +207,81 @@ export default {
     getFieldLabel(fieldName) {
       return `${fieldName.charAt(0).toUpperCase()}${fieldName.slice(1)}`;
     },
+
+    getDefaultValueForType(type) {
+      switch (type) {
+        case 'text':
+        case 'html':
+          return '';
+        case 'list':
+          return [];
+        default:
+          return '';
+      }
+    },
+
+    updateFieldsGroup(fieldsGroupName, rowIndex, fieldName, value) {
+      const newFieldsGroupValue = [...this.values[fieldsGroupName]];
+      newFieldsGroupValue[rowIndex] = {
+        ...newFieldsGroupValue[rowIndex],
+        [fieldName]: value,
+      };
+
+      this.update(fieldsGroupName, [...newFieldsGroupValue], true);
+    },
+
+    addFieldsGroupItem(fieldsGroupName) {
+      const { fields } = this.fieldsGroups[fieldsGroupName];
+      const fieldsGroupValue = this.values[fieldsGroupName] || [];
+      const newItem = {};
+
+      for (const itemFieldName of Object.keys(fields)) {
+        const fieldType = fields[itemFieldName].type;
+
+        newItem[itemFieldName] = this.getDefaultValueForType(fieldType);
+      }
+
+      this.update(fieldsGroupName, [...fieldsGroupValue, newItem]);
+    },
+
+    reorderFieldsGroupItems(fieldsGroupName, dropResult) {
+      const reorderedItems = reorderItems(
+        [...this.values[fieldsGroupName]],
+        dropResult
+      );
+
+      this.update(fieldsGroupName, reorderedItems);
+    },
   },
 };
 </script>
 
 <style lang="postcss">
 .form {
-  display: grid;
-  grid-gap: var(--spacing);
   width: 100%;
-  grid-template-columns: repeat(auto-fill, minmax(15em, auto));
+
+  &__fields-group {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing);
+
+    &:not(:last-of-type) {
+      margin-bottom: var(--spacing);
+    }
+
+    &-actions {
+      display: flex;
+      padding-top: var(--spacing);
+    }
+  }
+
+  &__fields-groups .draggable-form,
+  &__fields {
+    display: grid;
+    grid-gap: var(--spacing);
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(15em, auto));
+  }
 
   .select,
   select {

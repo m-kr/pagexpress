@@ -1,5 +1,22 @@
 <template>
   <div class="component-add">
+    <Toolbar>
+      <template v-slot:left>
+        <button class="button is-info" @click="addField">
+          Add field +
+        </button>
+
+        <button class="button is-info" @click="addFieldset">
+          Add fieldset +
+        </button>
+      </template>
+
+      <template v-slot:right>
+        <button class="button is-success" @click="createComponent">
+          Create component
+        </button>
+      </template>
+    </Toolbar>
     <Panel title="Main parameters">
       <Form
         :form-schema="formMainParameters"
@@ -8,7 +25,7 @@
       />
     </Panel>
 
-    <Panel title="Fields">
+    <Panel v-if="componentPatternFields" title="Fields">
       <div class="fields">
         <Container
           class="draggable-forms-container"
@@ -51,7 +68,7 @@
       title="Fieldset"
     >
       <Form
-        :form-schema="formMainParameters"
+        :form-schema="formFieldset"
         :values="singleFieldset"
         :update="updateFieldsetData.bind(undefined, singleFieldsetIndex)"
       />
@@ -107,7 +124,7 @@
 <script>
 import { Draggable, Container } from 'vue-smooth-dnd';
 import { mapGetters, mapState, mapActions } from 'vuex';
-import { Form, Panel, DraggableForm } from '@/components';
+import { Form, Panel, DraggableForm, Toolbar } from '@/components';
 
 export default {
   computed: {
@@ -122,6 +139,7 @@ export default {
       'componentPatternFields',
       'componentPatternFieldset',
       'fieldTypes',
+      'newComponentId',
     ]),
   },
   components: {
@@ -130,6 +148,7 @@ export default {
     DraggableForm,
     Form,
     Panel,
+    Toolbar,
   },
 
   data() {
@@ -153,7 +172,9 @@ export default {
 
   methods: {
     ...mapActions('componentPatterns', [
+      'addComponentPattern',
       'addField',
+      'addFieldset',
       'addFieldsetField',
       'reorderFields',
       'reorderFieldsetFields',
@@ -199,6 +220,16 @@ export default {
 
     onFieldsetFieldDrop(fieldsetIndex, dropResult) {
       this.reorderFieldsetFields({ fieldsetIndex, dropResult });
+    },
+
+    async createComponent() {
+      await this.addComponentPattern();
+
+      if (this.newComponentId) {
+        await this.$router.push({
+          path: `/components/${this.newComponentId}/edit`,
+        });
+      }
     },
   },
 };

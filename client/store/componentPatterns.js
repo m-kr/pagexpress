@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   ComponentPatternModelSchema,
   FieldModelSchema,
+  FieldOptionModelSchema,
   FieldsetModelSchema,
 } from '../../server/models/data-schemas';
 import { reorderItems, showRequestResult } from '@/utils';
@@ -12,16 +13,13 @@ export const state = () => ({
   newComponentId: null,
   componentPatterns: [],
   componentPatternMainData: {},
-  componentPatternFields: [{}],
-  componentPatternFieldset: [
-    {
-      fields: [{}],
-    },
-  ],
+  componentPatternFields: null,
+  componentPatternFieldset: null,
   currentPage: 1,
   modelSchemas: {
     componentPattern: ComponentPatternModelSchema(),
     field: FieldModelSchema(),
+    fieldOption: FieldOptionModelSchema(),
     fieldset: FieldsetModelSchema(),
   },
   fieldTypes: null,
@@ -52,7 +50,7 @@ export const getters = {
 
       attributes[fieldName] = {};
 
-      for (const filteredAttributeKey in filteredAttributesKeys) {
+      for (const filteredAttributeKey of filteredAttributesKeys) {
         attributes[fieldName] = {
           ...attributes[fieldName],
           [filteredAttributeKey]: fieldAttributes[filteredAttributeKey],
@@ -69,7 +67,7 @@ export const getters = {
     return {
       name: {
         type: 'text',
-        description: 'Camel case with first capital letter',
+        label: 'Name (Upper CamelCase)',
         attributes: fieldsAttributes.name,
       },
       label: {
@@ -85,6 +83,7 @@ export const getters = {
 
   formFields(state, getters) {
     const fieldsAttributes = getters.formFieldsAttributes('field');
+    const fieldOptionsAttributes = getters.formFieldsAttributes('fieldOption');
 
     return {
       required: {
@@ -119,8 +118,18 @@ export const getters = {
       },
       options: {
         label: 'Custom options',
-        type: 'list',
+        type: 'fieldsGroup',
         attributes: fieldsAttributes.options,
+        fields: {
+          name: {
+            type: 'text',
+            attributes: fieldOptionsAttributes.name,
+          },
+          value: {
+            type: 'text',
+            attributes: fieldOptionsAttributes.value,
+          },
+        },
       },
       defaultValue: {
         label: 'Default value',
@@ -140,6 +149,7 @@ export const getters = {
       },
       name: {
         type: 'text',
+        label: 'Name (camelCase)',
         attributes: fieldsetAttributes.name,
       },
       label: {
@@ -162,6 +172,18 @@ export const getters = {
       name: fieldType.type,
       value: fieldType._id,
     }));
+  },
+
+  componentData({
+    componentPatternMainData,
+    componentPatternFields,
+    componentPatternFieldset,
+  }) {
+    return {
+      ...componentPatternMainData,
+      fields: componentPatternFields,
+      fieldset: componentPatternFieldset,
+    };
   },
 
   randomId() {
@@ -196,50 +218,36 @@ export const mutations = {
     state.componentPatternMainData[fieldName] = value;
   },
 
-  UPDATE_FIELD_VALUE(state, { fieldIndex, fieldName, value, fieldSchema }) {
-    if (Array.isArray(value) || !!fieldSchema.options) {
-      state.componentPatternFields.splice(fieldIndex, 1, {
-        ...state.componentPatternFields[fieldIndex],
-        [fieldName]: value,
-      });
-    } else {
-      state.componentPatternFields[fieldIndex][fieldName] = value;
-    }
+  UPDATE_FIELD_VALUE(state, { fieldIndex, fieldName, value }) {
+    state.componentPatternFields.splice(fieldIndex, 1, {
+      ...state.componentPatternFields[fieldIndex],
+      [fieldName]: value,
+    });
   },
 
   UPDATE_FIELDS(state, fields) {
     state.componentPatternFields = [...fields];
   },
 
-  UPDATE_FIELDSET(state, { fieldsetIndex, fieldName, value, fieldSchema }) {
-    if (Array.isArray(value) || !fieldSchema || fieldSchema.options) {
-      state.componentPatternFieldset.splice(fieldsetIndex, 1, {
-        ...state.componentPatternFieldset[fieldsetIndex],
-        [fieldName]: value,
-      });
-    } else {
-      state.componentPatternFieldset[fieldsetIndex][fieldName] = value;
-    }
+  UPDATE_ALL_FIELDSET(state, fieldset) {
+    state.componentPatternFieldset = [...fieldset];
+  },
+
+  UPDATE_FIELDSET(state, { fieldsetIndex, fieldName, value }) {
+    state.componentPatternFieldset.splice(fieldsetIndex, 1, {
+      ...state.componentPatternFieldset[fieldsetIndex],
+      [fieldName]: value,
+    });
   },
 
   UPDATE_FIELDSET_FIELD_VALUE(
     state,
-    { fieldsetIndex, fieldIndex, fieldName, value, fieldSchema }
+    { fieldsetIndex, fieldIndex, fieldName, value }
   ) {
-    if (Array.isArray(value) || !!fieldSchema.options) {
-      state.componentPatternFieldset[fieldsetIndex].fields.splice(
-        fieldIndex,
-        1,
-        {
-          ...state.componentPatternFieldset[fieldsetIndex].fields[fieldIndex],
-          [fieldName]: value,
-        }
-      );
-    } else {
-      state.componentPatternFieldset[fieldsetIndex].fields[fieldIndex][
-        fieldName
-      ] = value;
-    }
+    state.componentPatternFieldset[fieldsetIndex].fields.splice(fieldIndex, 1, {
+      ...state.componentPatternFieldset[fieldsetIndex].fields[fieldIndex],
+      [fieldName]: value,
+    });
   },
 
   REMOVE_COMPONENT_PATTERN(state, componentPatternId) {
@@ -297,15 +305,15 @@ export const actions = {
     }
   },
 
-  async addComponentPattern({ commit, dispatch }, componentData) {
+  async addComponentPattern({ commit, dispatch, getters }) {
     const componentId = await showRequestResult({
-      request: this.$axios.post('component-patterns/', componentData),
+      request: this.$axios.post('component-patterns', getters.componentData),
       dispatch,
-      successMessage: `Added ${componentData.name} component`,
+      successMessage: `Added ${getters.componentData.name} component`,
     });
 
     if (componentId) {
-      commit('ADD_COMPONENT', componentId);
+      commit('ADD_COMPONENT_PATTERN', componentId);
     }
   },
 
@@ -323,25 +331,25 @@ export const actions = {
     commit('UPDATE_MAIN_PARAMETERS', mainParameters);
   },
 
-  updateComponentPatternField({ commit, getters }, updatedFieldParameters) {
-    commit('UPDATE_FIELD_VALUE', {
-      ...updatedFieldParameters,
-      fieldSchema: getters.formFields[updatedFieldParameters.fieldName],
-    });
+  updateComponentPatternField({ commit }, updatedFieldParameters) {
+    commit('UPDATE_FIELD_VALUE', updatedFieldParameters);
   },
 
-  updateComponentPatternFieldsetField(
-    { commit, getters },
-    updatedFieldParameters
-  ) {
-    commit('UPDATE_FIELDSET_FIELD_VALUE', {
-      ...updatedFieldParameters,
-      fieldSchema: getters.formFields[updatedFieldParameters.fieldName],
-    });
+  updateComponentPatternFieldsetField({ commit }, updatedFieldParameters) {
+    commit('UPDATE_FIELDSET_FIELD_VALUE', updatedFieldParameters);
   },
 
   addField({ commit, state }) {
-    commit('UPDATE_FIELDS', [...state.componentPatternFields, {}]);
+    commit('UPDATE_FIELDS', [...(state.componentPatternFields || []), {}]);
+  },
+
+  addFieldset({ commit, state }) {
+    commit('UPDATE_ALL_FIELDSET', [
+      ...(state.componentPatternFieldset || []),
+      {
+        fields: [{}],
+      },
+    ]);
   },
 
   addFieldsetField({ commit, state }, fieldsetIndex) {
@@ -352,11 +360,8 @@ export const actions = {
     });
   },
 
-  updateFieldsetData({ commit, getters }, updateFieldsetData) {
-    commit('UPDATE_FIELDSET', {
-      ...updateFieldsetData,
-      fieldSchema: getters.formFieldset[updateFieldsetData.fieldName],
-    });
+  updateFieldsetData({ commit }, updateFieldsetData) {
+    commit('UPDATE_FIELDSET', updateFieldsetData);
   },
 
   reorderFields({ commit, state }, dropResult) {
