@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import {
   ComponentPatternModelSchema,
@@ -23,6 +24,7 @@ export const state = () => ({
     fieldset: FieldsetModelSchema(),
   },
   fieldTypes: null,
+  definitions: null,
   totalPages: 1,
   itemsPerPage: 10,
   search: null,
@@ -93,7 +95,6 @@ export const getters = {
       fieldTypeId: {
         label: 'Field type',
         type: 'text',
-        defaultValue: 'text',
         hidden: !getters.fieldTypesOptions,
         options: getters.fieldTypesOptions,
         attributes: fieldsAttributes.fieldTypeId,
@@ -115,6 +116,8 @@ export const getters = {
         label: 'Options from global definition',
         type: 'text',
         attributes: fieldsAttributes.definedOptionsId,
+        hidden: !getters.definitionsOptions,
+        options: getters.definitionsOptions,
       },
       options: {
         label: 'Custom options',
@@ -174,6 +177,17 @@ export const getters = {
     }));
   },
 
+  definitionsOptions(state) {
+    if (!state.definitions) {
+      return null;
+    }
+
+    return state.definitions.map(({ name, _id }) => ({
+      name,
+      value: _id,
+    }));
+  },
+
   componentData({
     componentPatternMainData,
     componentPatternFields,
@@ -181,8 +195,8 @@ export const getters = {
   }) {
     return {
       ...componentPatternMainData,
-      fields: componentPatternFields,
-      fieldset: componentPatternFieldset,
+      fields: componentPatternFields || [],
+      fieldset: componentPatternFieldset || [],
     };
   },
 
@@ -206,8 +220,9 @@ export const mutations = {
     state.activeComponentPattern = componentPattern;
   },
 
-  LOAD_ADD_COMPONENT_VIEW_DATA(state, { fieldTypes }) {
+  LOAD_ADD_COMPONENT_VIEW_DATA(state, { fieldTypes, definitions }) {
     state.fieldTypes = fieldTypes;
+    state.definitions = definitions;
   },
 
   ADD_COMPONENT_PATTERN(state, componentId) {
@@ -215,7 +230,7 @@ export const mutations = {
   },
 
   UPDATE_MAIN_PARAMETERS(state, { fieldName, value }) {
-    state.componentPatternMainData[fieldName] = value;
+    Vue.set(state.componentPatternMainData, fieldName, value);
   },
 
   UPDATE_FIELD_VALUE(state, { fieldIndex, fieldName, value }) {
@@ -294,18 +309,21 @@ export const actions = {
     }
   },
 
-  async initAddComponentViewData({ commit, dispatch }) {
-    const fieldTypes = await showRequestResult({
-      request: this.$axios.get('field-types'),
-      dispatch,
+  async initAddComponentViewData({ commit, dispatch, rootState }) {
+    await dispatch('definitions/fetchDefinitions', null, {
+      root: true,
+    });
+    await dispatch('fieldTypes/fetchFieldTypes', null, {
+      root: true,
     });
 
-    if (fieldTypes) {
-      commit('LOAD_ADD_COMPONENT_VIEW_DATA', { fieldTypes });
-    }
+    commit('LOAD_ADD_COMPONENT_VIEW_DATA', {
+      definitions: rootState.definitions.definitions,
+      fieldTypes: rootState.fieldTypes.types,
+    });
   },
 
-  async addComponentPattern({ commit, dispatch, getters }) {
+  async addComponentPattern({ getters, dispatch, commit }) {
     const componentId = await showRequestResult({
       request: this.$axios.post('component-patterns', getters.componentData),
       dispatch,

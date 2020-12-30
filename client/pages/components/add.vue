@@ -127,21 +127,6 @@ import { mapGetters, mapState, mapActions } from 'vuex';
 import { Form, Panel, DraggableForm, Toolbar } from '@/components';
 
 export default {
-  computed: {
-    ...mapGetters('componentPatterns', [
-      'formMainParameters',
-      'formFields',
-      'formFieldset',
-      'randomId',
-    ]),
-    ...mapState('componentPatterns', [
-      'componentPatternMainData',
-      'componentPatternFields',
-      'componentPatternFieldset',
-      'fieldTypes',
-      'newComponentId',
-    ]),
-  },
   components: {
     Container,
     Draggable,
@@ -164,6 +149,22 @@ export default {
         showOnTop: true,
       },
     };
+  },
+
+  computed: {
+    ...mapGetters('componentPatterns', [
+      'formMainParameters',
+      'formFields',
+      'formFieldset',
+      'randomId',
+    ]),
+    ...mapState('componentPatterns', [
+      'componentPatternMainData',
+      'componentPatternFields',
+      'componentPatternFieldset',
+      'fieldTypes',
+      'newComponentId',
+    ]),
   },
 
   mounted() {
