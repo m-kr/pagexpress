@@ -9,6 +9,8 @@ const FieldsetModelSchema = ({ fieldSchema } = {}) => ({
   fields: [fieldSchema || FieldModelSchema()],
 });
 
+// Prevent warning from client side - make it usable as isomorphic
+/* eslint-disable */
 const fieldsetValidationSchema = Joi.object({
   name: Joi.string().required().min(3).max(30),
   label: Joi.string().required().min(3).max(30),
@@ -16,6 +18,7 @@ const fieldsetValidationSchema = Joi.object({
   required: Joi.boolean(),
   fields: Joi.array().items(fieldValidationSchema),
 });
+/* eslint-enable */
 
 module.exports = {
   FieldsetModelSchema,

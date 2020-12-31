@@ -21,6 +21,8 @@ const FieldModelSchema = () => ({
   },
 });
 
+// Prevent warning from client side - make it usable as isomorphic
+/* eslint-disable */
 const fieldOptionValidationSchema = Joi.object({
   name: Joi.string().required().min(3).max(50),
   value: Joi.string().required().max(50),
@@ -36,6 +38,7 @@ const fieldValidationSchema = Joi.object({
   definedOptionsId: Joi.objectId(),
   options: Joi.array().items(fieldOptionValidationSchema),
 });
+/* eslint-enable */
 
 module.exports = {
   FieldModelSchema,

@@ -1,5 +1,7 @@
 import { Quill } from 'vue-quill-editor';
 
+Quill.debug('error');
+
 const Link = Quill.import('formats/link');
 
 class BetterQuillLink extends Link {

@@ -16,6 +16,8 @@ const ComponentPatternModelSchema = ({ fieldSchema, fieldsetSchema } = {}) => ({
   },
 });
 
+// Prevent warning from client side - make it usable as isomorphic
+/* eslint-disable */
 const componentPatternValidationSchema = Joi.object({
   name: Joi.string().required().min(3).max(30),
   label: Joi.string().required().min(3).max(30),
@@ -23,6 +25,7 @@ const componentPatternValidationSchema = Joi.object({
   fields: Joi.array().items(fieldValidationSchema),
   fieldset: Joi.array().items(fieldsetValidationSchema),
 });
+/* eslint-enable */
 
 module.exports = {
   ComponentPatternModelSchema,
