@@ -65,6 +65,21 @@ html {
   opacity: 0;
 }
 
+.draggable-forms-container {
+  counter-reset: row-number;
+}
+
+.draggable-forms-container__actions {
+ display: flex;
+ justify-content: flex-end;
+ margin-top: var(--spacing);
+}
+
+.smooth-dnd-container.vertical > .smooth-dnd-draggable-wrapper.columns {
+ display: flex;
+ overflow: visible;
+}
+
 /* Global drop element style */
 .drop-preview {
   border: 1px dashed var(--gray-dark);

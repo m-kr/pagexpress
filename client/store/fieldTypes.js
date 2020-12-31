@@ -11,7 +11,11 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchFieldTypes({ commit, dispatch }) {
+  async fetchFieldTypes({ commit, dispatch, state }, { reload } = {}) {
+    if (state.types && !reload) {
+      return;
+    }
+
     const fieldTypes = await showRequestResult({
       request: this.$axios.get('field-types'),
       dispatch,

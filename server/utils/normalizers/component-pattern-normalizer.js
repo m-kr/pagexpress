@@ -22,6 +22,8 @@ const normalizeComponentPattern = component => {
     component.fields = component.fields.map(normalizeComponentFieldData);
   }
 
+  console.log('fields', component.fields);
+
   return component;
 };
 

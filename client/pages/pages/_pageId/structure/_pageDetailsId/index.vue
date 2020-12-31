@@ -98,7 +98,7 @@ export default {
 
   computed: {
     ...mapState({
-      componentPatterns: state => state.componentPatterns.patterns,
+      componentPatterns: state => state.componentPatterns.componentPatterns,
       components: state => state.pageDetails.components,
       siteInfo: state => state.siteInfo,
       pageData: state => state.page.mainData,
@@ -136,7 +136,7 @@ export default {
       await this.$store.dispatch('page/fetchPageData', {
         pageId: this.$route.params.pageId,
       });
-      await this.$store.dispatch('componentPatterns/fetchPatterns');
+      await this.$store.dispatch('componentPatterns/fetchComponentPatterns');
       await this.$store.dispatch('fetchSiteInfo');
     },
 

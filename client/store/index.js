@@ -1,9 +1,9 @@
 import { showRequestResult } from '@/utils';
 
-export const state = {
+export const state = () => ({
   breadcrumbsLinks: [],
   siteInfo: null,
-};
+});
 
 export const getters = {
   isAuthenticated(state) {

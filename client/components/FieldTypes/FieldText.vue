@@ -9,7 +9,7 @@
         class="input"
         type="text"
         :placeholder="placeholder"
-        @input="onChange($event.target.value)"
+        @input="onInput"
       />
 
       <div v-if="options.length" class="select">
@@ -18,6 +18,7 @@
           :value="value"
           @change="onChange($event.target.value)"
         >
+          <option value="">{{ selectPlaceholder }}</option>
           <option
             v-for="(option, index) in options"
             :key="index"
@@ -33,6 +34,7 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid';
+import _debounce from 'lodash/debounce';
 
 export default {
   name: 'FieldText',
@@ -64,12 +66,20 @@ export default {
       const uniqueId = uuidv4().replace('-', '');
       return `${slug}_${uniqueId}`;
     },
+    selectPlaceholder() {
+      return this.placeholder.length ? this.placeholder : '-- Choose option --';
+    },
   },
 
   methods: {
     onChange(value) {
-      this.$emit('update', value);
+      const correctValue = value.length ? value : undefined;
+      this.$emit('update', correctValue);
     },
+
+    onInput: _debounce(function(evt) {
+      this.$emit('update', evt.target.value);
+    }, 500),
   },
 };
 </script>

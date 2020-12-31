@@ -6,8 +6,11 @@
       </div>
       <div class="navbar-menu">
         <div class="navbar-start">
-          <nuxt-link to="/" class="navbar-item">
+          <nuxt-link to="/" class="navbar-item" exact>
             Pages
+          </nuxt-link>
+          <nuxt-link to="/components" class="navbar-item">
+            Components
           </nuxt-link>
           <nuxt-link to="/menus" class="navbar-item">
             Menu
@@ -45,24 +48,30 @@ export default {
 <style lang="postcss">
 .navbar {
   margin-bottom: var(--spacing-15);
-}
 
-.navbar__brand {
-  font-size: 2.4rem;
-  margin-right: var(--spacing);
+  &__brand {
+    font-size: 2.4rem;
+    margin-right: var(--spacing);
 
-  a {
-    color: var(--body-color);
+    a {
+      color: var(--body-color);
+    }
+
+    small {
+      font-size: 0.7em;
+      line-height: 0.3em;
+    }
   }
 
-  small {
-    font-size: 0.7em;
-    line-height: 0.3em;
+  &__action {
+    display: flex;
+    align-items: center;
   }
-}
 
-.navbar__action {
-  display: flex;
-  align-items: center;
+  &-item {
+    &.nuxt-link-active {
+      background-color: var(--gray);
+    }
+  }
 }
 </style>

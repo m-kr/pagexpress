@@ -1,5 +1,5 @@
 <template>
-  <div :class="cssClass" class="field-wrapper">
+  <div v-if="!hidden" :class="cssClass" class="field-wrapper">
     <FieldText
       v-if="fieldType === 'text'"
       :label="label"
@@ -54,6 +54,11 @@ export default {
     fieldType: {
       type: String,
       required: true,
+    },
+
+    hidden: {
+      type: Boolean,
+      default: false,
     },
 
     label: {

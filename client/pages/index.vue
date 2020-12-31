@@ -42,26 +42,11 @@
     </nav>
     <div v-if="Object.keys(pagesList).length" class="pages-list__wrapper">
       <Table :headers="headers" :data="pagesList" :actions="pageActions" />
-      <nav class="pagination" role="navigation" aria-label="pagination">
-        <a
-          :class="currentPage === totalPages ? 'is-disabled' : ''"
-          class="pagination-next"
-          @click.prevent="changePage(currentPage + 1)"
-        >
-          Next
-        </a>
-        <a
-          class="pagination-previous"
-          :class="currentPage !== 1 ? '' : 'is-disabled'"
-          title="This is the first page"
-          @click.prevent="changePage(currentPage - 1)"
-        >
-          Prev
-        </a>
-        <ul class="pagination-list">
-          <li>Page {{ currentPage }} of {{ totalPages }}</li>
-        </ul>
-      </nav>
+      <Pagination
+        :change-page="changePage"
+        :current-page="currentPage"
+        :total-pages="totalPages"
+      />
     </div>
     <article
       v-if="!Object.keys(pagesList).length && searchKeyword.length"
@@ -79,11 +64,12 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import Table from '~/components/Table';
+import { Table, Pagination } from '@/components';
 import { formatDate } from '~/utils';
 
 export default {
   components: {
+    Pagination,
     Table,
   },
 
