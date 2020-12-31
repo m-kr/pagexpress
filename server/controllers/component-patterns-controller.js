@@ -5,43 +5,46 @@ const { normalizeComponentPattern } = require('../utils/normalizers');
 
 const getComponentPatterns = async (req, res, next) => {
   const { componentPatternId } = req.params;
+  const { plainData } = req.query;
 
   try {
     if (componentPatternId) {
-      const data = await ComponentPattern.findById(componentPatternId)
-        .populate({
-          path: 'fields.definedOptionsId fieldset.fields.definedOptionsId',
-          model: 'Definition',
-          select: 'values defaultValue -_id',
-        })
-        .populate({
-          path: 'fields.fieldTypeId fieldset.fields.fieldTypeId',
-          model: 'FieldType',
-          select: 'type -_id',
-        })
-        .exec();
+      const query = ComponentPattern.findById(componentPatternId);
+
+      if (!plainData) {
+        query
+          .populate({
+            path: 'fields.definedOptionsId fieldset.fields.definedOptionsId',
+            model: 'Definition',
+            select: 'values defaultValue',
+          })
+          .populate({
+            path: 'fields.fieldTypeId fieldset.fields.fieldTypeId',
+            model: 'FieldType',
+          });
+      }
+
+      const data = await query.exec();
 
       if (!data) {
         throw new NotFound('Component pattern not exist');
       }
 
-      return res.json(normalizeComponentPattern(data.toObject()));
+      return plainData ? res.json(data) : res.json(normalizeComponentPattern(data.toObject()));
     }
 
     const listFeatures = new ListFeatures(ComponentPattern, req.query, 'name');
     const { currentPage, itemsPerPage, limit, skip, totalPages } = await listFeatures.getPaginationParameters();
     const queryFilter = listFeatures.getQueryFilter();
-    console.log('queryFilter', queryFilter);
     const data = await ComponentPattern.find(queryFilter)
       .populate({
         path: 'fields.definedOptionsId fieldset.fields.definedOptionsId',
         model: 'Definition',
-        select: 'values defaultValue -_id',
+        select: 'values defaultValue',
       })
       .populate({
         path: 'fields.fieldTypeId fieldset.fields.fieldTypeId',
         model: 'FieldType',
-        select: 'type -_id',
       })
       .sort('-name')
       .skip(skip)

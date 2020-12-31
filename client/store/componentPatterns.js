@@ -1,3 +1,4 @@
+import _omit from 'lodash/omit';
 import Vue from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -11,7 +12,7 @@ import { reorderItems, showRequestResult } from '@/utils';
 const FIELD_ATTRIBUTES = ['min', 'max', 'required', 'default'];
 
 export const state = () => ({
-  newComponentId: null,
+  componentId: null,
   componentPatterns: [],
   componentPatternMainData: {},
   componentPatternFields: null,
@@ -25,6 +26,7 @@ export const state = () => ({
   },
   fieldTypes: null,
   definitions: null,
+  unsavedState: false,
   totalPages: 1,
   itemsPerPage: 10,
   search: null,
@@ -95,6 +97,7 @@ export const getters = {
       fieldTypeId: {
         label: 'Field type',
         type: 'text',
+        defaultValue: getters.getDefaultFieldType,
         hidden: !getters.fieldTypesOptions,
         options: getters.fieldTypesOptions,
         attributes: fieldsAttributes.fieldTypeId,
@@ -112,6 +115,11 @@ export const getters = {
         type: 'text',
         attributes: fieldsAttributes.description,
       },
+      defaultValue: {
+        label: 'Default value',
+        typeFrom: 'fieldTypeId',
+        attributes: fieldsAttributes.defaultValue,
+      },
       definedOptionsId: {
         label: 'Options from global definition',
         type: 'text',
@@ -123,6 +131,7 @@ export const getters = {
         label: 'Custom options',
         type: 'fieldsGroup',
         attributes: fieldsAttributes.options,
+        hideWhenFieldValue: 'definedOptionsId',
         fields: {
           name: {
             type: 'text',
@@ -133,11 +142,6 @@ export const getters = {
             attributes: fieldOptionsAttributes.value,
           },
         },
-      },
-      defaultValue: {
-        label: 'Default value',
-        typeFrom: 'fieldTypeId',
-        attributes: fieldsAttributes.defaultValue,
       },
     };
   },
@@ -175,6 +179,14 @@ export const getters = {
       name: fieldType.type,
       value: fieldType._id,
     }));
+  },
+
+  getDefaultFieldType(state) {
+    if (!state.fieldTypes) {
+      return null;
+    }
+
+    return state.fieldTypes.find(fieldType => fieldType.type === 'text')._id;
   },
 
   definitionsOptions(state) {
@@ -216,8 +228,18 @@ export const mutations = {
     state.itemsPerPage = itemsPerPage;
   },
 
-  LOAD_SINGLE_PATTERN(state, componentPattern) {
-    state.activeComponentPattern = componentPattern;
+  LOAD_SINGLE_PATTERN(state, { _id, fields, fieldset, ...mainData }) {
+    state.componentPatternMainData = _omit(mainData, ['_id', '__v']);
+    state.componentPatternFields = fields
+      ? fields.map(field => _omit(field, ['_id']))
+      : null;
+    state.componentPatternFieldset = fieldset
+      ? fieldset.map(singleFieldset => ({
+          ..._omit(singleFieldset, ['_id']),
+          fields: singleFieldset.fields.map(field => _omit(field, ['_id'])),
+        }))
+      : null;
+    state.componentId = _id;
   },
 
   LOAD_ADD_COMPONENT_VIEW_DATA(state, { fieldTypes, definitions }) {
@@ -225,8 +247,15 @@ export const mutations = {
     state.definitions = definitions;
   },
 
+  RESET_ADD_COMPONENT_STATE(state) {
+    state.componentPatternMainData = {};
+    state.componentPatternFields = null;
+    state.componentPatternFieldset = null;
+    state.unsavedState = false;
+  },
+
   ADD_COMPONENT_PATTERN(state, componentId) {
-    state.newComponentId = componentId;
+    state.componentId = componentId;
   },
 
   UPDATE_MAIN_PARAMETERS(state, { fieldName, value }) {
@@ -265,6 +294,10 @@ export const mutations = {
     });
   },
 
+  UNSAVED_STATE(state, unsavedChanges = true) {
+    state.unsavedState = unsavedChanges;
+  },
+
   REMOVE_COMPONENT_PATTERN(state, componentPatternId) {
     state.componentPatterns = state.componentPatterns.filter(
       componentPattern => componentPattern._id !== componentPatternId
@@ -300,7 +333,11 @@ export const actions = {
 
   async fetchSingleComponentPattern({ commit, dispatch }, componentId) {
     const data = await showRequestResult({
-      request: this.$axios.get(`component-patterns/${componentId}`),
+      request: this.$axios.get(`component-patterns/${componentId}`, {
+        params: {
+          plainData: true,
+        },
+      }),
       dispatch,
     });
 
@@ -310,12 +347,47 @@ export const actions = {
   },
 
   async initAddComponentViewData({ commit, dispatch, rootState }) {
-    await dispatch('definitions/fetchDefinitions', null, {
-      root: true,
+    await dispatch(
+      'definitions/fetchDefinitions',
+      {},
+      {
+        root: true,
+      }
+    );
+    await dispatch(
+      'fieldTypes/fetchFieldTypes',
+      {},
+      {
+        root: true,
+      }
+    );
+
+    commit('RESET_ADD_COMPONENT_STATE');
+    commit('LOAD_ADD_COMPONENT_VIEW_DATA', {
+      definitions: rootState.definitions.definitions,
+      fieldTypes: rootState.fieldTypes.types,
     });
-    await dispatch('fieldTypes/fetchFieldTypes', null, {
-      root: true,
-    });
+  },
+
+  async initEditComponentViewData(
+    { commit, dispatch, rootState },
+    componentId
+  ) {
+    await dispatch('fetchSingleComponentPattern', componentId);
+    await dispatch(
+      'definitions/fetchDefinitions',
+      {},
+      {
+        root: true,
+      }
+    );
+    await dispatch(
+      'fieldTypes/fetchFieldTypes',
+      {},
+      {
+        root: true,
+      }
+    );
 
     commit('LOAD_ADD_COMPONENT_VIEW_DATA', {
       definitions: rootState.definitions.definitions,
@@ -332,29 +404,38 @@ export const actions = {
 
     if (componentId) {
       commit('ADD_COMPONENT_PATTERN', componentId);
+      commit('RESET_ADD_COMPONENT_STATE');
     }
   },
 
-  async saveComponentPattern({ store, dispatch }) {
-    await showRequestResult({
+  async updateComponentPattern({ state, dispatch, getters, commit }) {
+    const data = await showRequestResult({
       request: this.$axios.put(
-        `component-patterns/${store.activeComponentPattern._id}`
+        `component-patterns/${state.componentId}`,
+        getters.componentData
       ),
       dispatch,
       successMessage: 'Saved changes',
     });
+
+    if (data) {
+      commit('UNSAVED_STATE', false);
+    }
   },
 
   updateComponentPatternMainParameters({ commit }, mainParameters) {
     commit('UPDATE_MAIN_PARAMETERS', mainParameters);
+    commit('UNSAVED_STATE');
   },
 
   updateComponentPatternField({ commit }, updatedFieldParameters) {
     commit('UPDATE_FIELD_VALUE', updatedFieldParameters);
+    commit('UNSAVED_STATE');
   },
 
   updateComponentPatternFieldsetField({ commit }, updatedFieldParameters) {
     commit('UPDATE_FIELDSET_FIELD_VALUE', updatedFieldParameters);
+    commit('UNSAVED_STATE');
   },
 
   addField({ commit, state }) {
@@ -380,11 +461,13 @@ export const actions = {
 
   updateFieldsetData({ commit }, updateFieldsetData) {
     commit('UPDATE_FIELDSET', updateFieldsetData);
+    commit('UNSAVED_STATE');
   },
 
   reorderFields({ commit, state }, dropResult) {
     const newFields = [...state.componentPatternFields];
     commit('UPDATE_FIELDS', reorderItems(newFields, dropResult));
+    commit('UNSAVED_STATE');
   },
 
   reorderFieldsetFields({ commit, state }, { fieldsetIndex, dropResult }) {
@@ -394,6 +477,7 @@ export const actions = {
       fieldName: 'fields',
       value: reorderItems(newFields, dropResult),
     });
+    commit('UNSAVED_STATE');
   },
 
   async removeComponentPattern(

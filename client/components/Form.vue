@@ -24,6 +24,7 @@
           {{ fieldsGroup.label || getFieldLabel(fieldsGroupName) }}:
         </p>
         <Container
+          v-if="values[fieldsGroupName] && values[fieldsGroupName].length"
           class="draggable-forms-container"
           drag-class="draggable-form__ghost"
           drop-class="draggable-form__ghost--drop"
@@ -61,6 +62,16 @@
                   "
                   :css-class="`field--${getFieldType(fieldSchema)}`"
                 />
+              </template>
+              <template #actions>
+                <button
+                  class="button is-small is-danger"
+                  @click.prevent="
+                    removeFieldsGroupItem(fieldsGroupName, rowIndex)
+                  "
+                >
+                  Remove
+                </button>
               </template>
             </DraggableForm>
           </Draggable>
@@ -128,7 +139,10 @@ export default {
       for (const fieldName of Object.keys(this.formSchema)) {
         const fieldSchema = this.formSchema[fieldName];
 
-        if (!(fieldSchema.type && fieldSchema.type === 'fieldsGroup')) {
+        if (
+          !this.shouldHideField(fieldSchema) &&
+          !(fieldSchema.type && fieldSchema.type === 'fieldsGroup')
+        ) {
           fields[fieldName] = fieldSchema;
         }
       }
@@ -142,7 +156,11 @@ export default {
       for (const fieldName of Object.keys(this.formSchema)) {
         const fieldSchema = this.formSchema[fieldName];
 
-        if (fieldSchema.type && fieldSchema.type === 'fieldsGroup') {
+        if (
+          !this.shouldHideField(fieldSchema) &&
+          fieldSchema.type &&
+          fieldSchema.type === 'fieldsGroup'
+        ) {
           fields[fieldName] = fieldSchema;
         }
       }
@@ -160,6 +178,17 @@ export default {
       );
     },
 
+    shouldHideField(fieldSchema) {
+      if (
+        fieldSchema.hideWhenFieldValue &&
+        this.values[fieldSchema.hideWhenFieldValue]
+      ) {
+        return true;
+      }
+
+      return false;
+    },
+
     getFieldType(fieldSchema) {
       if (fieldSchema.type) {
         return fieldSchema.type;
@@ -173,7 +202,13 @@ export default {
     },
 
     getFieldTypeFrom(fieldSchema) {
-      if (!(fieldSchema.typeFrom && this.values[fieldSchema.typeFrom])) {
+      if (
+        !(
+          this.fieldTypes &&
+          fieldSchema.typeFrom &&
+          this.values[fieldSchema.typeFrom]
+        )
+      ) {
         return null;
       }
 
@@ -244,6 +279,15 @@ export default {
       this.update(fieldsGroupName, [...fieldsGroupValue, newItem]);
     },
 
+    removeFieldsGroupItem(fieldsGroupName, itemIndex) {
+      const fieldsGroupItems = [...this.values[fieldsGroupName]];
+
+      this.update(
+        fieldsGroupName,
+        fieldsGroupItems.filter((item, index) => index !== itemIndex)
+      );
+    },
+
     reorderFieldsGroupItems(fieldsGroupName, dropResult) {
       const reorderedItems = reorderItems(
         [...this.values[fieldsGroupName]],
@@ -259,6 +303,7 @@ export default {
 <style lang="postcss">
 .form {
   width: 100%;
+  padding-bottom: var(--spacing);
 
   &__fields-group {
     border: 2px solid var(--border-color);
@@ -277,7 +322,8 @@ export default {
 
   &__fields-groups .draggable-form,
   &__fields {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
     grid-gap: var(--spacing);
     width: 100%;
     grid-template-columns: repeat(auto-fill, minmax(15em, auto));
@@ -291,7 +337,11 @@ export default {
   .field--boolean,
   .field--html,
   .field--list {
-    grid-column: 1/4;
+    width: 100%;
+  }
+
+  .field-wrapper {
+    flex-grow: 1;
   }
 }
 </style>

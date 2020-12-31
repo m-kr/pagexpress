@@ -11,7 +11,11 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchDefinitions({ commit, dispatch }) {
+  async fetchDefinitions({ commit, dispatch, state }, { reload } = {}) {
+    if (state.definitions && !reload) {
+      return;
+    }
+
     const definitions = await showRequestResult({
       request: this.$axios.get('definitions'),
       dispatch,

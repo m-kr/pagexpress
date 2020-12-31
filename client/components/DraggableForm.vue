@@ -1,12 +1,17 @@
 <template>
-  <div class="draggable-form" :class="type ? `draggable-form--${type}` : ''">
-    <slot name="form" />
+  <div
+    class="draggable-form__outer"
+    :class="type ? `draggable-form__outer--${type}` : ''"
+  >
+    <div class="draggable-form">
+      <slot name="form" />
+      <span class="draggable-form__grab-handler">
+        <fa icon="grip-vertical" />
+      </span>
+    </div>
     <div class="draggable-form__actions buttons">
       <slot name="actions" />
     </div>
-    <span class="draggable-form__grab-handler">
-      <fa icon="grip-vertical" />
-    </span>
   </div>
 </template>
 
@@ -25,29 +30,35 @@ export default {
 
 <style lang="postcss">
 .draggable-form {
-  position: relative;
-  padding: var(--spacing-25) var(--spacing) var(--spacing-05);
-  background-color: var(--gray-dark);
-  counter-increment: row-number;
+  &__outer {
+    position: relative;
+    padding: var(--spacing-25) var(--spacing) var(--spacing-05);
+    background-color: var(--gray-dark);
+    counter-increment: row-number;
 
-  &--nested {
-    background-color: var(--white);
-  }
-
-  &:not(:first-of-type) {
-    margin-top: var(--spacing);
-  }
-
-  &:not(.draggable-form--nested) {
-    &::before {
-      position: absolute;
-      top: var(--spacing-05);
-      left: var(--spacing-05);
-      font-size: var(--font-small);
-      font-weight: 700;
-      color: var(--gray-darken);
-      content: '#' counter(row-number);
+    &--nested {
+      background-color: var(--white);
     }
+
+    &:not(.draggable-form__outer--nested) {
+      &::before {
+        position: absolute;
+        top: var(--spacing-05);
+        left: var(--spacing-05);
+        font-size: var(--font-small);
+        font-weight: 700;
+        color: var(--gray-darken);
+        content: '#' counter(row-number);
+      }
+    }
+
+    &:not(:first-of-type) {
+      margin-top: var(--spacing);
+    }
+  }
+
+  &__actions {
+    justify-content: flex-end;
   }
 
   &__grab-handler {
