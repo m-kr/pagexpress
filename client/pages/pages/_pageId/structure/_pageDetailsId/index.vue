@@ -101,13 +101,21 @@ export default {
       componentPatterns: state => state.componentPatterns.componentPatterns,
       components: state => state.pageDetails.components,
       siteInfo: state => state.siteInfo,
+      pageData: state => state.page.mainData,
     }),
     ...mapGetters('pageDetails', ['rootComponents']),
 
     previewLink() {
-      return this.siteInfo && !!this.siteInfo.url
-        ? `${this.siteInfo.url}?preview=${this.$route.params.pageId}`
-        : null;
+      if (
+        !(this.siteInfo && !!(this.siteInfo.previewUrl || this.siteInfo.url))
+      ) {
+        return null;
+      }
+
+      let previewLink = this.siteInfo.previewUrl || this.siteInfo.url;
+      previewLink += `${this.pageData.url}?preview=${this.$route.params.pageId}`;
+
+      return previewLink;
     },
   },
 
@@ -125,7 +133,9 @@ export default {
         'pageDetails/fetchPageDetails',
         this.$route.params.pageDetailsId
       );
-
+      await this.$store.dispatch('page/fetchPageData', {
+        pageId: this.$route.params.pageId,
+      });
       await this.$store.dispatch('componentPatterns/fetchComponentPatterns');
       await this.$store.dispatch('fetchSiteInfo');
     },
