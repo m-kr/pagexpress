@@ -34,16 +34,3 @@ cd client
 npm i
 npm run dev
 ```
-
-### Endpoints
-API is located on the localhost:4000/v1, with entry REST points:
-* /page-structure/ _{GET}_
-* /pages/ _{CRUD}_
-* /page-details/ _{CRUD}_
-* /page-attribute-types/ _{CRUD}_
-* /fields/ _{CRUD}_
-* /field-types/ _{CRUD}_
-* /component-patterns/ _{CRUD}_
-* /countries/ _{CRUD}_
-* /users/ _{CRUD}_
-* /auth/ _{POST}_
