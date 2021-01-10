@@ -1,0 +1,48 @@
+[
+  {
+    "_id": "1",
+    "name": "PageSection",
+    "label": "Page section",
+    "description": "Main page section component <section class=\"page-section\" />",
+    "fields": [
+      {
+        "required": false,
+        "options": [
+          {
+            "name": "black",
+            "value": "black"
+          },
+          {
+            "name": "dark",
+            "value": "dark"
+          },
+          {
+            "name": "gray",
+            "value": "gray"
+          }
+        ],
+        "_id": "5f99f551d0cefd4e87c56254",
+        "name": "classExtensions",
+        "label": "Section class extensions",
+        "description": "CSS class bem modificators",
+        "type": "list"
+      }
+    ]
+  },
+  {
+    "_id": "2",
+    "name": "HtmlContent",
+    "label": "HTML content",
+    "description": "HTML code with paragraphs, headers, links inside",
+    "fields": [
+      {
+        "required": false,
+        "options": [],
+        "_id": "5f3a7edf4f04cd51b12aa56e",
+        "name": "html",
+        "label": "HTML code",
+        "type": "html"
+      }
+    ]
+  }
+]

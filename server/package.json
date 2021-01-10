@@ -1,6 +1,6 @@
 {
   "name": "content-app",
-  "version": "1.0.0",
+  "version": "0.90",
   "description": "Tiny app for creating page content",
   "main": "index.js",
   "scripts": {

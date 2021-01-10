@@ -1,0 +1,45 @@
+{
+  "default": false,
+  "name": "US default",
+  "_id": "5f70fc90819a647dc145305d",
+  "pageId": "5f70f8d9819a647dc145305b",
+  "country": "5ecd6d0fb7bed40d875d9ca4",
+  "title": "New awesome page 2 in USA",
+  "description": "New awesome page 2 in USA",
+  "components": [
+    {
+      "_id": "1",
+      "componentPatternId": "1",
+      "data": {
+        "title": "Section title"
+      }
+    },
+    {
+      "_id": "2",
+      "componentPatternId": "1",
+      "parentComponentId": "1",
+      "data": {
+        "html": "<p>Nested level 1</p>"
+      }
+    },
+    {
+      "_id": "3",
+      "componentPatternId": "1",
+      "parentComponentId": "2",
+      "data": {
+        "html": "<p>Nested level 2</p>"
+      }
+    },
+    {
+      "_id": "4",
+      "componentPatternId": "1",
+      "parentComponentId": "3",
+      "data": {
+        "html": "<p>Nested level 3</p>"
+      }
+    }
+  ],
+  "createdAt": "2020-09-27T20:56:48.422Z",
+  "updatedAt": "2020-12-13T16:15:10.113Z",
+  "__v": 0
+}
