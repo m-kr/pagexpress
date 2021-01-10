@@ -1,8 +1,14 @@
 const R = require('ramda');
 
+/**
+ * @param {object[]} componentPatterns
+ * @param {object} component
+ * @return {object}
+ */
 const prettifyComponentStructure = (componentPatterns, component) => {
-  const { name, description } = componentPatterns.find(pattern =>
-    pattern._id.toString() === component.componentPatternId.toString());
+  const { name, description } = componentPatterns.find(
+    pattern => pattern._id.toString() === component.componentPatternId.toString()
+  );
 
   return {
     ...component,
@@ -13,15 +19,24 @@ const prettifyComponentStructure = (componentPatterns, component) => {
 };
 
 /**
- *
  * @param {Object[]} components
  * @returns {Object[]}
  */
 const getRootComponents = components => components.filter(component => !component.parentComponentId);
 
+/**
+ * @param {string} parentComponentId
+ * @param {object[]} pageComponents
+ * @return {object[]}
+ */
 const findNestedComponents = (parentComponentId, pageComponents) =>
   pageComponents.filter(component => component.parentComponentId === parentComponentId);
 
+/**
+ * @param {object[]} pageComponents
+ * @param {object} parentComponent
+ * @return {object}
+ */
 const fillNestedLevels = (pageComponents, parentComponent) => {
   const childrenComponents = findNestedComponents(parentComponent._id, pageComponents);
 
@@ -29,41 +44,32 @@ const fillNestedLevels = (pageComponents, parentComponent) => {
     return parentComponent;
   }
 
+  const processedParent = { ...parentComponent };
+
   for (const childComponent of childrenComponents) {
-    if (!parentComponent.components) {
-      parentComponent.components = [];
+    if (!processedParent.components) {
+      processedParent.components = [];
     }
 
-    const grandChildrenComponents = findNestedComponents(childComponent._id, pageComponents);
-    const processedChild = grandChildrenComponents.length
-      ? fillNestedLevels(grandChildrenComponents, childComponent)
-      : childComponent;
-
-    parentComponent.components = [...parentComponent.components, processedChild];
+    const processedChild = fillNestedLevels(pageComponents, childComponent);
+    processedParent.components = [...processedParent.components, processedChild];
   }
 
-  return parentComponent;
+  return processedParent;
 };
 
 /**
- *
- * @param {Object[]} pageComponents
- * @param {Object[]} componentPatterns
- * returns {Object[]}
+ * @param {object[]} pageComponents
+ * @param {object[]} componentPatterns
+ * returns {object[]}
  */
 const buildPageStructure = (pageComponents, componentPatterns) => {
   const curriedPrettifyComponent = R.curry(prettifyComponentStructure)(componentPatterns);
-  const enrichedComponents = pageComponents.map(curriedPrettifyComponent);
+  const enrichedComponents = R.map(curriedPrettifyComponent, pageComponents);
   const curriedFillNestedLevels = R.curry(fillNestedLevels)(enrichedComponents);
   const buildComponentsTree = rootComponents => R.map(curriedFillNestedLevels, rootComponents);
 
-  console.log(enrichedComponents);
-  console.log(getRootComponents(pageComponents));
-
-  return R.pipe(
-    getRootComponents,
-    buildComponentsTree,
-  )(enrichedComponents);
+  return R.pipe(getRootComponents, buildComponentsTree)(enrichedComponents);
 };
 
 module.exports = {
