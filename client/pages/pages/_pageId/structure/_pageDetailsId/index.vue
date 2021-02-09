@@ -136,7 +136,9 @@ export default {
       await this.$store.dispatch('page/fetchPageData', {
         pageId: this.$route.params.pageId,
       });
-      await this.$store.dispatch('componentPatterns/fetchComponentPatterns');
+      await this.$store.dispatch('componentPatterns/fetchComponentPatterns', {
+        itemsPerPage: null,
+      });
       await this.$store.dispatch('fetchSiteInfo');
     },
 
