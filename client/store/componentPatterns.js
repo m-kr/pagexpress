@@ -28,7 +28,7 @@ export const state = () => ({
   definitions: null,
   unsavedState: false,
   totalPages: 1,
-  itemsPerPage: 10,
+  itemsPerPage: 2,
   search: null,
   sort: '-updatedAt',
 });
@@ -314,12 +314,15 @@ export const mutations = {
 };
 
 export const actions = {
-  async fetchComponentPatterns({ commit, dispatch, state }, nextPage) {
+  async fetchComponentPatterns(
+    { commit, dispatch, state },
+    { itemsPerPage, nextPage } = {}
+  ) {
     const data = await showRequestResult({
       request: this.$axios.get(`component-patterns`, {
         params: {
           page: nextPage || state.currentPage,
-          limit: state.itemsPerPage,
+          limit: itemsPerPage === null ? undefined : state.itemsPerPage,
           search: state.search,
         },
       }),
@@ -506,12 +509,12 @@ export const actions = {
       return;
     }
 
-    await dispatch('fetchComponentPatterns', targetPage);
+    await dispatch('fetchComponentPatterns', { targetPage });
   },
 
   async searchComponentPattern({ commit, dispatch }, search) {
     commit('SEARCH_COMPONENT_PATTERN', search);
-    await dispatch('fetchComponentPatterns', 1);
+    await dispatch('fetchComponentPatterns', { targetPage: 1 });
   },
 
   async sortBy({ commit, dispatch }, sortBy) {
