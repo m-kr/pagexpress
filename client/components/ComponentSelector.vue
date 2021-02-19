@@ -40,12 +40,8 @@
         <fa :icon="['fas', 'times']" />
       </a>
     </div>
-    <button
-      :class="buttonStyle.length ? `is-${buttonStyle}` : ''"
-      class="button"
-      @click="toggleSelectorVisibility"
-    >
-      {{ buttonLabel ? buttonLabel : 'Add component' }}
+    <button :class="cssClass" class="button" @click="toggleSelectorVisibility">
+      {{ label ? label : 'Add component' }}
     </button>
   </div>
 </template>
@@ -66,14 +62,24 @@ export default {
       default: 'Chose component',
     },
 
-    buttonLabel: {
+    label: {
       type: String,
       default: 'Add component',
     },
 
+    color: {
+      type: String,
+      default: 'white',
+    },
+
+    size: {
+      type: String,
+      default: 'normal',
+    },
+
     buttonStyle: {
       type: String,
-      default: '',
+      default: null,
     },
 
     componentPatterns: {
@@ -179,6 +185,16 @@ export default {
         ...this.firstAutosuggestListData,
         ...this.secondAutosuggestListData,
       ];
+    },
+
+    cssClass() {
+      let cssClass = `is-${this.size} is-${this.color}`;
+
+      if (this.buttonStyle) {
+        cssClass += ` is-${this.buttonStyle}`;
+      }
+
+      return cssClass;
     },
   },
 

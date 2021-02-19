@@ -1,5 +1,9 @@
 <template>
-  <div v-if="componentPattern" class="card__inner">
+  <div
+    v-if="componentPattern"
+    :class="hasSlot ? 'card-action-below' : ''"
+    class="card__inner"
+  >
     <header class="card-header">
       <span
         :class="isRootComponent ? 'root' : 'inner'"
@@ -11,6 +15,13 @@
         <span>{{ componentPattern.label }}</span>
         <small>{{ componentPattern.description }}</small>
       </p>
+      <ComponentSelector
+        :component-patterns="componentPatterns ? componentPatterns : []"
+        label="Inner component +"
+        color="success"
+        size="small"
+        :select-action="patternId => addComponent(patternId, component._id)"
+      />
       <button
         class="button is-small"
         @click="toggleCollapsedState(component._id)"
@@ -51,8 +62,6 @@
       </div>
 
       <div v-if="childComponents.length" class="inner-components">
-        <h4 class="title is-4">Inner components</h4>
-
         <Container
           v-if="componentPatterns && componentPatterns.length"
           class="components-wrapper"
@@ -68,8 +77,10 @@
             <PageComponent
               :component="childComponent"
               :component-patterns="componentPatterns"
+              :add-component="addComponent"
               :update-component="updateComponent"
               :remove-component="removeComponent"
+              :get-child-components="getChildComponents"
               :reorder="reorder"
               :drop-placeholder-options="dropPlaceholderOptions"
               :collapsed="collapsedChildren.includes(childComponent._id)"
@@ -81,15 +92,16 @@
           </Draggable>
         </Container>
       </div>
-      <div class="card-footer">
-        <slot />
-      </div>
+    </div>
+    <div v-if="hasSlot" class="card-action-below__wrapper">
+      <slot />
     </div>
   </div>
 </template>
 
 <script>
 import { Container, Draggable } from 'vue-smooth-dnd';
+import ComponentSelector from './ComponentSelector';
 import PageComponentData from './PageComponentData';
 import PageComponentDataset from './PageComponentDataset';
 
@@ -97,6 +109,7 @@ export default {
   name: 'PageComponent',
 
   components: {
+    ComponentSelector,
     Container,
     Draggable,
     PageComponentData,
@@ -114,9 +127,9 @@ export default {
       required: true,
     },
 
-    childComponents: {
-      type: Array,
-      default: () => [],
+    addComponent: {
+      type: Function,
+      required: true,
     },
 
     updateComponent: {
@@ -125,6 +138,11 @@ export default {
     },
 
     removeComponent: {
+      type: Function,
+      required: true,
+    },
+
+    getChildComponents: {
       type: Function,
       required: true,
     },
@@ -164,6 +182,14 @@ export default {
   computed: {
     componentPattern() {
       return this.getComponentPattern(this.component.componentPatternId);
+    },
+
+    childComponents() {
+      return this.getChildComponents(this.component._id);
+    },
+
+    hasSlot() {
+      return !!this.$slots.default;
     },
   },
 
@@ -251,6 +277,7 @@ export default {
     padding-left: 0;
   }
 
+  .component-selector__container,
   .button {
     align-self: center;
     margin-right: var(--spacing);
@@ -258,6 +285,8 @@ export default {
 }
 
 .card-content {
+  padding: var(--spacing) var(--spacing-05) var(--spacing-05);
+
   & > * {
     &:not(:last-of-type) {
       margin-bottom: var(--spacing-2);
@@ -265,20 +294,22 @@ export default {
   }
 }
 
-.card-footer {
-  flex-direction: row-reverse;
+.card-action-below {
+  position: relative;
+  margin-bottom: var(--spacing-4);
+
+  &__wrapper {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, var(--spacing-3));
+  }
 }
 
 .inner-components {
-  margin-top: var(--spacing-2);
-  padding: var(--spacing);
-  border: 1px solid var(--border-color);
-  background-color: var(--gray-dark);
-
   .card {
-    &:not(:last-of-type) {
-      margin-bottom: var(--spacing);
-    }
+    box-shadow: none;
+    border: 1px solid var(--border-color);
   }
 }
 </style>

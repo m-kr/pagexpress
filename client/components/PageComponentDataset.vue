@@ -47,8 +47,11 @@
         </span>
       </Draggable>
       <div class="component-dataset__actions">
-        <button class="button is-small is-success" @click="addFieldsRow">
-          Add +
+        <button
+          class="button is-small is-light is-success"
+          @click="addFieldsRow"
+        >
+          Add fieldset +
         </button>
       </div>
     </Container>

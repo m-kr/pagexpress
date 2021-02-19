@@ -1,5 +1,5 @@
 <template>
-  <div class="componentData">
+  <div class="page-component-data">
     <Field
       v-for="(field, fieldIndex) in fields"
       :key="fieldIndex"
@@ -44,3 +44,11 @@ export default {
   },
 };
 </script>
+
+<style lang="postcss" scoped>
+.page-component-data {
+  padding: var(--spacing);
+  border-radius: var(--border-radius);
+  background-color: var(--gray);
+}
+</style>

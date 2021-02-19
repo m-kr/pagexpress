@@ -91,6 +91,14 @@ export default {
 
 <style lang="postcss" scoped>
 .field-wrapper {
-  padding-bottom: var(--spacing);
+  &:not(:last-of-type) {
+    padding-bottom: var(--spacing);
+  }
+
+  &:last-of-type {
+    .field {
+      margin-bottom: 0;
+    }
+  }
 }
 </style>
