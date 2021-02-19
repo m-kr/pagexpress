@@ -21,6 +21,13 @@
           class="button"
           >Preview</a
         >
+        <button
+          class="button is-success"
+          :disabled="!isDirty"
+          @click="saveChanges"
+        >
+          Save
+        </button>
       </template>
     </Toolbar>
 
@@ -97,6 +104,7 @@ export default {
     ...mapState({
       componentPatterns: state => state.componentPatterns.componentPatterns,
       components: state => state.pageDetails.components,
+      isDirty: state => state.isDirty,
       siteInfo: state => state.siteInfo,
       pageData: state => state.page.mainData,
     }),
