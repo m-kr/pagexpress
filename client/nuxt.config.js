@@ -40,7 +40,7 @@ export default {
    */
   plugins: [{ src: '~plugins/quill-plugin', ssr: false }],
   router: {
-    middleware: ['auth'],
+    middleware: ['auth', 'prevent-leaving'],
   },
   /*
    ** Nuxt.js dev-modules

@@ -20,6 +20,7 @@ const detailsStructure = {
 export const state = () => ({
   details: { ...detailsStructure },
   components: null,
+  isDirty: false,
 });
 
 export const getters = {
@@ -122,15 +123,19 @@ export const actions = {
     }
   },
 
-  async savePageDetails({ state, dispatch }) {
+  async savePageDetails({ state, dispatch, commit }) {
     const components = [...state.components];
-    await showRequestResult({
+    const data = await showRequestResult({
       request: this.$axios.put(`page-details/${state.details._id}`, {
         ..._.pickBy(state.details, (value, key) => key !== '_id'),
         components,
       }),
       dispatch,
     });
+
+    if (data) {
+      dispatch('resetDirtyState', null, { root: true });
+    }
   },
 
   async removePageDetails({ commit, dispatch, state }, pageDetailsId) {
@@ -157,7 +162,7 @@ export const actions = {
       data: {},
     });
 
-    dispatch('savePageDetails');
+    dispatch('setDirtyState', null, { root: true });
   },
 
   addComponentInPlace(
@@ -173,7 +178,7 @@ export const actions = {
       },
     });
 
-    dispatch('savePageDetails');
+    dispatch('setDirtyState', null, { root: true });
   },
 
   updateComponent({ state, commit, dispatch }, componentData) {
@@ -184,7 +189,7 @@ export const actions = {
     }
 
     lastUpdateComponentSaveTimeout = setTimeout(
-      () => dispatch('savePageDetails'),
+      () => dispatch('setDirtyState', null, { root: true }),
       saveChangesDelay
     );
   },
@@ -195,7 +200,7 @@ export const actions = {
     }
 
     commit('REMOVE_COMPONENT', componentId);
-    dispatch('savePageDetails');
+    commit('NO_SAVED_CHANGE', null, { root: true });
     dispatch('notifications/success', 'Component has been removed', {
       root: true,
     });
@@ -227,7 +232,7 @@ export const actions = {
       addedIndex,
       removedIndex,
     });
-    dispatch('savePageDetails');
+    dispatch('setDirtyState', null, { root: true });
   },
 
   reorderRootComponents(
@@ -268,6 +273,6 @@ export const actions = {
       payload,
     });
 
-    dispatch('savePageDetails');
+    dispatch('setDirtyState', null, { root: true });
   },
 };

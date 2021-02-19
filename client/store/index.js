@@ -3,6 +3,7 @@ import { showRequestResult } from '@/utils';
 export const state = () => ({
   breadcrumbsLinks: [],
   siteInfo: null,
+  isDirty: false,
 });
 
 export const getters = {
@@ -23,6 +24,16 @@ export const mutations = {
   SET_SITE_INFO(state, siteInfo) {
     state.siteInfo = siteInfo;
   },
+
+  UNSAVED_CHANGES(state) {
+    if (!state.isDirty) {
+      state.isDirty = true;
+    }
+  },
+
+  RESET_DIRTY_STATE(state) {
+    state.isDirty = false;
+  },
 };
 
 export const actions = {
@@ -35,5 +46,13 @@ export const actions = {
     if (siteInfo) {
       commit('SET_SITE_INFO', siteInfo);
     }
+  },
+
+  setDirtyState({ commit }) {
+    commit('UNSAVED_CHANGES');
+  },
+
+  resetDirtyState({ commit }) {
+    commit('RESET_DIRTY_STATE');
   },
 };
