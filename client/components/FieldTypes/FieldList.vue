@@ -34,6 +34,7 @@
       </div>
     </div>
     <Container
+      v-if="values && values.length"
       tag="ul"
       drag-class="fieldlist-item__ghost"
       drop-class="fieldlist-item__ghost--drop"

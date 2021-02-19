@@ -3,7 +3,7 @@
     <Toolbar>
       <template v-slot:left>
         <ComponentSelector
-          button-style="success"
+          color="success"
           :component-patterns="componentPatterns ? componentPatterns : []"
           :select-action="patternId => addComponent(patternId)"
         />
@@ -37,11 +37,12 @@
         class="card"
       >
         <PageComponent
-          :child-components="getChildComponents(component._id)"
           :component-patterns="componentPatterns"
           :component="component"
+          :add-component="addComponent"
           :update-component="updateComponent"
           :remove-component="removeComponent"
+          :get-child-components="getChildComponents"
           :drop-placeholder-options="dropPlaceholderOptions"
           :reorder="reorderComponents"
           :collapsed="collapsedComponents.includes(component._id)"
@@ -51,16 +52,12 @@
           <div class="add-component__container">
             <ComponentSelector
               :component-patterns="componentPatterns ? componentPatterns : []"
-              button-label="Add component after"
+              label="Place component"
+              size="small"
+              color="primary"
+              button-style="light"
               :select-action="
                 patternId => addComponentAfterSelf(patternId, rowIndex + 1)
-              "
-            />
-            <ComponentSelector
-              :component-patterns="componentPatterns ? componentPatterns : []"
-              button-label="Add inner component"
-              :select-action="
-                patternId => addComponent(patternId, component._id)
               "
             />
           </div>
