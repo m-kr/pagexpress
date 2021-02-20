@@ -283,7 +283,7 @@ export const mutations = {
   },
 
   UPDATE_FIELDS(state, fields) {
-    state.componentPatternFields = [...fields];
+    state.componentPatternFields = fields.length ? [...fields] : null;
   },
 
   UPDATE_ALL_FIELDSET(state, fieldset) {
@@ -483,9 +483,35 @@ export const actions = {
     commit('UNSAVED_STATE');
   },
 
+  removeField({ commit, state }, fieldIndex) {
+    const fields = [...state.componentPatternFields];
+    fields.splice(fieldIndex, 1);
+    commit('UPDATE_FIELDS', fields);
+    commit('UNSAVED_STATE');
+  },
+
   reorderFields({ commit, state }, dropResult) {
     const newFields = [...state.componentPatternFields];
     commit('UPDATE_FIELDS', reorderItems(newFields, dropResult));
+    commit('UNSAVED_STATE');
+  },
+
+  removeFieldset({ commit, state }, { fieldsetIndex }) {
+    const fieldset = [...state.componentPatternFieldset];
+    fieldset.splice(fieldsetIndex, 1);
+
+    commit('UPDATE_ALL_FIELDSET', fieldset);
+    commit('UNSAVED_STATE');
+  },
+
+  removeFieldsetField({ commit, state }, { fieldsetIndex, fieldIndex }) {
+    const fields = [...state.componentPatternFieldset[fieldsetIndex].fields];
+    fields.splice(fieldIndex, 1);
+    commit('UPDATE_FIELDSET', {
+      fieldsetIndex,
+      fieldName: 'fields',
+      value: fields,
+    });
     commit('UNSAVED_STATE');
   },
 

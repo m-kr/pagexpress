@@ -48,6 +48,8 @@
                   :update="updateFields.bind(undefined, index)"
                   :values="field"
                   :field-types="fieldTypes"
+                  :self-destroy="removeField.bind(null, index)"
+                  :remove-button-active="true"
                 />
               </template>
             </DraggableForm>
@@ -95,11 +97,18 @@
                   :form-schema="formFields"
                   :update="
                     updateFieldsetFieldData.bind(
-                      undefined,
+                      null,
                       singleFieldsetIndex,
                       index
                     )
                   "
+                  :self-destroy="
+                    removeFieldsetField.bind(null, {
+                      fieldsetIndex: singleFieldsetIndex,
+                      fieldIndex: index,
+                    })
+                  "
+                  :remove-button-active="true"
                   :values="field"
                   :field-types="fieldTypes"
                 />
@@ -108,12 +117,22 @@
           </Draggable>
 
           <div class="component-dataset__actions">
-            <button
-              class="button is-small is-success"
-              @click="addFieldsetField(singleFieldsetIndex)"
-            >
-              Add +
-            </button>
+            <div class="component-dataset__actions-left">
+              <button
+                class="button is-small is-success"
+                @click="addFieldsetField(singleFieldsetIndex)"
+              >
+                Add Field +
+              </button>
+            </div>
+            <div class="component-dataset__actions-right">
+              <button
+                class="button is-small is-danger"
+                @click="removeFieldset(singleFieldsetIndex)"
+              >
+                Remove fieldset
+              </button>
+            </div>
           </div>
         </Container>
       </div>
@@ -163,7 +182,7 @@ export default {
       'componentPatternFields',
       'componentPatternFieldset',
       'fieldTypes',
-      'newComponentId',
+      'componentId',
     ]),
   },
 
@@ -175,8 +194,11 @@ export default {
     ...mapActions('componentPatterns', [
       'addComponentPattern',
       'addField',
+      'removeField',
       'addFieldset',
       'addFieldsetField',
+      'removeFieldset',
+      'removeFieldsetField',
       'reorderFields',
       'reorderFieldsetFields',
     ]),
@@ -239,7 +261,7 @@ export default {
     async createComponent() {
       await this.addComponentPattern();
 
-      if (this.newComponentId) {
+      if (this.componentId) {
         await this.$router.push({
           path: `/components/${this.newComponentId}/edit`,
         });
@@ -260,5 +282,10 @@ export default {
       margin-bottom: var(--spacing);
     }
   }
+}
+
+.component-dataset__actions {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
