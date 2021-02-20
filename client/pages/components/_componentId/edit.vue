@@ -45,7 +45,9 @@
               <template #form>
                 <Form
                   :form-schema="formFields"
-                  :update="updateFields.bind(undefined, index)"
+                  :update="updateFields.bind(null, index)"
+                  :self-destroy="removeField.bind(null, index)"
+                  :remove-button-active="true"
                   :values="field"
                   :field-types="fieldTypes"
                 />
@@ -100,6 +102,13 @@
                       index
                     )
                   "
+                  :self-destroy="
+                    removeFieldsetField.bind(null, {
+                      fieldsetIndex: singleFieldsetIndex,
+                      fieldIndex: index,
+                    })
+                  "
+                  :remove-button-active="true"
                   :values="field"
                   :field-types="fieldTypes"
                 />
@@ -108,12 +117,22 @@
           </Draggable>
 
           <div class="component-dataset__actions">
-            <button
-              class="button is-small is-success"
-              @click="addFieldsetField(singleFieldsetIndex)"
-            >
-              Add +
-            </button>
+            <div class="component-dataset__actions-left">
+              <button
+                class="button is-small is-success"
+                @click="addFieldsetField(singleFieldsetIndex)"
+              >
+                Add Field +
+              </button>
+            </div>
+            <div class="component-dataset__actions-right">
+              <button
+                class="button is-small is-danger"
+                @click="removeFieldset(singleFieldsetIndex)"
+              >
+                Remove fieldset
+              </button>
+            </div>
           </div>
         </Container>
       </div>
@@ -180,8 +199,11 @@ export default {
     ...mapActions('componentPatterns', [
       'updateComponentPattern',
       'addField',
+      'removeField',
       'addFieldset',
       'addFieldsetField',
+      'removeFieldset',
+      'removeFieldsetField',
       'reorderFields',
       'reorderFieldsetFields',
     ]),

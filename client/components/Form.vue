@@ -85,6 +85,15 @@
           </button>
         </div>
       </div>
+      <div class="form__bottom-actions">
+        <button
+          v-if="removeButtonActive"
+          class="button is-small is-danger"
+          @click.prevent="selfDestroy"
+        >
+          Remove
+        </button>
+      </div>
     </div>
   </form>
 </template>
@@ -104,6 +113,16 @@ export default {
     update: {
       type: Function,
       required: true,
+    },
+
+    selfDestroy: {
+      type: Function,
+      default: () => {},
+    },
+
+    removeButtonActive: {
+      type: Boolean,
+      default: false,
     },
 
     fieldTypes: {
@@ -327,6 +346,11 @@ export default {
     grid-gap: var(--spacing);
     width: 100%;
     grid-template-columns: repeat(auto-fill, minmax(15em, auto));
+  }
+
+  &__bottom-actions {
+    display: flex;
+    justify-content: flex-end;
   }
 
   .select,
