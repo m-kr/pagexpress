@@ -9,15 +9,11 @@ const getPages = async (req, res, next) => {
   try {
     if (pageId) {
       const singlePage = await Page.findById(pageId)
-        .select('name url pageDetails attributes')
+        .select('name url pageDetails type attributes')
         .populate({
           path: 'pageDetails',
           model: 'PageDetails',
           select: 'name country title description',
-        })
-        .populate({
-          path: 'type',
-          select: 'name',
         })
         .exec();
 
