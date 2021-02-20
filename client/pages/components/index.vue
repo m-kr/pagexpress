@@ -111,6 +111,7 @@ export default {
 
   mounted() {
     this.fetchComponents();
+    this.setBreadcrumbsLinks();
   },
 
   methods: {
@@ -119,6 +120,19 @@ export default {
       removeComponent: 'componentPatterns/removeComponentPattern',
       changePage: 'componentPatterns/changePage',
     }),
+
+    setBreadcrumbsLinks() {
+      this.$store.commit('UPDATE_BREADCRUMBS_LINKS', [
+        {
+          url: '/',
+          label: 'Home',
+        },
+        {
+          url: `/components/`,
+          label: 'Components',
+        },
+      ]);
+    },
 
     search(evt) {
       if (this.timeout) clearTimeout(this.timeout);

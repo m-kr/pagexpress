@@ -173,6 +173,7 @@ export default {
       'componentPatterns/initEditComponentViewData',
       this.$route.params.componentId
     );
+    this.setBreadcrumbsLinks();
   },
 
   methods: {
@@ -201,6 +202,23 @@ export default {
         fieldName,
         value,
       });
+    },
+
+    setBreadcrumbsLinks() {
+      this.$store.commit('UPDATE_BREADCRUMBS_LINKS', [
+        {
+          url: '/',
+          label: 'Home',
+        },
+        {
+          url: `/components/`,
+          label: 'Components',
+        },
+        {
+          url: `/components/${this.$route.params.componentId}`,
+          label: 'Edit component',
+        },
+      ]);
     },
 
     updateFieldsetData(fieldsetIndex, fieldName, value) {

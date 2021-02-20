@@ -28,7 +28,7 @@ export const state = () => ({
   definitions: null,
   unsavedState: false,
   totalPages: 1,
-  itemsPerPage: 2,
+  itemsPerPage: 25,
   search: null,
   sort: '-updatedAt',
 });
@@ -63,6 +63,19 @@ export const getters = {
     }
 
     return attributes;
+  },
+
+  newField(state, getters) {
+    const newField = {};
+    const fieldSchema = getters.formFields;
+
+    for (const fieldName of Object.keys(fieldSchema)) {
+      if (fieldSchema[fieldName].defaultValue) {
+        newField[fieldName] = fieldSchema[fieldName].defaultValue;
+      }
+    }
+
+    return newField;
   },
 
   formMainParameters(state, getters) {
@@ -441,15 +454,18 @@ export const actions = {
     commit('UNSAVED_STATE');
   },
 
-  addField({ commit, state }) {
-    commit('UPDATE_FIELDS', [...(state.componentPatternFields || []), {}]);
+  addField({ commit, state, getters }) {
+    commit('UPDATE_FIELDS', [
+      ...(state.componentPatternFields || []),
+      getters.newField,
+    ]);
   },
 
-  addFieldset({ commit, state }) {
+  addFieldset({ commit, state, getters }) {
     commit('UPDATE_ALL_FIELDSET', [
       ...(state.componentPatternFieldset || []),
       {
-        fields: [{}],
+        fields: [getters.newField],
       },
     ]);
   },
