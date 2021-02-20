@@ -44,12 +44,15 @@
               <label for="pageType" class="label">Type</label>
               <div class="control">
                 <div class="select is-fullwidth">
-                  <select id="pageType">
+                  <select
+                    id="pageType"
+                    :value="mainData.type"
+                    @change="updateMainData('type', $event.target.value)"
+                  >
                     <option
                       v-for="type of pageTypes"
                       :key="type._id"
-                      :value="mainData.type.id"
-                      @change="updateMainData('url', $event.target.value)"
+                      :value="type._id"
                       >{{ type.name }}</option
                     >
                   </select>

@@ -83,11 +83,11 @@ export const actions = {
 
     const updatedMainPageData = await showRequestResult({
       request: this.$axios.put(`pages/${state.mainData._id}`, {
-        attributes: state.pageAttributes,
         name,
-        pageDetails: state.pageVariants.map(variant => variant._id),
-        type: type._id,
         url,
+        type,
+        attributes: state.pageAttributes,
+        pageDetails: state.pageVariants.map(variant => variant._id),
       }),
       dispatch,
     });
