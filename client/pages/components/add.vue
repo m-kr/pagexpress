@@ -181,6 +181,19 @@ export default {
       'reorderFieldsetFields',
     ]),
 
+    setBreadcrumbsLinks() {
+      this.$store.commit('UPDATE_BREADCRUMBS_LINKS', [
+        {
+          url: '/',
+          label: 'Home',
+        },
+        {
+          url: `/components/add`,
+          label: 'Create component',
+        },
+      ]);
+    },
+
     updateMainParameters(fieldName, value) {
       this.$store.dispatch(
         'componentPatterns/updateComponentPatternMainParameters',

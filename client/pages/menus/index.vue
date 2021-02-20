@@ -244,6 +244,7 @@ export default {
     await this.fetchPages();
 
     this.initActiveMenu();
+    this.setBreadcrumbsLinks();
   },
 
   methods: {
@@ -349,6 +350,19 @@ export default {
       };
 
       this.filterAutosuggestKeyword = '';
+    },
+
+    setBreadcrumbsLinks() {
+      this.$store.commit('UPDATE_BREADCRUMBS_LINKS', [
+        {
+          url: '/',
+          label: 'Home',
+        },
+        {
+          url: `/menu/`,
+          label: 'Menu',
+        },
+      ]);
     },
   },
 };

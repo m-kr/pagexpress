@@ -129,6 +129,7 @@ export default {
 
   mounted() {
     this.initViewData();
+    this.setBreadcrumbsLinks();
   },
 
   methods: {
@@ -141,6 +142,15 @@ export default {
     initViewData() {
       this.loadPages();
       this.sortBy = this.$store.state.pages.sort;
+    },
+
+    setBreadcrumbsLinks() {
+      this.$store.commit('UPDATE_BREADCRUMBS_LINKS', [
+        {
+          url: '/',
+          label: 'Home',
+        },
+      ]);
     },
 
     search(evt) {
