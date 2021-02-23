@@ -301,8 +301,8 @@ export default {
   &__wrapper {
     position: absolute;
     left: 50%;
-    bottom: 0;
-    transform: translate(-50%, var(--spacing-3));
+    margin-left: calc(-1 * var(--spacing-3));
+    bottom: calc(-1 * var(--spacing-3));
   }
 }
 
