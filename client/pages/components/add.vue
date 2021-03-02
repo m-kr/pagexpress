@@ -263,7 +263,7 @@ export default {
 
       if (this.componentId) {
         await this.$router.push({
-          path: `/components/${this.newComponentId}/edit`,
+          path: `/components/${this.componentId}/edit`,
         });
       }
     },
