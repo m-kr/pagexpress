@@ -252,7 +252,6 @@ export const mutations = {
           fields: singleFieldset.fields.map(field => _omit(field, ['_id'])),
         }))
       : null;
-    state.componentId = _id;
   },
 
   LOAD_ADD_COMPONENT_VIEW_DATA(state, { fieldTypes, definitions }) {
@@ -260,11 +259,12 @@ export const mutations = {
     state.definitions = definitions;
   },
 
-  RESET_ADD_COMPONENT_STATE(state) {
+  RESET_STATE(state) {
     state.componentPatternMainData = {};
     state.componentPatternFields = null;
     state.componentPatternFieldset = null;
     state.unsavedState = false;
+    state.componentId = null;
   },
 
   ADD_COMPONENT_PATTERN(state, componentId) {
@@ -378,7 +378,7 @@ export const actions = {
       }
     );
 
-    commit('RESET_ADD_COMPONENT_STATE');
+    commit('RESET_STATE');
     commit('LOAD_ADD_COMPONENT_VIEW_DATA', {
       definitions: rootState.definitions.definitions,
       fieldTypes: rootState.fieldTypes.types,
@@ -405,6 +405,7 @@ export const actions = {
       }
     );
 
+    commit('RESET_STATE');
     commit('LOAD_ADD_COMPONENT_VIEW_DATA', {
       definitions: rootState.definitions.definitions,
       fieldTypes: rootState.fieldTypes.types,
@@ -420,14 +421,17 @@ export const actions = {
 
     if (componentId) {
       commit('ADD_COMPONENT_PATTERN', componentId);
-      commit('RESET_ADD_COMPONENT_STATE');
+      commit('RESET_STATE');
     }
   },
 
-  async updateComponentPattern({ state, dispatch, getters, commit }) {
+  async updateComponentPattern(
+    { state, dispatch, getters, commit },
+    { componentId }
+  ) {
     const data = await showRequestResult({
       request: this.$axios.put(
-        `component-patterns/${state.componentId}`,
+        `component-patterns/${componentId}`,
         getters.componentData
       ),
       dispatch,
