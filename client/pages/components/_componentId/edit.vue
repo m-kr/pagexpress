@@ -197,10 +197,11 @@ export default {
   },
 
   mounted() {
-    this.$store.dispatch(
-      'componentPatterns/initEditComponentViewData',
-      this.componentId
-    );
+    this.resetState();
+    this.loadFieldsData();
+    this.fetchSingleComponentPattern({
+      componentId: this.$route.params.componentId,
+    });
     this.setBreadcrumbsLinks();
   },
 
@@ -211,10 +212,13 @@ export default {
       'removeField',
       'addFieldset',
       'addFieldsetField',
+      'fetchSingleComponentPattern',
+      'loadFieldsData',
       'removeFieldset',
       'removeFieldsetField',
       'reorderFields',
       'reorderFieldsetFields',
+      'resetState',
     ]),
 
     updateMainParameters(fieldName, value) {

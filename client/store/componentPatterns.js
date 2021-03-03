@@ -254,7 +254,7 @@ export const mutations = {
       : null;
   },
 
-  LOAD_ADD_COMPONENT_VIEW_DATA(state, { fieldTypes, definitions }) {
+  LOAD_FIELDS_DATA(state, { fieldTypes, definitions }) {
     state.fieldTypes = fieldTypes;
     state.definitions = definitions;
   },
@@ -347,7 +347,7 @@ export const actions = {
     }
   },
 
-  async fetchSingleComponentPattern({ commit, dispatch }, componentId) {
+  async fetchSingleComponentPattern({ commit, dispatch }, { componentId }) {
     const data = await showRequestResult({
       request: this.$axios.get(`component-patterns/${componentId}`, {
         params: {
@@ -362,7 +362,7 @@ export const actions = {
     }
   },
 
-  async initAddComponentViewData({ commit, dispatch, rootState }) {
+  async loadFieldsData({ commit, dispatch, rootState }) {
     await dispatch(
       'definitions/fetchDefinitions',
       {},
@@ -378,35 +378,7 @@ export const actions = {
       }
     );
 
-    commit('RESET_STATE');
-    commit('LOAD_ADD_COMPONENT_VIEW_DATA', {
-      definitions: rootState.definitions.definitions,
-      fieldTypes: rootState.fieldTypes.types,
-    });
-  },
-
-  async initEditComponentViewData(
-    { commit, dispatch, rootState },
-    componentId
-  ) {
-    await dispatch('fetchSingleComponentPattern', componentId);
-    await dispatch(
-      'definitions/fetchDefinitions',
-      {},
-      {
-        root: true,
-      }
-    );
-    await dispatch(
-      'fieldTypes/fetchFieldTypes',
-      {},
-      {
-        root: true,
-      }
-    );
-
-    commit('RESET_STATE');
-    commit('LOAD_ADD_COMPONENT_VIEW_DATA', {
+    commit('LOAD_FIELDS_DATA', {
       definitions: rootState.definitions.definitions,
       fieldTypes: rootState.fieldTypes.types,
     });
@@ -421,7 +393,6 @@ export const actions = {
 
     if (componentId) {
       commit('ADD_COMPONENT_PATTERN', componentId);
-      commit('RESET_STATE');
     }
   },
 
@@ -441,6 +412,10 @@ export const actions = {
     if (data) {
       commit('UNSAVED_STATE', false);
     }
+  },
+
+  resetState({ commit }) {
+    commit('RESET_STATE');
   },
 
   updateComponentPatternMainParameters({ commit }, mainParameters) {
@@ -474,11 +449,14 @@ export const actions = {
     ]);
   },
 
-  addFieldsetField({ commit, state }, fieldsetIndex) {
+  addFieldsetField({ commit, state, getters }, fieldsetIndex) {
     commit('UPDATE_FIELDSET', {
       fieldsetIndex,
       fieldName: 'fields',
-      value: [...state.componentPatternFieldset[fieldsetIndex].fields, {}],
+      value: [
+        ...state.componentPatternFieldset[fieldsetIndex].fields,
+        getters.newField,
+      ],
     });
   },
 

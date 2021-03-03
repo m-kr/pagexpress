@@ -187,7 +187,8 @@ export default {
   },
 
   mounted() {
-    this.$store.dispatch('componentPatterns/initAddComponentViewData');
+    this.resetState();
+    this.loadFieldsData();
   },
 
   methods: {
@@ -197,10 +198,12 @@ export default {
       'removeField',
       'addFieldset',
       'addFieldsetField',
+      'loadFieldsData',
       'removeFieldset',
       'removeFieldsetField',
       'reorderFields',
       'reorderFieldsetFields',
+      'resetState',
     ]),
 
     setBreadcrumbsLinks() {
