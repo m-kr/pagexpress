@@ -12,7 +12,10 @@
       </template>
 
       <template v-if="unsavedState" v-slot:right>
-        <button class="button is-success" @click="updateComponentPattern">
+        <button
+          class="button is-success"
+          @click="updateComponentPattern({ componentId })"
+        >
           Update component
         </button>
       </template>
@@ -25,7 +28,10 @@
       />
     </Panel>
 
-    <Panel v-if="componentPatternFields" title="Fields">
+    <Panel
+      v-if="componentPatternFields && componentPatternFields.length"
+      title="Fields"
+    >
       <div class="fields">
         <Container
           class="draggable-forms-container"
@@ -182,16 +188,20 @@ export default {
       'componentPatternFields',
       'componentPatternFieldset',
       'fieldTypes',
-      'componentId',
       'unsavedState',
     ]),
+
+    componentId() {
+      return this.$route.params.componentId;
+    },
   },
 
   mounted() {
-    this.$store.dispatch(
-      'componentPatterns/initEditComponentViewData',
-      this.$route.params.componentId
-    );
+    this.resetState();
+    this.loadFieldsData();
+    this.fetchSingleComponentPattern({
+      componentId: this.$route.params.componentId,
+    });
     this.setBreadcrumbsLinks();
   },
 
@@ -202,10 +212,13 @@ export default {
       'removeField',
       'addFieldset',
       'addFieldsetField',
+      'fetchSingleComponentPattern',
+      'loadFieldsData',
       'removeFieldset',
       'removeFieldsetField',
       'reorderFields',
       'reorderFieldsetFields',
+      'resetState',
     ]),
 
     updateMainParameters(fieldName, value) {
@@ -237,7 +250,7 @@ export default {
           label: 'Components',
         },
         {
-          url: `/components/${this.$route.params.componentId}`,
+          url: `/components/${this.componentId}`,
           label: 'Edit component',
         },
       ]);
@@ -265,16 +278,6 @@ export default {
 
     onFieldsetFieldDrop(fieldsetIndex, dropResult) {
       this.reorderFieldsetFields({ fieldsetIndex, dropResult });
-    },
-
-    async createComponent() {
-      await this.addComponentPattern();
-
-      if (this.componentId) {
-        await this.$router.push({
-          path: `/components/${this.componentId}/edit`,
-        });
-      }
     },
   },
 };
