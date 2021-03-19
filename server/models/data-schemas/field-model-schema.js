@@ -33,7 +33,7 @@ const fieldValidationSchema = Joi.object({
   label: Joi.string().required().min(3).max(30),
   description: Joi.string().min(5).max(100),
   required: Joi.boolean(),
-  defaultValue: Joi.alternatives().try(Joi.string(), Joi.array()),
+  defaultValue: Joi.alternatives().try(Joi.string(), Joi.array(), Joi.object()),
   fieldTypeId: Joi.objectId().required(),
   definedOptionsId: Joi.objectId(),
   options: Joi.array().items(fieldOptionValidationSchema),

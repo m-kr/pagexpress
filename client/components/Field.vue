@@ -29,16 +29,31 @@
       :value="value || false"
       @update="update"
     />
+
+    <FieldClientImage
+      v-if="fieldType === 'client-image'"
+      :label="label"
+      :value="value || undefined"
+      :component-name="componentName"
+      @update="update"
+    />
   </div>
 </template>
 
 <script>
-import { FieldBoolean, FieldHtml, FieldList, FieldText } from './FieldTypes';
+import {
+  FieldBoolean,
+  FieldHtml,
+  FieldList,
+  FieldText,
+  FieldClientImage,
+} from './FieldTypes';
 
 export default {
   name: 'Field',
 
   components: {
+    FieldClientImage,
     FieldBoolean,
     FieldHtml,
     FieldList,
@@ -67,7 +82,7 @@ export default {
     },
 
     value: {
-      type: [String, Array, Boolean],
+      type: [String, Array, Boolean, Object],
       default: null,
     },
 
@@ -84,6 +99,11 @@ export default {
     update: {
       type: Function,
       required: true,
+    },
+
+    componentName: {
+      type: String,
+      default: '',
     },
   },
 };
