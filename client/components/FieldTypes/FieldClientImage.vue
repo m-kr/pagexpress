@@ -107,7 +107,7 @@ export default {
       return this.ids[name];
     },
     onChange() {
-      const imagesPath = this.siteInfo.imagesPath;
+      const imagesPath = this.siteInfo?.imagesPath;
       const imageName = this.mutableValue.imageName;
       const componentName = this.componentName.toLowerCase();
       const extension = imageName.substr(imageName.lastIndexOf('.'));
@@ -160,6 +160,9 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  & > input {
+    margin-right: 0;
+  }
 }
 .d-block {
   display: block;
