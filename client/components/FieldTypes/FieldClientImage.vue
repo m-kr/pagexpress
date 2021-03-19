@@ -114,7 +114,12 @@ export default {
       let src;
       let srcset;
       const sources = {};
-      if (!imageName || imageName.substr(0, 1) === '/') {
+      if (
+        !imageName ||
+        !componentName ||
+        !imagesPath ||
+        imageName.substr(0, 1) === '/'
+      ) {
         src = imageName;
       } else {
         src = imagesPath + '/' + componentName + '/' + imageName;
