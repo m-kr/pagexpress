@@ -358,6 +358,7 @@ export default {
     width: 100%;
   }
 
+  .field--client-image,
   .field--boolean,
   .field--html,
   .field--list {

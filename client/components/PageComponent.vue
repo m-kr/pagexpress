@@ -41,6 +41,7 @@
       <div v-if="componentPattern.fields" class="fields-container">
         <PageComponentData
           :fields="componentPattern.fields"
+          :component-name="componentPattern.name"
           :data="component.data"
           :on-update-data="updateData"
         />

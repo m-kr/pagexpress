@@ -6,6 +6,7 @@
       :field-type="field.type"
       :label="field.label"
       :options="field.options"
+      :component-name="componentName"
       :value="data && data[field.name] ? data[field.name] : field.defaultValue"
       :update="value => updateData(field.name, value)"
     />
@@ -26,6 +27,10 @@ export default {
     fields: {
       type: Array,
       default: () => [],
+    },
+    componentName: {
+      type: String,
+      default: '',
     },
     data: {
       type: Object,
