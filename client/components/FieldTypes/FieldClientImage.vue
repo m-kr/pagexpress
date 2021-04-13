@@ -1,7 +1,7 @@
 <template>
   <div class="field is-fullwidth">
     <label class="label">{{ label }}</label>
-    <div class="row">
+    <div class="row field-row">
       <div class="col-6">
         <label :for="fieldId('image-name')">Image Name</label>
         <input
@@ -13,7 +13,20 @@
           @change="onChange()"
         />
       </div>
-      <div class="col-4">
+      <div class="col-6">
+        <label :for="fieldId('image-name')">Alt attribute value</label>
+        <input
+          :id="fieldId('image-alt')"
+          v-model="mutableValue.imageAlt"
+          class="input"
+          type="text"
+          placeholder="Image alt attribute"
+          @change="onChange()"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-8">
         <label class="d-block mb-1">Breakpoints</label>
         <div class="d-flex">
           <label
@@ -33,7 +46,7 @@
           </label>
         </div>
       </div>
-      <div class="col-2">
+      <div class="col-4">
         <label class="d-block" :for="fieldId('retina')">Retina</label>
         <input
           :id="fieldId('retina')"
@@ -47,6 +60,7 @@
 </template>
 
 <script>
+import _kebabCase from 'lodash/kebabCase';
 import { v4 as uuidv4 } from 'uuid';
 import { mapState } from 'vuex';
 
@@ -77,6 +91,7 @@ export default {
     return {
       mutableValue: {
         imageName: this.value?.src,
+        imageAlt: this.value?.alt,
         isRetina: !!this.value?.srcset,
         sourcesBreakpoints: {
           xs: !!this.value?.sources?.xs,
@@ -104,16 +119,19 @@ export default {
         const uniqueId = uuidv4().replace('-', '');
         this.ids[name] = `${slug}_${uniqueId}`;
       }
+
       return this.ids[name];
     },
     onChange() {
       const imagesPath = this.siteInfo?.imagesPath;
       const imageName = this.mutableValue.imageName;
-      const componentName = this.componentName.toLowerCase();
+      const alt = this.mutableValue.imageAlt;
+      const componentName = _kebabCase(this.componentName);
       const extension = imageName.substr(imageName.lastIndexOf('.'));
       let src;
       let srcset;
       const sources = {};
+
       if (
         !imageName ||
         !componentName ||
@@ -125,11 +143,13 @@ export default {
         src = imagesPath + '/' + componentName + '/' + imageName;
         this.mutableValue.imageName = src;
       }
+
       if (src) {
         if (this.mutableValue.isRetina) {
           const src2x = src.replace(extension, '@2x' + extension);
           srcset = src + ' 1x, ' + src2x + ' 2x';
         }
+
         for (const [breakpoint, checked] of Object.entries(
           this.mutableValue.sourcesBreakpoints
         )) {
@@ -137,6 +157,7 @@ export default {
             extension,
             '-' + breakpoint + extension
           );
+
           if (checked === true) {
             sources[breakpoint] = breakpointImageName;
           }
@@ -144,6 +165,7 @@ export default {
       }
 
       const value = {
+        alt,
         src,
         srcset,
         sources,
@@ -154,7 +176,14 @@ export default {
   },
 };
 </script>
+
 <style lang="postcss" scoped>
+.field-row {
+  &:not(:last-of-type) {
+    margin-bottom: var(--spacing-2);
+  }
+}
+
 .breakpoint-checkbox {
   margin-right: 20px;
   display: flex;
