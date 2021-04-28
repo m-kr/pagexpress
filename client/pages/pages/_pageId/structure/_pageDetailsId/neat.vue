@@ -30,61 +30,29 @@
         </button>
       </template>
     </Toolbar>
-
-    <Container
+    <div
       v-if="componentPatterns && componentPatterns.length"
-      class="components-wrapper"
-      drag-handle-selector=".card-header__grab-handler.root"
-      :drop-placeholder="dropPlaceholderOptions"
-      @drop="onDrop"
+      class="components-tree"
     >
-      <Draggable
-        v-for="(component, rowIndex) in rootComponents"
+      <ComponentTreeNode
+        v-for="component in rootComponents"
         :key="component._id"
-        class="card"
-      >
-        <PageComponent
-          :component-patterns="componentPatterns"
-          :component="component"
-          :add-component="addComponent"
-          :update-component="updateComponent"
-          :remove-component="removeComponent"
-          :get-child-components="getChildComponents"
-          :drop-placeholder-options="dropPlaceholderOptions"
-          :reorder="reorderComponents"
-          :collapsed="collapsedComponents.includes(component._id)"
-          :toggle-collapsed-state="toggleCollapsedState"
-          :is-root-component="true"
-        >
-          <div class="add-component__container">
-            <ComponentSelector
-              :component-patterns="componentPatterns ? componentPatterns : []"
-              label="Place component"
-              size="small"
-              color="primary"
-              button-style="light"
-              :select-action="
-                patternId => addComponentAfterSelf(patternId, rowIndex + 1)
-              "
-            />
-          </div>
-        </PageComponent>
-      </Draggable>
-    </Container>
+        :component="component"
+        :component-patterns="componentPatterns"
+        :get-child-components="getChildComponents"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import { Container, Draggable } from 'vue-smooth-dnd';
-import { ComponentSelector, PageComponent, Toolbar } from '@/components';
+import { ComponentSelector, ComponentTreeNode, Toolbar } from '@/components';
 
 export default {
   components: {
     ComponentSelector,
-    Container,
-    Draggable,
-    PageComponent,
+    ComponentTreeNode,
     Toolbar,
   },
 
@@ -132,6 +100,10 @@ export default {
     ...mapActions({
       reorderComponents: 'pageDetails/reorderComponents',
     }),
+    getComponentPattern(patternId) {
+      return this.componentPatterns.find(pattern => pattern._id === patternId);
+    },
+
     async initPageData() {
       this.setBreadcrumbsLinks();
       await this.$store.dispatch(
@@ -249,5 +221,9 @@ export default {
       }
     }
   }
+}
+
+.components-tree {
+  padding: var(--spacing-2) 0;
 }
 </style>
