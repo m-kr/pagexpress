@@ -10,7 +10,7 @@ class BetterQuillLink extends Link {
     value = this.sanitize(value);
     node.setAttribute('href', value);
 
-    if (value.startsWith('/')) {
+    if (value.startsWith('/') || value.startsWith('#')) {
       node.removeAttribute('target');
       node.removeAttribute('rel');
     }
