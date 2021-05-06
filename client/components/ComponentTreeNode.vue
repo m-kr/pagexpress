@@ -9,14 +9,24 @@
       </div>
       <div class="tree-node__actions">
         <div class="buttons">
-          <button class="button is-info is-inverted is-outlined is-small">
+          <button class="button is-info is-light is-small" @click="edit">
             Edit
           </button>
-          <button class="button is-primary is-light is-small">Duplicate</button>
-          <button class="button is-info is-light is-small">Copy</button>
-          <button class="button is-info is-light is-small">Move</button>
-          <button class="button is-info is-light is-small">Paste</button>
-          <button class="button is-danger is-light is-small">Remove</button>
+          <button class="button is-primary is-light is-small" @click="clone">
+            Duplicate
+          </button>
+          <button class="button is-info is-light is-small" @click="copy">
+            Copy
+          </button>
+          <button class="button is-info is-light is-small" @move="move">
+            Move
+          </button>
+          <button class="button is-info is-light is-small" @move="paste">
+            Paste
+          </button>
+          <button class="button is-danger is-light is-small" @move="remove">
+            Remove
+          </button>
         </div>
       </div>
     </div>
@@ -41,6 +51,7 @@
         v-for="childComponent in childComponents"
         :key="childComponent._id"
         :component="childComponent"
+        :parent-component="childComponent"
         :component-patterns="componentPatterns"
         :get-child-components="getChildComponents"
       />
@@ -77,6 +88,36 @@ export default {
 
     childComponents() {
       return this.getChildComponents(this.component._id);
+    },
+  },
+
+  methods: {
+    addComponent(componentPatternId, parentComponentId, position) {
+      console.log('addChild:', componentPatternId, parentComponentId, position);
+    },
+
+    remove(componentId) {
+      console.log('remove:', componentId);
+    },
+
+    clone(componentId) {
+      console.log('clone:', componentId);
+    },
+
+    edit(componentId) {
+      console.log('edit:', componentId);
+    },
+
+    move(componentId, position) {
+      console.log('move:', componentId, position);
+    },
+
+    copy(componentId, position) {
+      console.log('copy:', componentId, position);
+    },
+
+    paste(componentId, position) {
+      console.log('paste:', componentId, position);
     },
   },
 };
@@ -190,7 +231,7 @@ export default {
         }
 
         &--add-child {
-          display: inline-block;
+          display: flex;
         }
       }
     }
@@ -202,28 +243,33 @@ export default {
     }
 
     &--add-first-child {
+      display: flex;
       position: absolute;
-      left: 0.1em;
+      left: 0;
+      margin-left: 0.2em;
       top: 50%;
       transform: translate(calc(var(--spacing) * -1), -50%);
     }
 
     &--add-after {
+      display: flex;
       position: absolute;
       left: 0;
       top: 50%;
-      margin-left: var(--spacing-05);
+      margin-left: 0.1em;
       transform: translate(calc(var(--spacing-4) * -1), -50%);
     }
 
     &-btn {
+      justify-content: center;
+      align-items: center;
       height: var(--spacing-2);
       width: var(--spacing-2);
-      padding: 0;
+      text-align: center;
+      font-size: 0.7em;
       line-height: 0;
-      border: 0;
       background-color: var(--border-color);
-      border: 1px solid var(--border-color);
+      border: 0.2em solid var(--border-color);
       box-shadow: none;
       border-radius: 50%;
       z-index: 2;
@@ -250,6 +296,7 @@ export default {
   &__actions {
     display: flex;
     align-items: center;
+    padding-left: var(--spacing-2);
   }
 
   &__title {
