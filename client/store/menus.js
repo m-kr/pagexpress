@@ -109,13 +109,11 @@ export const actions = {
       'FETCH_MENUS',
       menus.map(menu => ({
         ...menu,
-        items: updateAllNestedItems(menu.items, 'children', item => {
-          if (!item.children) {
-            item.children = [];
-          }
-
-          item.id = uuidv4();
-        }),
+        items: updateAllNestedItems(menu.items, 'children', item => ({
+          ...item,
+          id: uuidv4(),
+          children: item.children || [],
+        })),
       }))
     );
   },
@@ -135,13 +133,11 @@ export const actions = {
       ...state.menus.find(menu => menu._id === menuId),
     };
 
-    const itemsToSave = updateAllNestedItems(items, 'children', item => {
-      if (item.children && !item.children.length) {
-        delete item.children;
-      }
-
-      delete item.id;
-    });
+    const itemsToSave = updateAllNestedItems([...items], 'children', item => ({
+      ...item,
+      children: undefined,
+      id: undefined,
+    }));
 
     await showRequestResult({
       request: this.$axios.put(`menus/${menuId}`, {
