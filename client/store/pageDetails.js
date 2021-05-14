@@ -19,7 +19,7 @@ const detailsStructure = {
 
 export const state = () => ({
   details: { ...detailsStructure },
-  components: null,
+  components: [],
   isDirty: false,
 });
 
