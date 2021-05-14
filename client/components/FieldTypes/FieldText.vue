@@ -64,11 +64,18 @@ export default {
     fieldId() {
       const slug = this.label.replace(/\s/, '-').toLowerCase();
       const uniqueId = uuidv4().replace('-', '');
+
       return `${slug}_${uniqueId}`;
     },
     selectPlaceholder() {
       return this.placeholder.length ? this.placeholder : '-- Choose option --';
     },
+  },
+
+  mounted() {
+    if (this.value && this.value.length) {
+      this.$emit('update', this.value);
+    }
   },
 
   methods: {
@@ -77,7 +84,7 @@ export default {
       this.$emit('update', correctValue);
     },
 
-    onInput: _debounce(function(evt) {
+    onInput: _debounce(function (evt) {
       this.$emit('update', evt.target.value);
     }, 500),
   },

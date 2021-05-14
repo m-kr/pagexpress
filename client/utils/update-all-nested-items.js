@@ -6,17 +6,11 @@
  * @return {array}
  */
 export const updateAllNestedItems = (items, nestedItemsKey, callback) => {
-  for (const item of items) {
-    callback(item);
-
-    if (item[nestedItemsKey] && item[nestedItemsKey].length) {
-      item[nestedItemsKey] = updateAllNestedItems(
-        item[nestedItemsKey],
-        nestedItemsKey,
-        callback
-      );
-    }
-  }
-
-  return items;
+  return items.map(item => ({
+    ...callback(item),
+    [nestedItemsKey]:
+      item[nestedItemsKey] && item[nestedItemsKey].length
+        ? updateAllNestedItems(item[nestedItemsKey], nestedItemsKey, callback)
+        : undefined,
+  }));
 };
