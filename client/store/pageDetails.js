@@ -6,8 +6,8 @@ import {
   reorderItems,
 } from '@/utils';
 
-const saveChangesDelay = 500;
-let lastUpdateComponentSaveTimeout = null;
+// const saveChangesDelay = 500;
+// let lastUpdateComponentSaveTimeout = null;
 
 const detailsStructure = {
   _id: '',
@@ -61,7 +61,10 @@ export const mutations = {
   UPDATE_COMPONENT(state, newComponentData) {
     state.components = state.components.map(component => {
       if (component._id === newComponentData._id) {
-        component = { ...component, ...newComponentData };
+        component.data = {
+          ...(component.data || {}),
+          ...(newComponentData.data || {}),
+        };
       }
 
       return component;
@@ -183,15 +186,7 @@ export const actions = {
 
   updateComponent({ state, commit, dispatch }, componentData) {
     commit('UPDATE_COMPONENT', componentData);
-
-    if (lastUpdateComponentSaveTimeout) {
-      clearTimeout(lastUpdateComponentSaveTimeout);
-    }
-
-    lastUpdateComponentSaveTimeout = setTimeout(
-      () => dispatch('setDirtyState', null, { root: true }),
-      saveChangesDelay
-    );
+    dispatch('setDirtyState', null, { root: true });
   },
 
   removeComponent({ commit, dispatch }, componentId) {

@@ -1,7 +1,7 @@
 <template>
   <div class="structure-builder">
     <Toolbar>
-      <template v-slot:left>
+      <template #left>
         <ComponentSelector
           color="success"
           :component-patterns="componentPatterns ? componentPatterns : []"
@@ -12,7 +12,7 @@
         </button>
       </template>
 
-      <template v-slot:right>
+      <template #right>
         <a
           v-if="previewLink"
           ref="noindex nofollow noreferrer"
