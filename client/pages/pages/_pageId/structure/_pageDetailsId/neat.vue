@@ -35,9 +35,10 @@
       class="components-tree"
     >
       <ComponentTreeNode
-        v-for="component in rootComponents"
+        v-for="(component, index) in rootComponents"
         :key="component._id"
         :component="component"
+        :first-root="index === 0"
         :component-patterns="componentPatterns"
         :get-child-components="getChildComponents"
         :empty-clipboard="clipboard === null"
@@ -213,6 +214,8 @@ export default {
         placeIndex: this.targetPosition(targetPlaceParams),
         parentComponentId,
       };
+
+      console.log(this.addToNodeParams);
       this.showFinder = true;
     },
 

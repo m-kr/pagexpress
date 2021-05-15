@@ -1,5 +1,14 @@
 <template>
   <div class="tree-node__root">
+    <div v-if="firstRoot" class="tree-node__origin-node">
+      <button
+        class="tree-node__action-btn tree-node__action--add-first-child"
+        :title="emptyClipboard ? 'Add' : 'Paste'"
+        @click="emptyClipboard ? addBefore() : pasteBefore()"
+      >
+        <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
+      </button>
+    </div>
     <div
       v-if="add && clone && copy"
       :class="childComponents.length ? 'tree-node--with-branch' : ''"
@@ -43,7 +52,7 @@
           <button
             class="button is-danger is-light is-small"
             title="Remove"
-            @click="remove({ componentId: component._id })"
+            @click="remove(component._id)"
           >
             <fa :icon="['fa', 'trash-alt']" />
           </button>
@@ -117,6 +126,11 @@ export default {
       required: true,
     },
 
+    firstRoot: {
+      type: Boolean,
+      default: false,
+    },
+
     emptyClipboard: {
       type: Boolean,
       default: true,
@@ -178,9 +192,19 @@ export default {
     },
 
     addAfterSelf() {
+      console.log('after self', {
+        parentComponentId: this.component.parentComponentId,
+        previousComponentId: this.component._id,
+      });
       this.add({
         parentComponentId: this.component.parentComponentId,
         previousComponentId: this.component._id,
+      });
+    },
+
+    addBefore() {
+      this.add({
+        nextComponentId: this.component._id,
       });
     },
 
@@ -201,6 +225,12 @@ export default {
       this.paste({
         parentComponentId: this.component.parentComponentId,
         previousComponentId: this.component._id,
+      });
+    },
+
+    pasteBefore() {
+      this.paste({
+        nextComponentId: this.component._id,
       });
     },
 
@@ -226,6 +256,16 @@ export default {
   display: flex;
   margin-left: var(--spacing-2);
   border-left: 0.2em solid var(--border-color);
+
+  &__origin-node {
+    position: relative;
+    overflow: visible;
+
+    .tree-node__action--add-first-child {
+      margin-left: 0;
+      margin-bottom: 0.5em;
+    }
+  }
 
   &,
   &__footer {

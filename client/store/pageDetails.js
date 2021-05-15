@@ -179,10 +179,10 @@ export const actions = {
     }
   },
 
-  addComponent({ commit, dispatch }, newComponentData) {
+  addComponent({ commit, dispatch }, componentPatternId) {
     commit('ADD_COMPONENT', {
       _id: uuidv4(),
-      ...newComponentData,
+      componentPatternId,
       data: {},
     });
 
@@ -191,14 +191,20 @@ export const actions = {
 
   addComponentInPlace(
     { commit, dispatch },
-    { componentPatternId, targetPlaceIndex, parentComponentId, data = {} }
+    {
+      componentPatternId,
+      targetPlaceIndex,
+      parentComponentId,
+      componentId,
+      data = {},
+    }
   ) {
     commit('ADD_COMPONENT_IN_PLACE', {
       placeIndex: targetPlaceIndex,
       componentData: {
-        _id: uuidv4(),
+        _id: componentId || uuidv4(),
         componentPatternId,
-        parentComponentId,
+        parentComponentId: parentComponentId || undefined,
         data,
       },
     });
@@ -239,6 +245,11 @@ export const actions = {
     const { payload, type } = clipboard;
     const { componentPatternId, data, _id } = payload;
 
+    if (type === 'cut') {
+      commit('REMOVE_COMPONENT', _id);
+      dispatch('setDirtyState', null, { root: true });
+    }
+
     dispatch('addComponentInPlace', {
       targetPlaceIndex: getters.targetPosition({
         previousComponentId,
@@ -246,14 +257,10 @@ export const actions = {
         actionType: type,
       }),
       componentPatternId,
-      data,
       parentComponentId,
+      componentId: _id,
+      data,
     });
-
-    if (type === 'cut') {
-      commit('REMOVE_COMPONENT', _id);
-      dispatch('setDirtyState', null, { root: true });
-    }
   },
 
   reorderComponents(
