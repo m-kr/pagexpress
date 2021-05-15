@@ -1,5 +1,6 @@
 import Breadcrumbs from './Breadcrumbs';
 import ComponentSelector from './ComponentSelector';
+import ComponentsFinder from './ComponentsFinder';
 import ComponentTreeNode from './ComponentTreeNode';
 import DraggableForm from './DraggableForm';
 import DraggableFormsContainer from './DraggableFormsContainer';
@@ -21,6 +22,7 @@ import Toolbar from './Toolbar';
 export {
   Breadcrumbs,
   ComponentSelector,
+  ComponentsFinder,
   ComponentTreeNode,
   DraggableForm,
   DraggableFormsContainer,

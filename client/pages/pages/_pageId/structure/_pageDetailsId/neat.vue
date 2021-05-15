@@ -41,7 +41,7 @@
         :component-patterns="componentPatterns"
         :get-child-components="getChildComponents"
         :empty-clipboard="clipboard === null"
-        :add="addComponent"
+        :add="showComponentFinder"
         :remove="removeComponent"
         :clone="cloneComponent"
         :copy="copyComponent"
@@ -49,16 +49,30 @@
         :paste="pasteFromClipboard"
       />
     </div>
+    <ComponentsFinder
+      :component-patterns="componentPatterns"
+      :add-component="addComponentInPlace"
+      :show-finder="showFinder"
+      :close-callback="closeFinder"
+      :place-index="addToNodeParams.placeIndex"
+      :parent-component-id="addToNodeParams.parentComponentId"
+    />
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import { ComponentSelector, ComponentTreeNode, Toolbar } from '@/components';
+import {
+  ComponentSelector,
+  ComponentsFinder,
+  ComponentTreeNode,
+  Toolbar,
+} from '@/components';
 
 export default {
   components: {
     ComponentSelector,
+    ComponentsFinder,
     ComponentTreeNode,
     Toolbar,
   },
@@ -66,6 +80,8 @@ export default {
   data() {
     return {
       clipboard: null,
+      addToNodeParams: {},
+      showFinder: false,
     };
   },
 
@@ -77,7 +93,11 @@ export default {
       siteInfo: state => state.siteInfo,
       pageData: state => state.page.mainData,
     }),
-    ...mapGetters('pageDetails', ['rootComponents', 'componentPosition']),
+    ...mapGetters('pageDetails', [
+      'rootComponents',
+      'componentPosition',
+      'targetPosition',
+    ]),
 
     previewLink() {
       if (
@@ -99,6 +119,7 @@ export default {
 
   methods: {
     ...mapActions('pageDetails', [
+      'addComponent',
       'addComponentInPlace',
       'pasteComponent',
       'removeComponent',
@@ -129,20 +150,6 @@ export default {
 
     async saveChanges() {
       await this.$store.dispatch('pageDetails/savePageDetails');
-    },
-
-    addComponent(componentPatternId, parentComponentId) {
-      this.$store.dispatch('pageDetails/addComponent', {
-        componentPatternId,
-        parentComponentId,
-      });
-    },
-
-    addComponentAfterSelf(componentPatternId, targetPlaceIndex) {
-      this.$store.dispatch('pageDetails/addComponentInPlace', {
-        componentPatternId,
-        targetPlaceIndex,
-      });
     },
 
     addToClipboard(actionType, position, payload) {
@@ -199,6 +206,19 @@ export default {
       });
 
       this.clipboard = null;
+    },
+
+    showComponentFinder({ parentComponentId, ...targetPlaceParams }) {
+      this.addToNodeParams = {
+        placeIndex: this.targetPosition(targetPlaceParams),
+        parentComponentId,
+      };
+      this.showFinder = true;
+    },
+
+    closeFinder() {
+      this.addToNodeParams = {};
+      this.showFinder = false;
     },
 
     setBreadcrumbsLinks() {

@@ -32,6 +32,25 @@ export const getters = {
    */
   componentPosition: state => componentId =>
     state.components.findIndex(component => component._id === componentId),
+
+  targetPosition:
+    (state, getters) =>
+    ({ previousComponentId, nextComponentId, actionType = 'add' }) => {
+      let targetPosition = 0;
+
+      if (previousComponentId) {
+        targetPosition = getters.componentPosition(previousComponentId) + 1;
+      } else if (nextComponentId) {
+        targetPosition = getters.componentPosition(nextComponentId) - 1;
+      } else {
+        targetPosition =
+          actionType === 'copy'
+            ? state.components.length
+            : state.components.length - 1;
+      }
+
+      return targetPosition;
+    },
 };
 
 export const mutations = {
@@ -219,19 +238,13 @@ export const actions = {
   ) {
     const { payload, type } = clipboard;
     const { componentPatternId, data, _id } = payload;
-    let targetPosition = 0;
-
-    if (previousComponentId) {
-      targetPosition = getters.componentPosition(previousComponentId) + 1;
-    } else if (nextComponentId) {
-      targetPosition = getters.componentPosition(nextComponentId) - 1;
-    } else {
-      targetPosition =
-        type === 'copy' ? state.components.length : state.components.length - 1;
-    }
 
     dispatch('addComponentInPlace', {
-      targetPlaceIndex: targetPosition,
+      targetPlaceIndex: getters.targetPosition({
+        previousComponentId,
+        nextComponentId,
+        actionType: type,
+      }),
       componentPatternId,
       data,
       parentComponentId,

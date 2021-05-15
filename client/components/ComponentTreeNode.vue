@@ -57,7 +57,7 @@
       <button
         class="tree-node__action-btn tree-node__action--add-child"
         :title="emptyClipboard ? 'Add' : 'Paste'"
-        @click="emptyClipboard ? add : pasteNext()"
+        @click="emptyClipboard ? addNext() : pasteNext()"
       >
         <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
       </button>
@@ -65,7 +65,7 @@
       <button
         class="tree-node__action-btn tree-node__action--add-first-child"
         :title="emptyClipboard ? 'Add' : 'Paste'"
-        @click="emptyClipboard ? add : pasteAsFirstChild()"
+        @click="emptyClipboard ? addFirstChild() : pasteAsFirstChild()"
       >
         <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
       </button>
@@ -73,7 +73,7 @@
       <button
         class="tree-node__action-btn tree-node__action--add-after"
         :title="emptyClipboard ? 'Add' : 'Paste'"
-        @click="emptyClipboard ? add : pasteAfterSelf()"
+        @click="emptyClipboard ? addAfterSelf() : pasteAfterSelf()"
       >
         <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
       </button>
@@ -170,8 +170,24 @@ export default {
       console.log('edit:', componentId);
     },
 
-    addInPlace() {
-      this.add(this.component);
+    addFirstChild() {
+      this.add({
+        parentComponentId: this.component._id,
+        nextComponentId: this.childComponents[0]._id,
+      });
+    },
+
+    addAfterSelf() {
+      this.add({
+        parentComponentId: this.component.parentComponentId,
+        previousComponentId: this.component._id,
+      });
+    },
+
+    addNext() {
+      this.add({
+        parentComponentId: this.component._id,
+      });
     },
 
     pasteAsFirstChild() {
