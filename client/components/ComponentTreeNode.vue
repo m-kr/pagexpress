@@ -1,6 +1,7 @@
 <template>
   <div class="tree-node__root">
     <div
+      v-if="add && clone && copy"
       :class="childComponents.length ? 'tree-node--with-branch' : ''"
       class="tree-node"
     >
@@ -9,23 +10,42 @@
       </div>
       <div class="tree-node__actions">
         <div class="buttons">
-          <button class="button is-info is-light is-small" @click="edit">
-            Edit
+          <button
+            class="button is-info is-light is-small"
+            title="Edit"
+            @click="edit"
+          >
+            <fa :icon="['fa', 'edit']" />
           </button>
-          <button class="button is-primary is-light is-small" @click="clone">
-            Duplicate
+          <button
+            class="button is-primary is-light is-small"
+            title="Clone"
+            @click="clone(component)"
+          >
+            <fa :icon="['fa', 'clone']" />
           </button>
-          <button class="button is-info is-light is-small" @click="copy">
-            Copy
+          <button
+            :disabled="!emptyClipboard"
+            class="button is-info is-light is-small"
+            title="Copy"
+            @click="copy(component)"
+          >
+            <fa :icon="['fa', 'copy']" />
           </button>
-          <button class="button is-info is-light is-small" @move="move">
-            Move
+          <button
+            :disabled="!emptyClipboard"
+            class="button is-info is-light is-small"
+            title="Cut"
+            @click="cut(component)"
+          >
+            <fa :icon="['fa', 'cut']" />
           </button>
-          <button class="button is-info is-light is-small" @move="paste">
-            Paste
-          </button>
-          <button class="button is-danger is-light is-small" @move="remove">
-            Remove
+          <button
+            class="button is-danger is-light is-small"
+            title="Remove"
+            @click="remove({ componentId: component._id })"
+          >
+            <fa :icon="['fa', 'trash-alt']" />
           </button>
         </div>
       </div>
@@ -34,16 +54,28 @@
       class="tree-node__footer"
       :class="!childComponents.length ? 'tree-node__footer--no-children' : ''"
     >
-      <button class="tree-node__action-btn tree-node__action--add-child">
-        <fa :icon="['fa', 'plus']" />
+      <button
+        class="tree-node__action-btn tree-node__action--add-child"
+        :title="emptyClipboard ? 'Add' : 'Paste'"
+        @click="emptyClipboard ? add : pasteNext()"
+      >
+        <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
       </button>
 
-      <button class="tree-node__action-btn tree-node__action--add-first-child">
-        <fa :icon="['fa', 'plus']" />
+      <button
+        class="tree-node__action-btn tree-node__action--add-first-child"
+        :title="emptyClipboard ? 'Add' : 'Paste'"
+        @click="emptyClipboard ? add : pasteAsFirstChild()"
+      >
+        <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
       </button>
 
-      <button class="tree-node__action-btn tree-node__action--add-after">
-        <fa :icon="['fa', 'plus']" />
+      <button
+        class="tree-node__action-btn tree-node__action--add-after"
+        :title="emptyClipboard ? 'Add' : 'Paste'"
+        @click="emptyClipboard ? add : pasteAfterSelf()"
+      >
+        <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
       </button>
     </div>
     <div v-if="childComponents.length" class="tree-node__branch">
@@ -54,6 +86,13 @@
         :parent-component="childComponent"
         :component-patterns="componentPatterns"
         :get-child-components="getChildComponents"
+        :empty-clipboard="emptyClipboard"
+        :add="add"
+        :remove="remove"
+        :clone="clone"
+        :copy="copy"
+        :cut="cut"
+        :paste="paste"
       />
     </div>
   </div>
@@ -77,6 +116,41 @@ export default {
       type: Function,
       required: true,
     },
+
+    emptyClipboard: {
+      type: Boolean,
+      default: true,
+    },
+
+    add: {
+      type: Function,
+      required: true,
+    },
+
+    clone: {
+      type: Function,
+      required: true,
+    },
+
+    copy: {
+      type: Function,
+      required: true,
+    },
+
+    cut: {
+      type: Function,
+      required: true,
+    },
+
+    paste: {
+      type: Function,
+      required: true,
+    },
+
+    remove: {
+      type: Function,
+      required: true,
+    },
   },
 
   computed: {
@@ -92,32 +166,39 @@ export default {
   },
 
   methods: {
-    addComponent(componentPatternId, parentComponentId, position) {
-      console.log('addChild:', componentPatternId, parentComponentId, position);
-    },
-
-    remove(componentId) {
-      console.log('remove:', componentId);
-    },
-
-    clone(componentId) {
-      console.log('clone:', componentId);
-    },
-
     edit(componentId) {
       console.log('edit:', componentId);
     },
 
-    move(componentId, position) {
-      console.log('move:', componentId, position);
+    addInPlace() {
+      this.add(this.component);
     },
 
-    copy(componentId, position) {
-      console.log('copy:', componentId, position);
+    pasteAsFirstChild() {
+      this.paste({
+        parentComponentId: this.component._id,
+        nextComponentId: this.childComponents[0]._id,
+      });
     },
 
-    paste(componentId, position) {
-      console.log('paste:', componentId, position);
+    pasteAfterSelf() {
+      this.paste({
+        parentComponentId: this.component.parentComponentId,
+        previousComponentId: this.component._id,
+      });
+    },
+
+    pasteNext() {
+      this.paste({
+        parentComponentId: this.component._id,
+      });
+    },
+
+    update(componentId, componentData) {
+      this.$emit('update', {
+        componentId,
+        componentData,
+      });
     },
   },
 };
@@ -181,12 +262,6 @@ export default {
     &:last-of-type {
       &::after {
         display: block;
-      }
-
-      .tree-node__footer {
-        &::after {
-          height: 50%;
-        }
       }
     }
   }

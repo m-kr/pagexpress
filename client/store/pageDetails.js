@@ -24,9 +24,14 @@ export const state = () => ({
 });
 
 export const getters = {
-  rootComponents(state) {
-    return state.components.filter(component => !component.parentComponentId);
-  },
+  rootComponents: state =>
+    state.components.filter(component => !component.parentComponentId),
+
+  /**
+   * @return {number} component position (index)
+   */
+  componentPosition: state => componentId =>
+    state.components.findIndex(component => component._id === componentId),
 };
 
 export const mutations = {
@@ -123,7 +128,7 @@ export const actions = {
     }
   },
 
-  async savePageDetails({ state, dispatch, commit }) {
+  async savePageDetails({ state, dispatch }) {
     const components = [...state.components];
     const data = await showRequestResult({
       request: this.$axios.put(`page-details/${state.details._id}`, {
@@ -138,7 +143,7 @@ export const actions = {
     }
   },
 
-  async removePageDetails({ commit, dispatch, state }, pageDetailsId) {
+  async removePageDetails({ commit, dispatch }, pageDetailsId) {
     if (!confirm('Please, confirm removing page variant')) {
       return;
     }
@@ -166,22 +171,23 @@ export const actions = {
   },
 
   addComponentInPlace(
-    { commit, dispatch, state },
-    { componentPatternId, targetPlaceIndex }
+    { commit, dispatch },
+    { componentPatternId, targetPlaceIndex, parentComponentId, data = {} }
   ) {
     commit('ADD_COMPONENT_IN_PLACE', {
       placeIndex: targetPlaceIndex,
       componentData: {
         _id: uuidv4(),
         componentPatternId,
-        data: {},
+        parentComponentId,
+        data,
       },
     });
 
     dispatch('setDirtyState', null, { root: true });
   },
 
-  updateComponent({ state, commit, dispatch }, componentData) {
+  updateComponent({ commit, dispatch }, componentData) {
     commit('UPDATE_COMPONENT', componentData);
 
     if (lastUpdateComponentSaveTimeout) {
@@ -194,16 +200,19 @@ export const actions = {
     );
   },
 
-  removeComponent({ commit, dispatch }, componentId) {
-    if (!confirm('Please, confirm removing component')) {
+  removeComponent({ commit, dispatch }, { componentId, silent = false }) {
+    if (!silent && !confirm('Please, confirm removing component')) {
       return;
     }
 
     commit('REMOVE_COMPONENT', componentId);
-    commit('NO_SAVED_CHANGE', null, { root: true });
-    dispatch('notifications/success', 'Component has been removed', {
-      root: true,
-    });
+    dispatch('setDirtyState', null, { root: true });
+
+    if (!silent) {
+      dispatch('notifications/success', 'Component has been removed', {
+        root: true,
+      });
+    }
   },
 
   reorderComponents(

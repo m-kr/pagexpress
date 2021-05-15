@@ -63,6 +63,11 @@ export default {
               'faGripVertical',
               'faMinus',
               'faPlus',
+              'faPaste',
+              'faCopy',
+              'faCut',
+              'faTrashAlt',
+              'faClone',
               'faSearch',
               'faTimes',
             ],
@@ -108,6 +113,9 @@ export default {
    ** Build configuration
    */
   build: {
+    babel: {
+      plugins: [['@babel/plugin-proposal-private-methods', { loose: true }]],
+    },
     postcss: {
       plugins: {
         'postcss-nested': {},

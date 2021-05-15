@@ -40,6 +40,13 @@
         :component="component"
         :component-patterns="componentPatterns"
         :get-child-components="getChildComponents"
+        :empty-clipboard="clipboard === null"
+        :add="addComponent"
+        :remove="removeComponent"
+        :clone="cloneComponent"
+        :copy="copyComponent"
+        :cut="cutComponent"
+        :paste="pasteComponent"
       />
     </div>
   </div>
@@ -58,13 +65,7 @@ export default {
 
   data() {
     return {
-      collapsedComponents: [],
-
-      dropPlaceholderOptions: {
-        className: 'drop-preview',
-        animationDuration: '150',
-        showOnTop: true,
-      },
+      clipboard: null,
     };
   },
 
@@ -76,7 +77,7 @@ export default {
       siteInfo: state => state.siteInfo,
       pageData: state => state.page.mainData,
     }),
-    ...mapGetters('pageDetails', ['rootComponents']),
+    ...mapGetters('pageDetails', ['rootComponents', 'componentPosition']),
 
     previewLink() {
       if (
@@ -97,25 +98,31 @@ export default {
   },
 
   methods: {
-    ...mapActions({
-      reorderComponents: 'pageDetails/reorderComponents',
-    }),
+    ...mapActions('pageDetails', [
+      'reorderComponents',
+      'removeComponent',
+      'addComponentInPlace',
+    ]),
     getComponentPattern(patternId) {
       return this.componentPatterns.find(pattern => pattern._id === patternId);
     },
 
     async initPageData() {
       this.setBreadcrumbsLinks();
+
       await this.$store.dispatch(
         'pageDetails/fetchPageDetails',
         this.$route.params.pageDetailsId
       );
+
       await this.$store.dispatch('page/fetchPageData', {
         pageId: this.$route.params.pageId,
       });
+
       await this.$store.dispatch('componentPatterns/fetchComponentPatterns', {
         itemsPerPage: null,
       });
+
       await this.$store.dispatch('fetchSiteInfo');
     },
 
@@ -135,6 +142,86 @@ export default {
         componentPatternId,
         targetPlaceIndex,
       });
+    },
+
+    addToClipboard(actionType, position, payload) {
+      this.clipboard = {
+        type: actionType,
+        position,
+        payload,
+      };
+    },
+
+    getComponentPosition(componentId) {
+      let position;
+
+      this.components.some((c, index) => {
+        position = index;
+
+        return c._id === componentId;
+      });
+
+      return position;
+    },
+
+    cloneComponent({ data, _id, componentPatternId, parentComponentId }) {
+      const clonedComponentPosition = this.componentPosition(_id);
+
+      this.addComponentInPlace({
+        targetPlaceIndex: clonedComponentPosition + 1,
+        componentPatternId,
+        data,
+        parentComponentId,
+      });
+    },
+
+    cutComponent(component, index) {
+      this.addToClipboard(
+        'cut',
+        this.getComponentPosition(component.id),
+        component
+      );
+    },
+
+    copyComponent(component) {
+      this.addToClipboard(
+        'copy',
+        this.getComponentPosition(component.id),
+        component
+      );
+    },
+
+    pasteComponent({
+      previousComponentId,
+      nextComponentId,
+      parentComponentId,
+    }) {
+      const { componentPatternId, data, _id } = this.clipboard.payload;
+      let targetPosition = 0;
+
+      if (previousComponentId) {
+        targetPosition = this.componentPosition(previousComponentId) + 1;
+      } else if (nextComponentId) {
+        targetPosition = this.componentPosition(nextComponentId) - 1;
+      } else {
+        targetPosition =
+          this.clipboard.type === 'copy'
+            ? this.components.length
+            : this.components.length - 1;
+      }
+
+      this.addComponentInPlace({
+        targetPlaceIndex: targetPosition,
+        componentPatternId,
+        data,
+        parentComponentId,
+      });
+
+      if (this.clipboard.type === 'cut') {
+        this.removeComponent({ componentId: _id, silent: true });
+      }
+
+      this.clipboard = null;
     },
 
     setBreadcrumbsLinks() {
@@ -161,10 +248,6 @@ export default {
       });
     },
 
-    onDrop(dragResults) {
-      this.$store.dispatch('pageDetails/reorderRootComponents', dragResults);
-    },
-
     collapseAllComponents() {
       this.collapsedComponents = this.rootComponents.map(
         component => component._id
@@ -179,10 +262,6 @@ export default {
       } else {
         this.collapsedComponents.push(targetComponentId);
       }
-    },
-
-    removeComponent(componentId) {
-      this.$store.dispatch('pageDetails/removeComponent', componentId);
     },
 
     // Move them to getters

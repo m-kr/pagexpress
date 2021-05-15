@@ -14,6 +14,17 @@ export const getters = {
   loggedInUser(state) {
     return state.auth.user;
   },
+
+  previewLink(state) {
+    if (!(this.siteInfo && !!(this.siteInfo.previewUrl || this.siteInfo.url))) {
+      return null;
+    }
+
+    let previewLink = this.siteInfo.previewUrl || this.siteInfo.url;
+    previewLink += `${this.pageData.url}?preview=${this.$route.params.pageId}`;
+
+    return previewLink;
+  },
 };
 
 export const mutations = {
