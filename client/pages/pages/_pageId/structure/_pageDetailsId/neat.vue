@@ -46,7 +46,7 @@
         :clone="cloneComponent"
         :copy="copyComponent"
         :cut="cutComponent"
-        :paste="pasteComponent"
+        :paste="pasteFromClipboard"
       />
     </div>
   </div>
@@ -99,9 +99,10 @@ export default {
 
   methods: {
     ...mapActions('pageDetails', [
-      'reorderComponents',
-      'removeComponent',
       'addComponentInPlace',
+      'pasteComponent',
+      'removeComponent',
+      'reorderComponents',
     ]),
     getComponentPattern(patternId) {
       return this.componentPatterns.find(pattern => pattern._id === patternId);
@@ -191,35 +192,11 @@ export default {
       );
     },
 
-    pasteComponent({
-      previousComponentId,
-      nextComponentId,
-      parentComponentId,
-    }) {
-      const { componentPatternId, data, _id } = this.clipboard.payload;
-      let targetPosition = 0;
-
-      if (previousComponentId) {
-        targetPosition = this.componentPosition(previousComponentId) + 1;
-      } else if (nextComponentId) {
-        targetPosition = this.componentPosition(nextComponentId) - 1;
-      } else {
-        targetPosition =
-          this.clipboard.type === 'copy'
-            ? this.components.length
-            : this.components.length - 1;
-      }
-
-      this.addComponentInPlace({
-        targetPlaceIndex: targetPosition,
-        componentPatternId,
-        data,
-        parentComponentId,
+    pasteFromClipboard(targetPlaceParams) {
+      this.pasteComponent({
+        ...targetPlaceParams,
+        clipboard: this.clipboard,
       });
-
-      if (this.clipboard.type === 'cut') {
-        this.removeComponent({ componentId: _id, silent: true });
-      }
 
       this.clipboard = null;
     },

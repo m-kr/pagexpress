@@ -200,18 +200,46 @@ export const actions = {
     );
   },
 
-  removeComponent({ commit, dispatch }, { componentId, silent = false }) {
-    if (!silent && !confirm('Please, confirm removing component')) {
+  removeComponent({ commit, dispatch }, componentId) {
+    if (!confirm('Please, confirm removing component')) {
       return;
     }
 
     commit('REMOVE_COMPONENT', componentId);
     dispatch('setDirtyState', null, { root: true });
 
-    if (!silent) {
-      dispatch('notifications/success', 'Component has been removed', {
-        root: true,
-      });
+    dispatch('notifications/success', 'Component has been removed', {
+      root: true,
+    });
+  },
+
+  pasteComponent(
+    { state, commit, dispatch, getters },
+    { previousComponentId, nextComponentId, parentComponentId, clipboard }
+  ) {
+    const { payload, type } = clipboard;
+    const { componentPatternId, data, _id } = payload;
+    let targetPosition = 0;
+
+    if (previousComponentId) {
+      targetPosition = getters.componentPosition(previousComponentId) + 1;
+    } else if (nextComponentId) {
+      targetPosition = getters.componentPosition(nextComponentId) - 1;
+    } else {
+      targetPosition =
+        type === 'copy' ? state.components.length : state.components.length - 1;
+    }
+
+    dispatch('addComponentInPlace', {
+      targetPlaceIndex: targetPosition,
+      componentPatternId,
+      data,
+      parentComponentId,
+    });
+
+    if (type === 'cut') {
+      commit('REMOVE_COMPONENT', _id);
+      dispatch('setDirtyState', null, { root: true });
     }
   },
 
