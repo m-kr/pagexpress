@@ -7,6 +7,7 @@ import DraggableFormsContainer from './DraggableFormsContainer';
 import Field from './Field';
 import Form from './Form';
 import MenuItems from './MenuItems';
+import ModalComponent from './ModalComponent';
 import Navbar from './Navbar';
 import Notification from './Notification';
 import NotificationToasts from './NotificationToasts';
@@ -29,6 +30,7 @@ export {
   Field,
   Form,
   MenuItems,
+  ModalComponent,
   Navbar,
   Notification,
   NotificationToasts,

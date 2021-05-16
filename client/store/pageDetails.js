@@ -5,7 +5,6 @@ import {
   getPageStructureFromTemplate,
   showRequestResult,
   remapComponents,
-  reorderItems,
   targetComponentPosition,
 } from '@/utils';
 
@@ -93,10 +92,6 @@ export const mutations = {
   REMOVE_PAGE_DETAILS(state) {
     state.details = { ...detailsStructure };
     state.components = null;
-  },
-
-  REORDER_COMPONENTS(state, dragResults) {
-    state.components = [...reorderItems(state.components, dragResults)];
   },
 };
 
@@ -281,76 +276,6 @@ export const actions = {
         nextComponentId,
       }),
       componentData: { ...payload, parentComponentId },
-    });
-
-    dispatch('setDirtyState', null, { root: true });
-  },
-
-  reorderComponents(
-    { commit, dispatch, state },
-    { addedItemId, removedItemId }
-  ) {
-    let addedIndex = null;
-    let removedIndex = null;
-
-    for (let i = 0; i < state.components.length; i++) {
-      const component = state.components[i];
-
-      if (component._id === addedItemId) {
-        addedIndex = i;
-      }
-
-      if (component._id === removedItemId) {
-        removedIndex = i;
-      }
-
-      if (addedIndex !== null && removedIndex !== null) {
-        break;
-      }
-    }
-    commit('REORDER_COMPONENTS', {
-      addedIndex,
-      removedIndex,
-    });
-    dispatch('setDirtyState', null, { root: true });
-  },
-
-  reorderRootComponents(
-    { commit, dispatch, state, getters },
-    { removedIndex, addedIndex, payload }
-  ) {
-    const { rootComponents } = getters;
-    const { components } = state;
-    let addedComponentIndex = null;
-    let removedComponentIndex = null;
-
-    for (const [index, component] of components.entries()) {
-      if (
-        addedIndex !== null &&
-        rootComponents[addedIndex]._id === component._id
-      ) {
-        addedComponentIndex = index;
-      }
-
-      if (
-        removedIndex !== null &&
-        rootComponents[removedIndex]._id === component._id
-      ) {
-        removedComponentIndex = index;
-      }
-
-      if (
-        (addedIndex === null || addedComponentIndex) &&
-        (removedIndex === null || removedComponentIndex)
-      ) {
-        break;
-      }
-    }
-
-    commit('REORDER_COMPONENTS', {
-      addedIndex: addedComponentIndex,
-      removedIndex: removedComponentIndex,
-      payload,
     });
 
     dispatch('setDirtyState', null, { root: true });

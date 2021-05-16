@@ -26,7 +26,7 @@
             class="button is-info is-light is-small"
             title="Edit"
             :disabled="clipboardState"
-            @click="edit"
+            @click="edit(component)"
           >
             <fa :icon="['fa', 'edit']" />
           </button>
@@ -107,6 +107,7 @@
         :get-child-components="getChildComponents"
         :empty-clipboard="emptyClipboard"
         :add="add"
+        :edit="edit"
         :remove="remove"
         :clone="clone"
         :copy="copy"
@@ -156,6 +157,11 @@ export default {
       required: true,
     },
 
+    edit: {
+      type: Function,
+      required: true,
+    },
+
     clone: {
       type: Function,
       required: true,
@@ -201,10 +207,6 @@ export default {
   },
 
   methods: {
-    edit(componentId) {
-      console.log('edit:', componentId);
-    },
-
     addFirstChild() {
       this.add({
         parentComponentId: this.component._id,
@@ -213,10 +215,6 @@ export default {
     },
 
     addAfterSelf() {
-      console.log('after self', {
-        parentComponentId: this.component.parentComponentId,
-        previousComponentId: this.component._id,
-      });
       this.add({
         parentComponentId: this.component.parentComponentId,
         previousComponentId: this.component._id,

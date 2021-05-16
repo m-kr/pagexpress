@@ -42,6 +42,7 @@
         :component-patterns="componentPatterns"
         :get-child-components="getChildComponents"
         :empty-clipboard="clipboard === null"
+        :edit="toggleModalComponent"
         :add="showComponentFinder"
         :remove="removeComponent"
         :clone="cloneComponent"
@@ -59,6 +60,14 @@
       :place-index="addToNodeParams.placeIndex"
       :parent-component-id="addToNodeParams.parentComponentId"
     />
+    <ModalComponent
+      :visible="editedComponent !== null"
+      :component="editedComponent"
+      :update-component="updateComponent"
+      :component-patterns="componentPatterns"
+      :toggle-visibility="toggleModalComponent"
+      :save="saveChanges"
+    />
   </div>
 </template>
 
@@ -68,6 +77,7 @@ import {
   ComponentSelector,
   ComponentsFinder,
   ComponentTreeNode,
+  ModalComponent,
   Toolbar,
 } from '@/components';
 import { getAllDescendants, targetComponentPosition } from '@/utils';
@@ -77,6 +87,7 @@ export default {
     ComponentSelector,
     ComponentsFinder,
     ComponentTreeNode,
+    ModalComponent,
     Toolbar,
   },
 
@@ -85,6 +96,7 @@ export default {
       clipboard: null,
       addToNodeParams: {},
       showFinder: false,
+      editedComponent: null,
     };
   },
 
@@ -124,7 +136,12 @@ export default {
       'moveComponent',
       'removeComponent',
       'reorderComponents',
+      'updateComponent',
     ]),
+
+    toggleModalComponent(component) {
+      this.editedComponent = this.editedComponent ? null : component;
+    },
 
     clearClipboard() {
       this.clipboard = null;
@@ -274,30 +291,6 @@ export default {
       ]);
     },
 
-    updateComponent(componentId, componentData) {
-      this.$store.dispatch('pageDetails/updateComponent', {
-        _id: componentId,
-        ...componentData,
-      });
-    },
-
-    collapseAllComponents() {
-      this.collapsedComponents = this.rootComponents.map(
-        component => component._id
-      );
-    },
-
-    toggleCollapsedState(targetComponentId) {
-      if (this.collapsedComponents.includes(targetComponentId)) {
-        this.collapsedComponents = this.collapsedComponents.filter(
-          componentId => componentId !== targetComponentId
-        );
-      } else {
-        this.collapsedComponents.push(targetComponentId);
-      }
-    },
-
-    // Move them to getters
     getChildComponents(parentId) {
       return this.components.filter(
         component => component.parentComponentId === parentId

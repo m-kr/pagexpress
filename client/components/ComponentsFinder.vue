@@ -192,7 +192,6 @@ export default {
     },
 
     selectComponent(selectedPatternId) {
-      console.log('targetPlace', this.placeIndex);
       this.addComponent({
         targetPlaceIndex: this.placeIndex,
         parentComponentId: this.parentComponentId,
