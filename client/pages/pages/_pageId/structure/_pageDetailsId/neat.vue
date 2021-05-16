@@ -70,7 +70,7 @@ import {
   ComponentTreeNode,
   Toolbar,
 } from '@/components';
-import { getAllDescendants } from '@/utils';
+import { getAllDescendants, targetComponentPosition } from '@/utils';
 
 export default {
   components: {
@@ -96,11 +96,7 @@ export default {
       siteInfo: state => state.siteInfo,
       pageData: state => state.page.mainData,
     }),
-    ...mapGetters('pageDetails', [
-      'rootComponents',
-      'componentPosition',
-      'targetPosition',
-    ]),
+    ...mapGetters('pageDetails', ['rootComponents']),
 
     previewLink() {
       if (
@@ -124,7 +120,6 @@ export default {
     ...mapActions('pageDetails', [
       'addComponent',
       'addComponentInPlace',
-      'pasteComponent',
       'copyComponent',
       'moveComponent',
       'removeComponent',
@@ -198,13 +193,18 @@ export default {
     },
 
     cloneComponent({ data, _id, componentPatternId, parentComponentId }) {
-      const clonedComponentPosition = this.componentPosition(_id);
-
-      this.addComponentInPlace({
-        targetPlaceIndex: clonedComponentPosition + 1,
-        componentPatternId,
-        data,
+      this.copyComponent({
         parentComponentId,
+        previousComponentId: _id,
+        componentPatternId,
+        clipboard: {
+          type: 'copy',
+          payload: {
+            _id,
+            componentPatternId,
+            data,
+          },
+        },
       });
     },
 
@@ -242,7 +242,10 @@ export default {
 
     showComponentFinder({ parentComponentId, ...targetPlaceParams }) {
       this.addToNodeParams = {
-        placeIndex: this.targetPosition(targetPlaceParams),
+        placeIndex: targetComponentPosition({
+          ...targetPlaceParams,
+          components: this.components,
+        }),
         parentComponentId,
       };
 

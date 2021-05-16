@@ -12,7 +12,7 @@ export const targetComponentPosition = ({
     targetPosition =
       currentComponentPosition(components, previousComponentId) + 1;
   } else if (nextComponentId) {
-    targetPosition = currentComponentPosition(components, nextComponentId) - 1;
+    targetPosition = currentComponentPosition(components, nextComponentId);
   } else {
     targetPosition =
       actionType === 'copy' ? components.length : components.length - 1;

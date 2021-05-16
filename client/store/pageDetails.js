@@ -29,31 +29,6 @@ export const state = () => ({
 export const getters = {
   rootComponents: state =>
     state.components.filter(component => !component.parentComponentId),
-
-  /**
-   * @return {number} component position (index)
-   */
-  componentPosition: state => componentId =>
-    state.components.findIndex(component => component._id === componentId),
-
-  targetPosition:
-    (state, getters) =>
-    ({ previousComponentId, nextComponentId, actionType = 'add' }) => {
-      let targetPosition = 0;
-
-      if (previousComponentId) {
-        targetPosition = getters.componentPosition(previousComponentId) + 1;
-      } else if (nextComponentId) {
-        targetPosition = getters.componentPosition(nextComponentId) - 1;
-      } else {
-        targetPosition =
-          actionType === 'copy'
-            ? state.components.length
-            : state.components.length - 1;
-      }
-
-      return targetPosition;
-    },
 };
 
 export const mutations = {
@@ -252,31 +227,6 @@ export const actions = {
 
     dispatch('notifications/success', 'Component has been removed', {
       root: true,
-    });
-  },
-
-  pasteComponent(
-    { state, commit, dispatch, getters },
-    { previousComponentId, nextComponentId, parentComponentId, clipboard }
-  ) {
-    const { payload, type } = clipboard;
-    const { componentPatternId, data, _id } = payload;
-
-    if (type === 'cut') {
-      commit('REMOVE_SINGLE_NODE_COMPONENT', _id);
-      dispatch('setDirtyState', null, { root: true });
-    }
-
-    dispatch('addComponentInPlace', {
-      targetPlaceIndex: getters.targetPosition({
-        previousComponentId,
-        nextComponentId,
-        actionType: type,
-      }),
-      componentPatternId,
-      parentComponentId,
-      componentId: _id,
-      data,
     });
   },
 
