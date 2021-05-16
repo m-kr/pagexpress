@@ -7,8 +7,8 @@
           :component-patterns="componentPatterns ? componentPatterns : []"
           :select-action="patternId => addComponent(patternId)"
         />
-        <button class="button is-info" @click="collapseAllComponents">
-          Collapse all
+        <button v-if="clipboard" class="button is-info" @click="clearClipboard">
+          Cancel {{ clipboard.type }}
         </button>
       </template>
 
@@ -45,8 +45,9 @@
         :add="showComponentFinder"
         :remove="removeComponent"
         :clone="cloneComponent"
-        :copy="copyComponent"
-        :cut="cutComponent"
+        :in-clipboard="inClipboard"
+        :copy="copyComponentToClipboard"
+        :cut="cutComponentToClipboard"
         :paste="pasteFromClipboard"
       />
     </div>
@@ -69,6 +70,7 @@ import {
   ComponentTreeNode,
   Toolbar,
 } from '@/components';
+import { getAllDescendants } from '@/utils';
 
 export default {
   components: {
@@ -123,9 +125,31 @@ export default {
       'addComponent',
       'addComponentInPlace',
       'pasteComponent',
+      'copyComponent',
+      'moveComponent',
       'removeComponent',
       'reorderComponents',
     ]),
+
+    clearClipboard() {
+      this.clipboard = null;
+    },
+
+    inClipboard(componentId) {
+      if (this.clipboard) {
+        const clipboardNodeWithDescendant = getAllDescendants(
+          this.clipboard.payload._id,
+          this.components
+        );
+
+        return clipboardNodeWithDescendant.includes(componentId)
+          ? this.clipboard.type
+          : false;
+      }
+
+      return false;
+    },
+
     getComponentPattern(patternId) {
       return this.componentPatterns.find(pattern => pattern._id === patternId);
     },
@@ -184,7 +208,7 @@ export default {
       });
     },
 
-    cutComponent(component, index) {
+    cutComponentToClipboard(component, index) {
       this.addToClipboard(
         'cut',
         this.getComponentPosition(component.id),
@@ -192,7 +216,7 @@ export default {
       );
     },
 
-    copyComponent(component) {
+    copyComponentToClipboard(component) {
       this.addToClipboard(
         'copy',
         this.getComponentPosition(component.id),
@@ -201,10 +225,17 @@ export default {
     },
 
     pasteFromClipboard(targetPlaceParams) {
-      this.pasteComponent({
-        ...targetPlaceParams,
-        clipboard: this.clipboard,
-      });
+      if (this.clipboard.type === 'copy') {
+        this.copyComponent({
+          ...targetPlaceParams,
+          clipboard: this.clipboard,
+        });
+      } else if (this.clipboard.type === 'cut') {
+        this.moveComponent({
+          ...targetPlaceParams,
+          clipboard: this.clipboard,
+        });
+      }
 
       this.clipboard = null;
     },
@@ -215,7 +246,6 @@ export default {
         parentComponentId,
       };
 
-      console.log(this.addToNodeParams);
       this.showFinder = true;
     },
 

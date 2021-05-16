@@ -1,9 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 import {
+  getAllDescendants,
   getPageStructureFromTemplate,
   showRequestResult,
+  remapComponents,
   reorderItems,
+  targetComponentPosition,
 } from '@/utils';
 
 const saveChangesDelay = 500;
@@ -78,6 +81,10 @@ export const mutations = {
     state.components = [...state.components, component];
   },
 
+  ADD_COMPONENTS(state, components) {
+    state.components = [...state.components, ...components];
+  },
+
   ADD_COMPONENT_IN_PLACE(state, { placeIndex, componentData }) {
     state.components.splice(placeIndex, 0, componentData);
   },
@@ -93,8 +100,18 @@ export const mutations = {
   },
 
   REMOVE_COMPONENT(state, componentId) {
+    const nodeWithDescendants = getAllDescendants(
+      componentId,
+      state.components
+    );
     state.components = state.components.filter(
-      component => component._id !== componentId
+      component => !nodeWithDescendants.includes(component._id)
+    );
+  },
+
+  REMOVE_SINGLE_NODE_COMPONENT(state, targetComponentId) {
+    state.components = state.components.filter(
+      component => component._id !== targetComponentId
     );
   },
 
@@ -246,7 +263,7 @@ export const actions = {
     const { componentPatternId, data, _id } = payload;
 
     if (type === 'cut') {
-      commit('REMOVE_COMPONENT', _id);
+      commit('REMOVE_SINGLE_NODE_COMPONENT', _id);
       dispatch('setDirtyState', null, { root: true });
     }
 
@@ -261,6 +278,62 @@ export const actions = {
       componentId: _id,
       data,
     });
+  },
+
+  copyComponent(
+    { state, commit, dispatch },
+    { previousComponentId, nextComponentId, parentComponentId, clipboard }
+  ) {
+    const { payload } = clipboard;
+
+    const nodeWithDescendantsIds = getAllDescendants(
+      payload._id,
+      state.components
+    );
+    const descendants = state.components.filter(
+      component =>
+        payload._id !== component._id &&
+        nodeWithDescendantsIds.includes(component._id)
+    );
+    const rootNodeCopy = { ...payload, _id: uuidv4(), parentComponentId };
+    const copiedComponents = remapComponents(descendants).map(component => {
+      if (component.parentComponentId === payload._id) {
+        component.parentComponentId = rootNodeCopy._id;
+      }
+
+      return component;
+    });
+    const placeIndex = targetComponentPosition({
+      components: state.components,
+      previousComponentId,
+      nextComponentId,
+    });
+
+    commit('ADD_COMPONENT_IN_PLACE', {
+      placeIndex,
+      componentData: rootNodeCopy,
+    });
+    commit('ADD_COMPONENTS', copiedComponents);
+    dispatch('setDirtyState', null, { root: true });
+  },
+
+  moveComponent(
+    { state, commit, dispatch },
+    { previousComponentId, nextComponentId, parentComponentId, clipboard }
+  ) {
+    const { payload } = clipboard;
+
+    commit('REMOVE_SINGLE_NODE_COMPONENT', payload._id);
+    commit('ADD_COMPONENT_IN_PLACE', {
+      placeIndex: targetComponentPosition({
+        components: state.components,
+        previousComponentId,
+        nextComponentId,
+      }),
+      componentData: { ...payload, parentComponentId },
+    });
+
+    dispatch('setDirtyState', null, { root: true });
   },
 
   reorderComponents(

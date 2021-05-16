@@ -1,5 +1,8 @@
 <template>
-  <div class="tree-node__root">
+  <div
+    class="tree-node__root"
+    :class="clipboardState ? `tree-node__root--${clipboardState}` : ''"
+  >
     <div v-if="firstRoot" class="tree-node__origin-node">
       <button
         class="tree-node__action-btn tree-node__action--add-first-child"
@@ -22,6 +25,7 @@
           <button
             class="button is-info is-light is-small"
             title="Edit"
+            :disabled="clipboardState"
             @click="edit"
           >
             <fa :icon="['fa', 'edit']" />
@@ -29,6 +33,7 @@
           <button
             class="button is-primary is-light is-small"
             title="Clone"
+            :disabled="clipboardState"
             @click="clone(component)"
           >
             <fa :icon="['fa', 'clone']" />
@@ -52,6 +57,7 @@
           <button
             class="button is-danger is-light is-small"
             title="Remove"
+            :disabled="clipboardState"
             @click="remove(component._id)"
           >
             <fa :icon="['fa', 'trash-alt']" />
@@ -66,6 +72,7 @@
       <button
         class="tree-node__action-btn tree-node__action--add-child"
         :title="emptyClipboard ? 'Add' : 'Paste'"
+        :disabled="clipboardState"
         @click="emptyClipboard ? addNext() : pasteNext()"
       >
         <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
@@ -74,6 +81,7 @@
       <button
         class="tree-node__action-btn tree-node__action--add-first-child"
         :title="emptyClipboard ? 'Add' : 'Paste'"
+        :disabled="clipboardState"
         @click="emptyClipboard ? addFirstChild() : pasteAsFirstChild()"
       >
         <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
@@ -82,6 +90,7 @@
       <button
         class="tree-node__action-btn tree-node__action--add-after"
         :title="emptyClipboard ? 'Add' : 'Paste'"
+        :disabled="clipboardState"
         @click="emptyClipboard ? addAfterSelf() : pasteAfterSelf()"
       >
         <fa :icon="emptyClipboard ? ['fa', 'plus'] : ['fa', 'paste']" />
@@ -94,6 +103,7 @@
         :component="childComponent"
         :parent-component="childComponent"
         :component-patterns="componentPatterns"
+        :in-clipboard="inClipboard"
         :get-child-components="getChildComponents"
         :empty-clipboard="emptyClipboard"
         :add="add"
@@ -122,6 +132,11 @@ export default {
     },
 
     getChildComponents: {
+      type: Function,
+      required: true,
+    },
+
+    inClipboard: {
       type: Function,
       required: true,
     },
@@ -176,6 +191,12 @@ export default {
 
     childComponents() {
       return this.getChildComponents(this.component._id);
+    },
+
+    clipboardState() {
+      const clipboardState = this.inClipboard(this.component._id);
+
+      return clipboardState || null;
     },
   },
 
@@ -318,6 +339,20 @@ export default {
     &:last-of-type {
       &::after {
         display: block;
+      }
+    }
+
+    &--cut {
+      .tree-node__info {
+        opacity: 0.5;
+      }
+    }
+
+    &--copy {
+      background-color: rgba(50, 152, 220, 0.1);
+
+      .tree-node__root--copy {
+        background-color: transparent;
       }
     }
   }
