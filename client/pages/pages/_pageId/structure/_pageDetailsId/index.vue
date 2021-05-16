@@ -7,8 +7,8 @@
           :component-patterns="componentPatterns ? componentPatterns : []"
           :select-action="patternId => addComponent(patternId)"
         />
-        <button class="button is-info" @click="collapseAllComponents">
-          Collapse all
+        <button v-if="clipboard" class="button is-info" @click="clearClipboard">
+          Cancel {{ clipboard.type }}
         </button>
       </template>
 
@@ -30,73 +30,73 @@
         </button>
       </template>
     </Toolbar>
-
-    <Container
+    <div
       v-if="componentPatterns && componentPatterns.length"
-      class="components-wrapper"
-      drag-handle-selector=".card-header__grab-handler.root"
-      :drop-placeholder="dropPlaceholderOptions"
-      @drop="onDrop"
+      class="components-tree"
     >
-      <Draggable
-        v-for="(component, rowIndex) in rootComponents"
+      <ComponentTreeNode
+        v-for="(component, index) in rootComponents"
         :key="component._id"
-        class="card"
-      >
-        <PageComponent
-          :component-patterns="componentPatterns"
-          :component="component"
-          :add-component="addComponent"
-          :update-component="updateComponent"
-          :remove-component="removeComponent"
-          :get-child-components="getChildComponents"
-          :drop-placeholder-options="dropPlaceholderOptions"
-          :reorder="reorderComponents"
-          :collapsed="collapsedComponents.includes(component._id)"
-          :toggle-collapsed-state="toggleCollapsedState"
-          :is-root-component="true"
-        >
-          <div class="add-component__container">
-            <ComponentSelector
-              :component-patterns="componentPatterns ? componentPatterns : []"
-              label="Place component"
-              size="small"
-              color="primary"
-              button-style="light"
-              :select-action="
-                patternId => addComponentAfterSelf(patternId, rowIndex + 1)
-              "
-            />
-          </div>
-        </PageComponent>
-      </Draggable>
-    </Container>
+        :component="component"
+        :first-root="index === 0"
+        :component-patterns="componentPatterns"
+        :get-child-components="getChildComponents"
+        :empty-clipboard="clipboard === null"
+        :edit="toggleModalComponent"
+        :add="showComponentFinder"
+        :remove="removeComponent"
+        :clone="cloneComponent"
+        :in-clipboard="inClipboard"
+        :copy="copyComponentToClipboard"
+        :cut="cutComponentToClipboard"
+        :paste="pasteFromClipboard"
+      />
+    </div>
+    <ComponentsFinder
+      :component-patterns="componentPatterns"
+      :add-component="addComponentInPlace"
+      :show-finder="showFinder"
+      :close-callback="closeFinder"
+      :place-index="addToNodeParams.placeIndex"
+      :parent-component-id="addToNodeParams.parentComponentId"
+    />
+    <ModalComponent
+      :visible="editedComponent !== null"
+      :component="editedComponent"
+      :update-component="updateComponent"
+      :component-patterns="componentPatterns"
+      :toggle-visibility="toggleModalComponent"
+      :save="saveChanges"
+    />
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import { Container, Draggable } from 'vue-smooth-dnd';
-import { ComponentSelector, PageComponent, Toolbar } from '@/components';
+import {
+  ComponentSelector,
+  ComponentsFinder,
+  ComponentTreeNode,
+  ModalComponent,
+  Toolbar,
+} from '@/components';
+import { getAllDescendants, targetComponentPosition } from '@/utils';
 
 export default {
   components: {
     ComponentSelector,
-    Container,
-    Draggable,
-    PageComponent,
+    ComponentsFinder,
+    ComponentTreeNode,
+    ModalComponent,
     Toolbar,
   },
 
   data() {
     return {
-      collapsedComponents: [],
-
-      dropPlaceholderOptions: {
-        className: 'drop-preview',
-        animationDuration: '150',
-        showOnTop: true,
-      },
+      clipboard: null,
+      addToNodeParams: {},
+      showFinder: false,
+      editedComponentId: null,
     };
   },
 
@@ -122,6 +122,14 @@ export default {
 
       return previewLink;
     },
+
+    editedComponent() {
+      return this.editedComponentId
+        ? this.components.find(
+            component => component._id === this.editedComponentId
+          )
+        : null;
+    },
   },
 
   mounted() {
@@ -129,21 +137,59 @@ export default {
   },
 
   methods: {
-    ...mapActions({
-      reorderComponents: 'pageDetails/reorderComponents',
-    }),
+    ...mapActions('pageDetails', [
+      'addComponent',
+      'addComponentInPlace',
+      'copyComponent',
+      'moveComponent',
+      'removeComponent',
+      'reorderComponents',
+      'updateComponent',
+    ]),
+
+    toggleModalComponent(component) {
+      this.editedComponentId = this.editedComponentId ? null : component._id;
+    },
+
+    clearClipboard() {
+      this.clipboard = null;
+    },
+
+    inClipboard(componentId) {
+      if (this.clipboard) {
+        const clipboardNodeWithDescendant = getAllDescendants(
+          this.clipboard.payload._id,
+          this.components
+        );
+
+        return clipboardNodeWithDescendant.includes(componentId)
+          ? this.clipboard.type
+          : false;
+      }
+
+      return false;
+    },
+
+    getComponentPattern(patternId) {
+      return this.componentPatterns.find(pattern => pattern._id === patternId);
+    },
+
     async initPageData() {
       this.setBreadcrumbsLinks();
+
       await this.$store.dispatch(
         'pageDetails/fetchPageDetails',
         this.$route.params.pageDetailsId
       );
+
       await this.$store.dispatch('page/fetchPageData', {
         pageId: this.$route.params.pageId,
       });
+
       await this.$store.dispatch('componentPatterns/fetchComponentPatterns', {
         itemsPerPage: null,
       });
+
       await this.$store.dispatch('fetchSiteInfo');
     },
 
@@ -151,18 +197,89 @@ export default {
       await this.$store.dispatch('pageDetails/savePageDetails');
     },
 
-    addComponent(componentPatternId, parentComponentId) {
-      this.$store.dispatch('pageDetails/addComponent', {
-        componentPatternId,
+    addToClipboard(actionType, position, payload) {
+      this.clipboard = {
+        type: actionType,
+        position,
+        payload,
+      };
+    },
+
+    getComponentPosition(componentId) {
+      let position;
+
+      this.components.some((c, index) => {
+        position = index;
+
+        return c._id === componentId;
+      });
+
+      return position;
+    },
+
+    cloneComponent({ data, _id, componentPatternId, parentComponentId }) {
+      this.copyComponent({
         parentComponentId,
+        previousComponentId: _id,
+        componentPatternId,
+        clipboard: {
+          type: 'copy',
+          payload: {
+            _id,
+            componentPatternId,
+            data,
+          },
+        },
       });
     },
 
-    addComponentAfterSelf(componentPatternId, targetPlaceIndex) {
-      this.$store.dispatch('pageDetails/addComponentInPlace', {
-        componentPatternId,
-        targetPlaceIndex,
-      });
+    cutComponentToClipboard(component, index) {
+      this.addToClipboard(
+        'cut',
+        this.getComponentPosition(component.id),
+        component
+      );
+    },
+
+    copyComponentToClipboard(component) {
+      this.addToClipboard(
+        'copy',
+        this.getComponentPosition(component.id),
+        component
+      );
+    },
+
+    pasteFromClipboard(targetPlaceParams) {
+      if (this.clipboard.type === 'copy') {
+        this.copyComponent({
+          ...targetPlaceParams,
+          clipboard: this.clipboard,
+        });
+      } else if (this.clipboard.type === 'cut') {
+        this.moveComponent({
+          ...targetPlaceParams,
+          clipboard: this.clipboard,
+        });
+      }
+
+      this.clipboard = null;
+    },
+
+    showComponentFinder({ parentComponentId, ...targetPlaceParams }) {
+      this.addToNodeParams = {
+        placeIndex: targetComponentPosition({
+          ...targetPlaceParams,
+          components: this.components,
+        }),
+        parentComponentId,
+      };
+
+      this.showFinder = true;
+    },
+
+    closeFinder() {
+      this.addToNodeParams = {};
+      this.showFinder = false;
     },
 
     setBreadcrumbsLinks() {
@@ -182,38 +299,6 @@ export default {
       ]);
     },
 
-    updateComponent(componentId, componentData) {
-      this.$store.dispatch('pageDetails/updateComponent', {
-        _id: componentId,
-        ...componentData,
-      });
-    },
-
-    onDrop(dragResults) {
-      this.$store.dispatch('pageDetails/reorderRootComponents', dragResults);
-    },
-
-    collapseAllComponents() {
-      this.collapsedComponents = this.rootComponents.map(
-        component => component._id
-      );
-    },
-
-    toggleCollapsedState(targetComponentId) {
-      if (this.collapsedComponents.includes(targetComponentId)) {
-        this.collapsedComponents = this.collapsedComponents.filter(
-          componentId => componentId !== targetComponentId
-        );
-      } else {
-        this.collapsedComponents.push(targetComponentId);
-      }
-    },
-
-    removeComponent(componentId) {
-      this.$store.dispatch('pageDetails/removeComponent', componentId);
-    },
-
-    // Move them to getters
     getChildComponents(parentId) {
       return this.components.filter(
         component => component.parentComponentId === parentId
@@ -249,5 +334,9 @@ export default {
       }
     }
   }
+}
+
+.components-tree {
+  padding: var(--spacing-2) 0;
 }
 </style>
