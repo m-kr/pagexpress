@@ -120,5 +120,18 @@ export default {
 <style lang="postcss" scoped>
 .modal {
   z-index: 999;
+
+  &-card {
+    @media (min-width: 769px) {
+      width: 80%;
+      max-width: 1000px;
+    }
+  }
+
+  &-card-title {
+    & > * {
+      display: block;
+    }
+  }
 }
 </style>

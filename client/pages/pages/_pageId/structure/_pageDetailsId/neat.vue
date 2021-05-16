@@ -96,7 +96,7 @@ export default {
       clipboard: null,
       addToNodeParams: {},
       showFinder: false,
-      editedComponent: null,
+      editedComponentId: null,
     };
   },
 
@@ -122,6 +122,14 @@ export default {
 
       return previewLink;
     },
+
+    editedComponent() {
+      return this.editedComponentId
+        ? this.components.find(
+            component => component._id === this.editedComponentId
+          )
+        : null;
+    },
   },
 
   mounted() {
@@ -140,7 +148,7 @@ export default {
     ]),
 
     toggleModalComponent(component) {
-      this.editedComponent = this.editedComponent ? null : component;
+      this.editedComponentId = this.editedComponentId ? null : component._id;
     },
 
     clearClipboard() {

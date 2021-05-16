@@ -8,9 +8,6 @@ import {
   targetComponentPosition,
 } from '@/utils';
 
-const saveChangesDelay = 500;
-let lastUpdateComponentSaveTimeout = null;
-
 const detailsStructure = {
   _id: '',
   name: '',
@@ -201,15 +198,7 @@ export const actions = {
 
   updateComponent({ commit, dispatch }, componentData) {
     commit('UPDATE_COMPONENT', componentData);
-
-    if (lastUpdateComponentSaveTimeout) {
-      clearTimeout(lastUpdateComponentSaveTimeout);
-    }
-
-    lastUpdateComponentSaveTimeout = setTimeout(
-      () => dispatch('setDirtyState', null, { root: true }),
-      saveChangesDelay
-    );
+    dispatch('setDirtyState', null, { root: true });
   },
 
   removeComponent({ commit, dispatch }, componentId) {

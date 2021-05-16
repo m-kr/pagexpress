@@ -77,7 +77,7 @@ export default {
       this.$emit('update', correctValue);
     },
 
-    onInput: _debounce(function(evt) {
+    onInput: _debounce(function (evt) {
       this.$emit('update', evt.target.value);
     }, 500),
   },
