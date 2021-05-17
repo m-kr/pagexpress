@@ -37,12 +37,20 @@
       :component-name="componentName"
       @update="update"
     />
+
+    <FieldHeader
+      v-if="fieldType === 'header'"
+      :label="label"
+      :value="value || undefined"
+      @update="update"
+    />
   </div>
 </template>
 
 <script>
 import {
   FieldBoolean,
+  FieldHeader,
   FieldHtml,
   FieldList,
   FieldText,
@@ -55,6 +63,7 @@ export default {
   components: {
     FieldClientImage,
     FieldBoolean,
+    FieldHeader,
     FieldHtml,
     FieldList,
     FieldText,
