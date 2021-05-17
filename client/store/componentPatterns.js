@@ -329,14 +329,14 @@ export const mutations = {
 export const actions = {
   async fetchComponentPatterns(
     { commit, dispatch, state },
-    { itemsPerPage, nextPage } = {}
+    { itemsPerPage, nextPage, filter = false } = {}
   ) {
     const data = await showRequestResult({
       request: this.$axios.get(`component-patterns`, {
         params: {
           page: nextPage || state.currentPage,
           limit: itemsPerPage === null ? undefined : state.itemsPerPage,
-          search: state.search,
+          search: filter ? state.search : undefined,
         },
       }),
       dispatch,
@@ -538,7 +538,7 @@ export const actions = {
 
   async searchComponentPattern({ commit, dispatch }, search) {
     commit('SEARCH_COMPONENT_PATTERN', search);
-    await dispatch('fetchComponentPatterns', { targetPage: 1 });
+    await dispatch('fetchComponentPatterns', { targetPage: 1, filter: true });
   },
 
   async sortBy({ commit, dispatch }, sortBy) {

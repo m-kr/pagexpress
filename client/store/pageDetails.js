@@ -18,7 +18,7 @@ const detailsStructure = {
 
 export const state = () => ({
   details: { ...detailsStructure },
-  components: null,
+  components: [],
   isDirty: false,
 });
 
@@ -63,7 +63,10 @@ export const mutations = {
   UPDATE_COMPONENT(state, newComponentData) {
     state.components = state.components.map(component => {
       if (component._id === newComponentData._id) {
-        component = { ...component, ...newComponentData };
+        component.data = {
+          ...(component.data || {}),
+          ...(newComponentData.data || {}),
+        };
       }
 
       return component;
