@@ -1,8 +1,8 @@
 <template>
   <div class="field is-fullwidth">
     <label :for="fieldId" class="label">{{ label }}</label>
-    <div class="field-body">
-      <div class="control">
+    <div class="field-body is-expanded">
+      <div class="control main-field">
         <input
           :id="fieldId"
           :value="value.text"
@@ -105,3 +105,9 @@ export default {
   },
 };
 </script>
+
+<style lang="postcss" scoped>
+.main-field {
+  width: 100%;
+}
+</style>
