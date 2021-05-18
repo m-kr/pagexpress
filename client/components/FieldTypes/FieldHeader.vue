@@ -14,13 +14,39 @@
 
       <div class="control">
         <div class="select">
-          <select :value="value.level" @change="onChange">
+          <select
+            :value="value.level"
+            @change="evt => onChange('level', evt.target.value)"
+          >
             <option
               v-for="(headerLevel, index) in headerLevels"
-              :key="index"
+              :key="`header-level-${index}`"
               :value="headerLevel"
             >
-              H{{ headerLevel }}
+              Level H{{ headerLevel }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="select">
+          <select
+            :value="value.sizeStyle"
+            @change="evt => onChange('sizeStyle', evt.target.value)"
+          >
+            <option
+              value=""
+              :select="!(value.sizeStyle && value.sizeStyle.length)"
+            >
+              Default
+            </option>
+            <option
+              v-for="(sizeStyle, index) in headerLevels"
+              :key="`size-${index}`"
+              :value="sizeStyle"
+            >
+              Size H{{ sizeStyle }}
             </option>
           </select>
         </div>
@@ -45,8 +71,8 @@ export default {
     value: {
       type: Object,
       default: () => ({
-        level: 2,
         text: '',
+        level: '2',
       }),
     },
   },
@@ -59,22 +85,21 @@ export default {
   },
 
   mounted() {
-    this.headerData = this.value || this.headerData;
     this.fieldId = uuidv4();
   },
 
   methods: {
-    onChange(evt) {
+    onChange(fieldName, value) {
       this.$emit('update', {
-        text: this.value.text,
-        level: evt.target.value,
+        ...this.value,
+        [fieldName]: value.length ? value : null,
       });
     },
 
     onInput: _debounce(function (evt) {
       this.$emit('update', {
+        ...this.value,
         text: evt.target.value,
-        level: this.value.level,
       });
     }, 250),
   },
