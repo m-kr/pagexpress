@@ -6,7 +6,6 @@ const DOTENV_CONFIG = {
 require('dotenv').config(DOTENV_CONFIG);
 
 export default {
-  target: 'static',
   mode: 'universal',
   /*
    ** Headers of the page
