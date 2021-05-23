@@ -16,10 +16,11 @@
         <div class="field search-container">
           <div class="control">
             <input
-              v-model="searchPhrase"
+              :value="searchPhrase"
               type="search"
               class="input"
               placeholder="Highlight components with phrase"
+              @input="searchByPhrase"
             />
           </div>
         </div>
@@ -32,8 +33,9 @@
           :href="previewLink"
           target="_blank"
           class="button"
-          >Preview</a
         >
+          Preview
+        </a>
         <button
           class="button is-success"
           :disabled="!isDirty"
@@ -86,6 +88,7 @@
 </template>
 
 <script>
+import _debounce from 'lodash/debounce';
 import { mapState, mapGetters, mapActions } from 'vuex';
 import {
   ComponentSelector,
@@ -319,6 +322,10 @@ export default {
         component => component.parentComponentId === parentId
       );
     },
+
+    searchByPhrase: _debounce(function (evt) {
+      this.searchPhrase = evt.target.value;
+    }, 250),
   },
 };
 </script>

@@ -17,8 +17,13 @@
       :class="childComponents.length ? 'tree-node--with-branch' : ''"
       class="tree-node"
     >
-      <div class="tree-node__info">
-        <div class="tree-node__title">{{ componentPattern.name }}</div>
+      <div
+        :class="searchingNode ? 'tree-node__info--searching' : ''"
+        class="tree-node__info"
+      >
+        <div class="tree-node__title">
+          {{ componentPattern.name }}
+        </div>
       </div>
       <div class="tree-node__actions">
         <div class="buttons">
@@ -120,6 +125,8 @@
 </template>
 
 <script>
+import { getAllFieldsValues } from '@/utils';
+
 export default {
   name: 'ComponentTreeNode',
   props: {
@@ -209,6 +216,17 @@ export default {
       const clipboardState = this.inClipboard(this.component._id);
 
       return clipboardState || null;
+    },
+
+    searchingNode() {
+      if (!(this.component.data && this.searchPhrase)) {
+        return false;
+      }
+
+      const values = getAllFieldsValues(this.component.data);
+      const regSearchingPhrase = new RegExp(this.searchPhrase, 'gi');
+
+      return values.some(value => regSearchingPhrase.test(value));
     },
   },
 
@@ -461,6 +479,11 @@ export default {
     flex: 0 0 15em;
     padding: var(--spacing);
     background-color: var(--gray);
+
+    &--searching {
+      background-color: var(--blue);
+      color: var(--white);
+    }
   }
 
   &__actions {
