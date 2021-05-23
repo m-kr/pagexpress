@@ -12,13 +12,13 @@
     >
       <Draggable
         v-for="(singleData, dataIndex) in dataset"
-        :key="dataIndex"
+        :key="getFieldsetKey(dataIndex)"
         class="component-dataset__row"
       >
         <div class="columns is-multiline is-mobile">
           <Field
             v-for="(field, fieldIndex) in fields"
-            :key="fieldIndex"
+            :key="getFieldKey(dataIndex, fieldIndex)"
             css-class="column"
             :field-type="field.type"
             :label="field.label"
@@ -95,6 +95,7 @@ export default {
         animationDuration: '150',
         showOnTop: true,
       },
+      mainKey: 0,
     };
   },
 
@@ -106,6 +107,10 @@ export default {
 
       return [{}];
     },
+  },
+
+  mounted() {
+    this.mainKey = uuidv4();
   },
 
   methods: {
@@ -131,6 +136,14 @@ export default {
       newDataset.splice(rowIndex, 0, duplicatedItem);
 
       this.onUpdateData(newDataset);
+    },
+
+    getFieldKey(fieldsestIndex, fieldIndex) {
+      return `${this.mainKey}-${fieldsestIndex}-${fieldIndex}`;
+    },
+
+    getFieldsetKey(fieldsestIndex) {
+      return `${this.mainKey}-${fieldsestIndex}`;
     },
 
     getItemPayload(rowIndex) {

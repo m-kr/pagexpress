@@ -67,6 +67,7 @@ export default {
 
       return `${slug}_${uniqueId}`;
     },
+
     selectPlaceholder() {
       return this.placeholder.length ? this.placeholder : '-- Choose option --';
     },
@@ -86,7 +87,7 @@ export default {
 
     onInput: _debounce(function (evt) {
       this.$emit('update', evt.target.value);
-    }, 500),
+    }, 250),
   },
 };
 </script>

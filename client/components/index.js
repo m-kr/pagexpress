@@ -1,10 +1,13 @@
 import Breadcrumbs from './Breadcrumbs';
 import ComponentSelector from './ComponentSelector';
+import ComponentsFinder from './ComponentsFinder';
+import ComponentTreeNode from './ComponentTreeNode';
 import DraggableForm from './DraggableForm';
 import DraggableFormsContainer from './DraggableFormsContainer';
 import Field from './Field';
 import Form from './Form';
 import MenuItems from './MenuItems';
+import ModalComponent from './ModalComponent';
 import Navbar from './Navbar';
 import Notification from './Notification';
 import NotificationToasts from './NotificationToasts';
@@ -20,11 +23,14 @@ import Toolbar from './Toolbar';
 export {
   Breadcrumbs,
   ComponentSelector,
+  ComponentsFinder,
+  ComponentTreeNode,
   DraggableForm,
   DraggableFormsContainer,
   Field,
   Form,
   MenuItems,
+  ModalComponent,
   Navbar,
   Notification,
   NotificationToasts,
