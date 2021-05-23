@@ -12,6 +12,19 @@
         </button>
       </template>
 
+      <template #middle>
+        <div class="field search-container">
+          <div class="control">
+            <input
+              v-model="searchPhrase"
+              type="search"
+              class="input"
+              placeholder="Highlight components with phrase"
+            />
+          </div>
+        </div>
+      </template>
+
       <template #right>
         <a
           v-if="previewLink"
@@ -42,6 +55,7 @@
         :component-patterns="componentPatterns"
         :get-child-components="getChildComponents"
         :empty-clipboard="clipboard === null"
+        :search-phrase="searchPhrase"
         :edit="toggleModalComponent"
         :add="showComponentFinder"
         :remove="removeComponent"
@@ -93,6 +107,7 @@ export default {
 
   data() {
     return {
+      searchPhrase: '',
       clipboard: null,
       addToNodeParams: {},
       showFinder: false,
@@ -233,7 +248,7 @@ export default {
       });
     },
 
-    cutComponentToClipboard(component, index) {
+    cutComponentToClipboard(component) {
       this.addToClipboard(
         'cut',
         this.getComponentPosition(component.id),
@@ -338,5 +353,9 @@ export default {
 
 .components-tree {
   padding: var(--spacing-2) 0;
+}
+
+.search-container {
+  width: 100%;
 }
 </style>

@@ -7,6 +7,7 @@ export * from './get-nested-things-by-key';
 export * from './get-page-structure-from-template';
 export * from './get-slug';
 export * from './string-match';
+export * from './strip-tags';
 export * from './get-all-descendants';
 export * from './remap-components';
 export * from './current-component-position';

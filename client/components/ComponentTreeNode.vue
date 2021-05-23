@@ -106,6 +106,7 @@
         :in-clipboard="inClipboard"
         :get-child-components="getChildComponents"
         :empty-clipboard="emptyClipboard"
+        :search-phrase="searchPhrase"
         :add="add"
         :edit="edit"
         :remove="remove"
@@ -150,6 +151,11 @@ export default {
     emptyClipboard: {
       type: Boolean,
       default: true,
+    },
+
+    searchPhrase: {
+      type: String,
+      default: '',
     },
 
     add: {

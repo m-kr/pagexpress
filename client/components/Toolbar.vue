@@ -4,6 +4,9 @@
       <div class="toolbar__left-side">
         <slot name="left" />
       </div>
+      <div class="toolbar__middle">
+        <slot name="middle" />
+      </div>
       <div class="toolbar__right-side">
         <slot name="right" />
       </div>
@@ -34,6 +37,7 @@ export default {
   }
 
   &__right-side,
+  &__middle,
   &__left-side {
     display: flex;
 
@@ -44,6 +48,11 @@ export default {
         margin-right: 0;
       }
     }
+  }
+
+  &__middle {
+    flex: 1 0 0;
+    padding: 0 var(--spacing-2);
   }
 }
 </style>
