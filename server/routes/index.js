@@ -4,7 +4,6 @@ const countries = require('./countries-routes');
 const definitions = require('./definitions-routes');
 const fields = require('./fields-routes');
 const menu = require('./menus-routes');
-const pageAttributeTypes = require('./page-attribute-types-routes');
 const pageDetails = require('./page-details-routes');
 const pageStructure = require('./page-structure-routes');
 const pageTemplates = require('./page-templates-routes');
@@ -20,7 +19,6 @@ module.exports = app => {
   app.use('/v1', definitions);
   app.use('/v1', fields);
   app.use('/v1', menu);
-  app.use('/v1', pageAttributeTypes);
   app.use('/v1', pageDetails);
   app.use('/v1', pageStructure);
   app.use('/v1', pageTemplates);
