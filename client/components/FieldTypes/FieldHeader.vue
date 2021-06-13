@@ -65,13 +65,14 @@ export default {
   props: {
     label: {
       type: String,
-      default: '',
+      required: true,
     },
 
     value: {
       type: Object,
       default: () => ({
         level: '2',
+        text: '',
       }),
     },
   },
