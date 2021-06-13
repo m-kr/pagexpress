@@ -20,7 +20,7 @@
           >
             <option
               v-for="(headerLevel, index) in headerLevels"
-              :key="`header-level-${index}`"
+              :key="`header-level-${fieldId}-${index}`"
               :value="headerLevel"
             >
               Level H{{ headerLevel }}
@@ -42,11 +42,11 @@
               Default
             </option>
             <option
-              v-for="(sizeStyle, index) in headerLevels"
-              :key="`size-${index}`"
+              v-for="(headerLevel, sizeStyle) in sizesLevels"
+              :key="`size-${fieldId}-${sizeStyle}`"
               :value="sizeStyle"
             >
-              Size H{{ sizeStyle }}
+              Size H{{ headerLevel }}: {{ sizeStyle }}
             </option>
           </select>
         </div>
@@ -71,8 +71,8 @@ export default {
     value: {
       type: Object,
       default: () => ({
-        text: '',
         level: '2',
+        text: '',
       }),
     },
   },
@@ -80,6 +80,14 @@ export default {
   data() {
     return {
       headerLevels: [1, 2, 3, 4, 5],
+      sizesLevels: {
+        1: 1,
+        2: 2,
+        title: 2,
+        3: 3,
+        4: 4,
+        5: 5,
+      },
       fieldId: null,
     };
   },
