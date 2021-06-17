@@ -5,7 +5,7 @@
       <div class="control main-field">
         <input
           :id="fieldId"
-          :value="value.text"
+          v-model="headerData.text"
           class="input"
           type="text"
           @input="onInput"
@@ -15,7 +15,7 @@
       <div class="control">
         <div class="select">
           <select
-            :value="value.level"
+            v-model="headerData.level"
             @change="evt => onChange('level', evt.target.value)"
           >
             <option
@@ -32,7 +32,7 @@
       <div class="control">
         <div class="select">
           <select
-            :value="value.sizeStyle"
+            v-model="headerData.sizeStyle"
             @change="evt => onChange('sizeStyle', evt.target.value)"
           >
             <option
@@ -89,11 +89,16 @@ export default {
         5: 5,
       },
       fieldId: null,
+      headerData: {
+        text: '',
+        level: '2',
+      },
     };
   },
 
   mounted() {
     this.fieldId = uuidv4();
+    this.headerData = { ...this.value };
   },
 
   methods: {
