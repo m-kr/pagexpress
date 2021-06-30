@@ -149,6 +149,18 @@ export const actions = {
     }
   },
 
+  async publishPageDetails({ dispatch, rootState }, pageId) {
+    const webhookUrl = `${rootState.siteInfo.url}/${rootState.siteInfo.publishWebhookUrl}`;
+
+    await showRequestResult({
+      request: this.$axios.post(webhookUrl, {
+        cms_page_id: pageId,
+      }),
+      dispatch,
+      successMessage: 'Page has been published',
+    });
+  },
+
   async removePageDetails({ commit, dispatch }, pageDetailsId) {
     if (!confirm('Please, confirm removing page variant')) {
       return;
