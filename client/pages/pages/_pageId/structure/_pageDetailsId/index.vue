@@ -27,15 +27,7 @@
       </template>
 
       <template #right>
-        <a
-          v-if="previewLink"
-          ref="noindex nofollow noreferrer"
-          :href="previewLink"
-          target="_blank"
-          class="button"
-        >
-          Preview
-        </a>
+        <button class="button is-info" @click="publish">Publish</button>
         <button
           class="button is-success"
           :disabled="!isDirty"
@@ -128,19 +120,6 @@ export default {
     }),
     ...mapGetters('pageDetails', ['rootComponents']),
 
-    previewLink() {
-      if (
-        !(this.siteInfo && !!(this.siteInfo.previewUrl || this.siteInfo.url))
-      ) {
-        return null;
-      }
-
-      let previewLink = this.siteInfo.previewUrl || this.siteInfo.url;
-      previewLink += `${this.pageData.url}?preview=${this.$route.params.pageId}`;
-
-      return previewLink;
-    },
-
     editedComponent() {
       return this.editedComponentId
         ? this.components.find(
@@ -163,7 +142,12 @@ export default {
       'removeComponent',
       'reorderComponents',
       'updateComponent',
+      'publishPageDetails',
     ]),
+
+    publish() {
+      this.publishPageDetails(this.$route.params.pageId);
+    },
 
     toggleModalComponent(component) {
       this.editedComponentId = this.editedComponentId ? null : component._id;
