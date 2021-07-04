@@ -53,8 +53,9 @@
                       v-for="type of pageTypes"
                       :key="type._id"
                       :value="type._id"
-                      >{{ type.name }}</option
                     >
+                      {{ type.name }}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -184,9 +185,7 @@
         <div class="columns">
           <div class="column">
             <div class="field is-fullwidth">
-              <label for="new-page-details-title" class="label">
-                Title
-              </label>
+              <label for="new-page-details-title" class="label"> Title </label>
               <div class="control">
                 <input
                   id="new-page-details-title"
@@ -307,9 +306,7 @@
           </div>
           <div class="column">
             <div class="control is-expanded">
-              <label for="page-details-country" class="label">
-                Country
-              </label>
+              <label for="page-details-country" class="label"> Country </label>
               <div class="select is-fullwidth">
                 <select
                   id="page-details-country"
@@ -331,9 +328,7 @@
         <div class="columns">
           <div class="column">
             <div class="field is-fullwidth">
-              <label for="page-details-title" class="label">
-                Title
-              </label>
+              <label for="page-details-title" class="label"> Title </label>
               <div class="control">
                 <input
                   id="page-details-title"
@@ -394,7 +389,7 @@
     </div>
     <div class="columns">
       <div class="column buttons is right">
-        <button class="button is-black" @click="downloadPageStructure">
+        <button class="button is-black" @click="downloadPageStructure(pageId)">
           Download Page JSON schema
         </button>
       </div>
@@ -403,9 +398,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import Field from '@/components/Field';
-import { downloadJsonFile, getSlug } from '@/utils';
 
 export default {
   components: {
@@ -438,10 +432,6 @@ export default {
     pageId() {
       return this.$route.params.pageId;
     },
-
-    pageStructureJsonFilePath() {
-      return `${process.env.API_URL}/page-structure/${this.$route.params.pageId}`;
-    },
   },
 
   mounted() {
@@ -449,6 +439,7 @@ export default {
   },
 
   methods: {
+    ...mapActions('page', ['downloadPageStructure']),
     async initPageData(pageId) {
       this.setBreadcrumbsLinks();
 
@@ -545,13 +536,6 @@ export default {
       );
 
       return templateData ? templateData.components : null;
-    },
-
-    downloadPageStructure() {
-      downloadJsonFile(
-        this.pageStructureJsonFilePath,
-        getSlug(this.mainData.name)
-      );
     },
   },
 };

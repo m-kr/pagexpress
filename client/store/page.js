@@ -1,4 +1,4 @@
-import { showRequestResult } from '@/utils';
+import { showRequestResult, getSlug, downloadJsonFile } from '@/utils';
 
 export const state = () => ({
   newPageId: null,
@@ -140,5 +140,12 @@ export const actions = {
       successMessage: 'Page has been removed',
       dispatch,
     });
+  },
+
+  async downloadPageStructure({ state }, pageId) {
+    const { data } = await this.$axios.get(`page-structure/${pageId}`);
+    const fileName = getSlug(state.mainData.name);
+
+    downloadJsonFile(data, fileName);
   },
 };

@@ -1,8 +1,11 @@
 const AccessControl = require('accesscontrol');
 const ac = new AccessControl();
-const { REDACTOR, EDITOR, DEV, ADMIN } = require('./roles');
+const { REDACTOR, EDITOR, DEV, ADMIN, API_CONSUMER } = require('./roles');
 
 const roleGrands = () => {
+  ac.grant(API_CONSUMER)
+    .readAny('pageDetails');
+
   ac.grant(EDITOR)
     .readOwn('user')
     .readAny('pageType')
