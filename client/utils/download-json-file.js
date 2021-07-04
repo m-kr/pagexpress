@@ -1,6 +1,5 @@
-export const downloadJsonFile = async (jsonFilePath, fileName) => {
+export const downloadJsonFile = (data, fileName) => {
   const downloadAnchorNode = document.createElement('a');
-  const data = await fetch(jsonFilePath).then(res => res.json());
   const dataString = `data:text/json;charset=utf-8,${encodeURIComponent(
     JSON.stringify(data, null, 4)
   )}`;
