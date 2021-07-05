@@ -18,7 +18,7 @@
     "@nuxtjs/axios": "^5.13.1",
     "@nuxtjs/bulma": "^1.2.1",
     "@nuxtjs/dotenv": "^1.4.0",
-    "@nuxtjs/pwa": "^3.0.0-0",
+    "@nuxtjs/pwa": "^3.3.5",
     "lodash": "^4.17.20",
     "nuxt": "2.15.4",
     "nuxt-fontawesome": "^0.4.0",
