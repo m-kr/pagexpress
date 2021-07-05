@@ -23,6 +23,9 @@ export default {
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
+  manifest: {
+    crossorigin: 'use-credentials',
+  },
   /*
    ** Customize the progress-bar color
    */
