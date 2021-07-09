@@ -25,8 +25,6 @@ export const state = () => ({
 export const getters = {
   rootComponents: state =>
     state.components.filter(component => !component.parentComponentId),
-  previewUrl: (state, getters, rootState) => pageId =>
-    `${rootState.siteInfo.previewUrl}?cms_page_id=${pageId}`,
 };
 
 export const mutations = {
