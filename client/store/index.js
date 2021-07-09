@@ -2,7 +2,7 @@ import { showRequestResult } from '@/utils';
 
 export const state = () => ({
   breadcrumbsLinks: [],
-  siteInfo: null,
+  siteInfo: {},
   isDirty: false,
 });
 
@@ -15,15 +15,12 @@ export const getters = {
     return state.auth.user;
   },
 
-  previewLink(state) {
-    if (!(this.siteInfo && !!(this.siteInfo.previewUrl || this.siteInfo.url))) {
+  previewLink: state => pageId => {
+    if (!state.siteInfo.previewUrl) {
       return null;
     }
 
-    let previewLink = this.siteInfo.previewUrl || this.siteInfo.url;
-    previewLink += `${this.pageData.url}?preview=${this.$route.params.pageId}`;
-
-    return previewLink;
+    return `${state.siteInfo.previewUrl}?cms_page_id=${pageId}`;
   },
 };
 

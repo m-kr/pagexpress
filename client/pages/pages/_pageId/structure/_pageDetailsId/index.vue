@@ -28,7 +28,7 @@
 
       <template #right>
         <a
-          :href="previewUrl($route.params.pageId)"
+          :href="previewLink($route.params.pageId)"
           class="button"
           target="_blank"
           rel="noopener noreferrer nofollow"
@@ -133,7 +133,8 @@ export default {
       siteInfo: state => state.siteInfo,
       pageData: state => state.page.mainData,
     }),
-    ...mapGetters('pageDetails', ['rootComponents', 'previewUrl']),
+    ...mapGetters('pageDetails', ['rootComponents']),
+    ...mapGetters(['previewLink']),
 
     editedComponent() {
       return this.editedComponentId
