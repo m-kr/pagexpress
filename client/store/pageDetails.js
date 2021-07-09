@@ -25,6 +25,8 @@ export const state = () => ({
 export const getters = {
   rootComponents: state =>
     state.components.filter(component => !component.parentComponentId),
+  previewUrl: (state, getters, rootState) => pageId =>
+    `${rootState.siteInfo.previewUrl}?cms_page_id=${pageId}`,
 };
 
 export const mutations = {
@@ -150,10 +152,12 @@ export const actions = {
   },
 
   async publishPageDetails({ dispatch, rootState }, pageId) {
-    const webhookUrl = `${rootState.siteInfo.url}/${rootState.siteInfo.publishWebhookUrl}`;
+    if (!confirm('Please confirm publishing page')) {
+      return;
+    }
 
     await showRequestResult({
-      request: this.$axios.post(webhookUrl, {
+      request: this.$axios.post(rootState.siteInfo.publishWebhookUrl, {
         cms_page_id: pageId,
       }),
       dispatch,

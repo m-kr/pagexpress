@@ -27,7 +27,22 @@
       </template>
 
       <template #right>
-        <button class="button is-info" @click="publish">Publish</button>
+        <a
+          :href="previewUrl($route.params.pageId)"
+          class="button"
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+        >
+          Preview
+        </a>
+        <button
+          class="button is-info"
+          :disabled="isDirty"
+          :title="isDirty ? 'Save before publish' : ''"
+          @click="publish"
+        >
+          Publish
+        </button>
         <button
           class="button is-success"
           :disabled="!isDirty"
@@ -118,7 +133,7 @@ export default {
       siteInfo: state => state.siteInfo,
       pageData: state => state.page.mainData,
     }),
-    ...mapGetters('pageDetails', ['rootComponents']),
+    ...mapGetters('pageDetails', ['rootComponents', 'previewUrl']),
 
     editedComponent() {
       return this.editedComponentId
